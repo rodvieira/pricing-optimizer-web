@@ -1,0 +1,22 @@
+/*
+ * Layer order matters: reset lowest, Tailwind preflight above reset,
+ * Astryx component/theme styles in the middle, Tailwind utilities last —
+ * so `bg-surface`, `text-primary`, `border-border`, etc. (bridged below via
+ * @theme inline) always win over Astryx's own component defaults, and
+ * Tailwind's preflight never fights Astryx's reset.
+ * See: https://astryx.atmeta.com/docs/styling-libraries
+ */
+@layer reset, theme, base, astryx-base, astryx-theme, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "@astryxdesign/core/reset.css";
+@import "@astryxdesign/core/astryx.css";
+@import "@astryxdesign/theme-neutral/theme.css";
+@import "@astryxdesign/core/tailwind-theme.css";
+@import "tailwindcss/utilities.css" layer(utilities);
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
