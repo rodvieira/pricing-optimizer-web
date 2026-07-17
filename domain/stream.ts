@@ -31,10 +31,37 @@ export interface GenerateStreamState {
   strategies: Partial<Record<PricingStrategy, StrategyGenerationState>>;
   /** Top-level stream failure, distinct from a single strategy's own error. */
   problem: Problem | null;
+  /** The full generation payload from the `done` event, once the stream finishes. */
+  generation: Generation | null;
 }
 
 export function initialGenerateStreamState(): GenerateStreamState {
-  return { generationId: null, status: "idle", strategies: {}, problem: null };
+  return {
+    generationId: null,
+    status: "idle",
+    strategies: {},
+    problem: null,
+    generation: null,
+  };
+}
+
+/**
+ * Rebuilds the same shape a live stream produces, from a `Generation` already
+ * completed in the past (e.g. a local-history entry) — lets `VariationGrid`
+ * render a historical result with no separate "read-only" code path.
+ */
+export function generationToStreamState(generation: Generation): GenerateStreamState {
+  const strategies: GenerateStreamState["strategies"] = {};
+  for (const variation of generation.variations) {
+    strategies[variation.strategy] = { status: "completed", variation };
+  }
+  return {
+    generationId: generation.id,
+    status: "done",
+    strategies,
+    problem: null,
+    generation,
+  };
 }
 
 /**
@@ -79,7 +106,7 @@ export function streamReducer(state: GenerateStreamState, event: StreamEvent): G
       };
 
     case "done":
-      return { ...state, status: "done" };
+      return { ...state, status: "done", generation: event.generation };
 
     case "error":
       if (event.strategy) {

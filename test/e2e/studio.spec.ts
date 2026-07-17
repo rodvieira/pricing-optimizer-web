@@ -83,3 +83,41 @@ test("export dialog shows JSX/HTML/Stripe tabs and defaults back to JSX for a ne
   await page.getByRole("button", { name: "Export" }).nth(1).click();
   await expect(page.getByText("// jsx export")).toBeVisible();
 });
+
+test("local history: persists a completed generation, survives reload, and re-displays without a new stream", async ({
+  page,
+}) => {
+  let generateCallCount = 0;
+  await mockAnalyzeAndGenerate(page);
+  page.on("request", (req) => {
+    if (req.url().includes("/v1/generate")) generateCallCount++;
+  });
+
+  // A history entry's label is "<host> · <relative time>" — the "·"
+  // disambiguates it from UrlInputForm's plain "flowbase.com" example
+  // button, which has no suffix.
+  const historyEntryName = /flowbase\.com ·/;
+
+  await page.goto("/studio");
+  await page.getByRole("textbox", { name: "Product URL" }).fill("flowbase.com");
+  await page.getByRole("button", { name: "Analyze" }).click();
+  await expect(page.getByText("ready")).toHaveCount(3, { timeout: 10_000 });
+
+  const historyEntry = page.getByRole("button", { name: historyEntryName });
+  await expect(historyEntry).toBeVisible();
+  expect(generateCallCount).toBe(1);
+
+  // History (localStorage) must outlive the in-memory stream state a reload wipes.
+  await page.reload();
+  await expect(page.getByText("Nothing generated yet")).toBeVisible();
+  await expect(page.getByRole("button", { name: historyEntryName })).toBeVisible();
+
+  // The mocked generation carries no siteProfile — selecting it must still
+  // render the grid rather than staying stuck behind the empty state.
+  await page.getByRole("button", { name: historyEntryName }).click();
+  await expect(page.getByText("ready")).toHaveCount(3);
+  expect(generateCallCount).toBe(1);
+
+  await page.getByRole("button", { name: "Clear" }).click();
+  await expect(page.getByRole("button", { name: historyEntryName })).toHaveCount(0);
+});

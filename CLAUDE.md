@@ -32,7 +32,8 @@ features/<name>/  colocated, feature-scoped. Consistent shape across every featu
   <loose files>   feature-local logic/config that's neither a component nor a hook
                   (a Zod schema, a strategy color/label lookup table, an init-script
                   string constant).
-  Current features: theme/, url-input/, generate-stream/, export/, landing/, studio/.
+  Current features: theme/, url-input/, generate-stream/, export/, landing/, studio/,
+  history/.
   A feature imports domain/ and lib/api/ freely. Features generally should not import
   from each other directly — if two need to share something, it belongs in domain/,
   lib/, or components/ui/.
@@ -114,13 +115,27 @@ state we own, not an Astryx-provided hook. The pre-hydration init script
 hydrates to avoid a flash of the wrong theme — `app/layout.tsx`'s `suppressHydrationWarning`
 on `<html>` is intentional and expected, not a bug to "fix."
 
+## Local history (`features/history/`)
+
+`domain/history.ts`'s `addToHistory` (prepend, dedupe by id, trim to
+`MAX_HISTORY_ENTRIES`) is the pure business rule; `features/history/local-history-storage.ts`
++ `hooks/use-local-history.ts` is the localStorage adapter (structural-only validation —
+this is data the app itself wrote, not external input, so a full Zod schema would be
+overkill; a shape that doesn't look like a `Generation` is just dropped rather than
+crashing the reader). `StudioPage` records a live generation to history exactly once,
+keyed off `generationId`, as soon as its stream reaches `done`. Selecting a history
+entry doesn't replay a request — `domain/stream.ts`'s `generationToStreamState` turns a
+stored `Generation` back into the same `GenerateStreamState` shape a live stream
+produces, so `VariationGrid` has one rendering path for both. **`Generation.siteProfile`
+is optional on the wire** (not in `openapi.yaml`'s `required` list for that schema) — a
+history entry may not have one, so the empty-state/grid gating in `StudioPage` keys off
+`viewedGeneration`, not `siteProfile`, alongside the live-flow's own `siteProfile` check.
+Getting this wrong (gating only on `siteProfile`) silently hides the grid for any
+history entry the backend returned without a profile — caught by the e2e test in
+`test/e2e/studio.spec.ts` before it shipped, worth keeping if this code is touched again.
+
 ## Known, tracked gaps (don't re-discover these — check the issue first)
 
-- **React Testing Library has zero tests** despite being installed since scaffolding.
-  Vitest covers pure logic only (Zod schemas, the SSE frame parser, error normalization).
-  Add RTL tests for components with real conditional-rendering branches
-  (`VariationCard`'s discriminated-union status rendering, `UrlInputForm`'s validation
-  states) before/alongside touching them further.
 - **No session has run the Studio flow against a live `pricing-optimizer-api`** — see
   issue #4. Everything is verified via Playwright route-interception mocks
   (`test/e2e/mock-backend.ts`) or the backend being deliberately unreachable.
@@ -199,5 +214,6 @@ Sprint 8 (Studio/landing feature, PR #2) and Sprint 9 (motion + a11y + e2e polis
 shipped. CI added (PR #6). Folder architecture reorganized (PR #7, see
 `../docs/decisions/0011-frontend-feature-based-reorg.md`) — domain split into
 types/logic, `app/` thinned to routing-only, every feature given a consistent
-components/hooks/logic shape. See "Known, tracked gaps" above for what's next; full
-Sprint 8-10 scope in `../HANDOFF.md` section 12.
+components/hooks/logic shape. First RTL component tests added (PR #8). F5 (local
+history, `features/history/`) implemented — see the section above. See "Known, tracked
+gaps" above for what's next; full Sprint 8-10 scope in `../HANDOFF.md` section 12.
