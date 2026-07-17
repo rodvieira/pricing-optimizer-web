@@ -129,4 +129,62 @@ describe("streamGeneration", () => {
 
     expect(events).toEqual([{ type: "error", problem }]);
   });
+
+  it("falls back to a synthesized Problem when a non-2xx response body isn't valid JSON", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response("not json", { status: 503, statusText: "Service Unavailable" }),
+    );
+
+    const events = [];
+    for await (const event of streamGeneration({ siteProfile: {} as never, currency: "USD" })) {
+      events.push(event);
+    }
+
+    expect(events).toEqual([
+      {
+        type: "error",
+        problem: { type: "about:blank", title: "Service Unavailable", status: 503 },
+      },
+    ]);
+  });
+
+  it("sends an Idempotency-Key header when one is provided", async () => {
+    vi.mocked(fetch).mockResolvedValue(okResponse(streamFromChunks([])));
+
+    for await (const _event of streamGeneration(
+      { siteProfile: {} as never, currency: "USD" },
+      { idempotencyKey: "key-123" },
+    )) {
+      // drain
+    }
+
+    const [, init] = vi.mocked(fetch).mock.calls[0] as [string, RequestInit];
+    expect((init.headers as Record<string, string>)["Idempotency-Key"]).toBe("key-123");
+  });
+
+  it("drops chunks missing required fields and unrecognized chunk types instead of throwing", async () => {
+    const frames = [
+      // Every case in toStreamEvent's switch guards its required field(s)
+      // and maps a missing one to `null`, alongside an unrecognized type —
+      // all must be skipped rather than throwing or yielding a bad event.
+      { type: "generation_started" },
+      { type: "variation_started" },
+      { type: "token", strategy: "anchor" },
+      { type: "variation_completed" },
+      { type: "done" },
+      { type: "error", strategy: "anchor" },
+      { type: "something_unrecognized" },
+      { type: "variation_started", strategy: "anchor" },
+    ]
+      .map((chunk) => `data: ${JSON.stringify(chunk)}\n\n`)
+      .join("");
+    vi.mocked(fetch).mockResolvedValue(okResponse(streamFromChunks([frames])));
+
+    const events = [];
+    for await (const event of streamGeneration({ siteProfile: {} as never, currency: "USD" })) {
+      events.push(event);
+    }
+
+    expect(events).toEqual([{ type: "variation_started", strategy: "anchor" }]);
+  });
 });

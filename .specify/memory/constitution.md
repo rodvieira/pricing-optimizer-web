@@ -1,15 +1,16 @@
 <!--
 Sync Impact Report
-- Version change: 1.0.0 → 1.1.0
-- Rationale: Added a mandatory `pr-reviewer` agent gate to Development Workflow &
-  Quality Gates, mirroring pricing-optimizer-api's own constitution requirement now that
-  this repo has an equivalent agent (`.claude/agents/pr-reviewer.md`). MINOR bump — a
-  materially expanded workflow requirement, not a clarification of existing text, and no
-  principle was removed or redefined.
-- Principles: unchanged (I. Contract-First, II. Feature-Based Architecture with an
-  Isolated Domain Layer, III. Design-System Discipline, IV. Test Rigor, V.
-  Shipped-Artifact Discipline)
-- Modified sections: Development Workflow & Quality Gates (added the pr-reviewer gate)
+- Version change: 1.1.0 → 1.2.0
+- Rationale: Principle IV (Test Rigor) gained a mandatory 90% coverage floor
+  (statements/branches/functions/lines), enforced by `pnpm test:coverage` in CI. MINOR
+  bump — a materially expanded quality gate, not a clarification of existing text, and
+  no principle was removed or redefined. See `CLAUDE.md`'s Testing section for the
+  include/exclude rationale (generated code, pure types, and genuinely presentational
+  composition stay excluded per this same principle's existing exemption).
+- Principles: unchanged in count/names (I. Contract-First, II. Feature-Based Architecture
+  with an Isolated Domain Layer, III. Design-System Discipline, IV. Test Rigor, V.
+  Shipped-Artifact Discipline); IV's text expanded
+- Modified sections: IV. Test Rigor (added the coverage gate)
 - Added sections: none
 - Removed sections: none
 - Templates requiring updates:
@@ -17,6 +18,17 @@ Sync Impact Report
     ✅ .specify/templates/spec-template.md (no mandatory-section conflict; no edit needed)
     ✅ .specify/templates/tasks-template.md (testing task types already covered)
 - Follow-up TODOs: none
+-->
+
+<!--
+Sync Impact Report (previous amendment, retained for history)
+- Version change: 1.0.0 → 1.1.0
+- Rationale: Added a mandatory `pr-reviewer` agent gate to Development Workflow &
+  Quality Gates, mirroring pricing-optimizer-api's own constitution requirement now that
+  this repo has an equivalent agent (`.claude/agents/pr-reviewer.md`). MINOR bump — a
+  materially expanded workflow requirement, not a clarification of existing text, and no
+  principle was removed or redefined.
+- Modified sections: Development Workflow & Quality Gates (added the pr-reviewer gate)
 -->
 
 # Pricing Optimizer Web Constitution
@@ -79,6 +91,15 @@ the stream reducer, Zod validation schemas — MUST have unit tests; UI composit
 purely presentational does not require a dedicated test if it has no branching logic of its
 own. `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build` MUST all pass before a PR
 is opened.
+
+`pnpm test:coverage` MUST report at least 90% statements/branches/functions/lines (CI's
+`test` job runs this, not plain `pnpm test`; the threshold is configured in
+`vitest.config.ts` and fails the run below it). The include/exclude list in that config is
+part of this principle, not an escape hatch from it: generated code, pure type
+declarations, and files with genuinely zero branching logic of their own may be excluded,
+matching the "purely presentational" exemption above — everything else, including thin
+hooks and provider components that look like "just wiring," stays in scope and must meet
+the floor.
 
 Rationale: TypeScript's structural typing and Astryx's pre-built components remove whole
 classes of bugs a Go-style layer-boundary test suite would need to guard against; test
@@ -147,4 +168,4 @@ alignment on every amendment. All PRs and reviews MUST verify compliance with th
 principles; added complexity MUST be justified against them. Runtime development guidance
 lives in this repo's own `CLAUDE.md` and the umbrella `../.claude/CLAUDE.md`.
 
-**Version**: 1.1.0 | **Ratified**: 2026-07-16 | **Last Amended**: 2026-07-17
+**Version**: 1.2.0 | **Ratified**: 2026-07-16 | **Last Amended**: 2026-07-17

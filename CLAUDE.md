@@ -166,7 +166,26 @@ Vitest for logic, colocated with the file it tests (e.g. `lib/api/analyze.test.t
 to `analyze.ts`) rather than mirrored under a separate test tree. Playwright + axe-core
 for e2e/accessibility under `test/e2e/`, backend fully mocked via
 `test/e2e/mock-backend.ts`'s route interception — no live backend needed to run
-`pnpm test:e2e`. `test/setup.ts` is the one shared Vitest bootstrap file.
+`pnpm test:e2e`. `test/setup.ts` is the one shared Vitest bootstrap file. `test/render.tsx`
+wraps a component under test in Astryx's `<Theme>` (matching how `AppProviders` mounts it
+for real); `test/query-wrapper.tsx` does the same for TanStack Query hooks. jsdom is
+missing a few browser APIs Astryx depends on — `matchMedia` and `<dialog>`'s
+`showModal()`/`close()` — polyfilled once in `test/setup.ts` rather than per test file.
+
+**Coverage gate: `pnpm test:coverage` (`vitest run --coverage`) enforces a 90% floor on
+statements/branches/functions/lines**, configured in `vitest.config.ts` and run in CI
+(`.github/workflows/ci.yml`'s `test` job — plain `pnpm test` stays the pre-push hook's
+fast path locally). The include/exclude list in `vitest.config.ts` is deliberate, not
+exhaustive-by-default: generated code (`lib/api/schema.ts`), pure type declarations
+(`domain/types/**`), and files with genuinely zero branching logic of their own
+(`features/landing/**`'s static marketing composition, `lib/query-provider.tsx`,
+`lib/api/client.ts`) are excluded, per Constitution IV's stance that purely presentational
+composition doesn't need a dedicated test. Everything else — including the TanStack Query
+hooks (`use-analyze.ts`, `use-export.ts`) and dialog/provider components that look like
+"just wiring" — is in scope and was brought up to the floor; a hook or component with a
+real branch (a ternary, an early return, an `enabled` condition) earns its test even when
+small. Extend the exclude list only for the same reason as the existing entries, not to
+chase the number.
 
 ## Hard rules
 

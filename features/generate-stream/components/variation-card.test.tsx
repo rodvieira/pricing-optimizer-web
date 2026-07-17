@@ -20,6 +20,19 @@ function renderCard(strategyState: StrategyGenerationState | undefined, isSlow =
   return { onHoverTier, onExport };
 }
 
+const COMPLETED_MULTI_TIER: StrategyGenerationState = {
+  status: "completed",
+  variation: {
+    id: "v1",
+    strategy: "anchor",
+    headline: "Simple, anchored pricing",
+    tiers: [
+      { name: "Starter", price: { amount: 0, currency: "USD", interval: "monthly" }, features: [] },
+      { name: "Pro", price: { amount: 4900, currency: "USD", interval: "monthly" }, features: [] },
+    ],
+  },
+};
+
 describe("VariationCard", () => {
   it("renders a queued placeholder and disables Export when there is no state yet", () => {
     renderCard(undefined);
@@ -81,6 +94,14 @@ describe("VariationCard", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Export" }));
     expect(onExport).toHaveBeenCalledOnce();
+  });
+
+  it("reports the hovered tier's index by position", () => {
+    const { onHoverTier } = renderCard(COMPLETED_MULTI_TIER);
+
+    fireEvent.mouseEnter(screen.getByText("Pro"));
+
+    expect(onHoverTier).toHaveBeenCalledWith(1);
   });
 
   it("renders the failure banner for an errored strategy", () => {

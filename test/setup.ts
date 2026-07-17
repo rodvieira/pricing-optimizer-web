@@ -24,3 +24,18 @@ if (typeof window !== "undefined" && !window.matchMedia) {
     dispatchEvent: () => false,
   });
 }
+
+// jsdom doesn't implement the native <dialog> element's modal behavior;
+// Astryx's <Dialog> calls showModal()/close() directly.
+if (typeof HTMLDialogElement !== "undefined") {
+  if (!HTMLDialogElement.prototype.showModal) {
+    HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
+      this.setAttribute("open", "");
+    };
+  }
+  if (!HTMLDialogElement.prototype.close) {
+    HTMLDialogElement.prototype.close = function close(this: HTMLDialogElement) {
+      this.removeAttribute("open");
+    };
+  }
+}
