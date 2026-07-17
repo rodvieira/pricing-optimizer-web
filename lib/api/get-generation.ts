@@ -1,5 +1,6 @@
 import type { Generation, Problem } from "@/domain";
 import { apiClient } from "./client";
+import { networkFailureProblem } from "./network-error";
 
 export class GetGenerationError extends Error {
   constructor(public readonly problem: Problem) {
@@ -8,13 +9,18 @@ export class GetGenerationError extends Error {
 }
 
 export async function getGeneration(id: string): Promise<Generation> {
-  const { data, error } = await apiClient.GET("/v1/generations/{id}", {
-    params: { path: { id } },
-  });
+  let data: Generation | undefined;
+  let error: Problem | undefined;
 
-  if (error) {
-    throw new GetGenerationError(error as Problem);
+  try {
+    ({ data, error } = await apiClient.GET("/v1/generations/{id}", { params: { path: { id } } }));
+  } catch (err) {
+    throw new GetGenerationError(networkFailureProblem(err));
   }
 
-  return data;
+  if (error) {
+    throw new GetGenerationError(error);
+  }
+
+  return data as Generation;
 }

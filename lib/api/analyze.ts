@@ -1,5 +1,6 @@
 import type { Problem, SiteProfile } from "@/domain";
 import { apiClient } from "./client";
+import { networkFailureProblem } from "./network-error";
 
 export class AnalyzeError extends Error {
   constructor(public readonly problem: Problem) {
@@ -12,13 +13,18 @@ function toDomainSiteProfile(wire: SiteProfile): SiteProfile {
 }
 
 export async function analyzeSite(url: string): Promise<SiteProfile> {
-  const { data, error } = await apiClient.POST("/v1/analyze", {
-    body: { url },
-  });
+  let data: SiteProfile | undefined;
+  let error: Problem | undefined;
 
-  if (error) {
-    throw new AnalyzeError(error as Problem);
+  try {
+    ({ data, error } = await apiClient.POST("/v1/analyze", { body: { url } }));
+  } catch (err) {
+    throw new AnalyzeError(networkFailureProblem(err));
   }
 
-  return toDomainSiteProfile(data);
+  if (error) {
+    throw new AnalyzeError(error);
+  }
+
+  return toDomainSiteProfile(data as SiteProfile);
 }

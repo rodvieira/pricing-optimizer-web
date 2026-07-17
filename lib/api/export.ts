@@ -1,5 +1,6 @@
 import type { ExportFormat, ExportResult, Problem } from "@/domain";
 import { apiClient } from "./client";
+import { networkFailureProblem } from "./network-error";
 
 export class ExportError extends Error {
   constructor(public readonly problem: Problem) {
@@ -16,14 +17,21 @@ export async function exportVariation(
   variationId: string,
   format: ExportFormat,
 ): Promise<ExportResult> {
-  const { data, error } = await apiClient.POST("/v1/export/{id}", {
-    params: { path: { id: generationId } },
-    body: { variationId, format },
-  });
+  let data: ExportResult | undefined;
+  let error: Problem | undefined;
 
-  if (error) {
-    throw new ExportError(error as Problem);
+  try {
+    ({ data, error } = await apiClient.POST("/v1/export/{id}", {
+      params: { path: { id: generationId } },
+      body: { variationId, format },
+    }));
+  } catch (err) {
+    throw new ExportError(networkFailureProblem(err));
   }
 
-  return toDomainExportResult(data);
+  if (error) {
+    throw new ExportError(error);
+  }
+
+  return toDomainExportResult(data as ExportResult);
 }

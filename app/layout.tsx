@@ -35,6 +35,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      // themeModeInitScript below sets data-theme on this element before hydration to
+      // avoid a flash of the wrong theme; suppress the resulting, expected mismatch
+      // warning rather than have React fight the intentional pre-hydration mutation.
+      suppressHydrationWarning
       className={`${bricolageGrotesque.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable} h-full antialiased`}
     >
       <head>
