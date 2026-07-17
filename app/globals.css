@@ -16,7 +16,15 @@
 @import "@astryxdesign/core/tailwind-theme.css";
 @import "tailwindcss/utilities.css" layer(utilities);
 
-@theme inline {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/*
+ * Unlayered (not inside @layer) so it beats astryx-theme's own
+ * --font-family-* definitions regardless of layer order. Overriding these
+ * raw tokens — not just Tailwind's --font-sans/--font-mono bridge — is what
+ * makes Astryx's own components (Button, Text, Card, ...) pick up the new
+ * fonts too, since their StyleX styles reference --font-family-* directly.
+ */
+:root {
+  --font-family-heading: var(--font-heading-family);
+  --font-family-body: var(--font-body-family);
+  --font-family-code: var(--font-code-family);
 }
