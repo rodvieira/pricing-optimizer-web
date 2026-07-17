@@ -1,4 +1,5 @@
 import { Banner, Button, Card, Skeleton } from "@astryxdesign/core";
+import { motion } from "motion/react";
 import type { PricingStrategy, StrategyGenerationState } from "@/domain";
 import { PricingTierRow } from "./pricing-tier-row";
 import { strategyMeta } from "./strategy-meta";
@@ -63,7 +64,7 @@ export function VariationCard({
       </div>
 
       <div className="min-h-[76px] border-b border-border px-4 py-3">
-        <div className="mb-2 font-mono text-[10px] tracking-widest text-disabled">
+        <div className="mb-2 font-mono text-[10px] tracking-widest text-secondary">
           STRATEGY RATIONALE
         </div>
         <Rationale state={strategyState} />
@@ -82,7 +83,12 @@ export function VariationCard({
           </div>
         )}
         {strategyState?.status === "completed" && (
-          <div className="flex flex-col">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="flex flex-col"
+          >
             {strategyState.variation.tiers.map((tier, index) => (
               <PricingTierRow
                 key={tier.name}
@@ -92,7 +98,7 @@ export function VariationCard({
                 onHoverStart={() => onHoverTier(index)}
               />
             ))}
-          </div>
+          </motion.div>
         )}
       </div>
 

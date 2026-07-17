@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "motion/react";
 import { useState } from "react";
 import type { GenerateStreamState, PricingStrategy } from "@/domain";
 import { STRATEGY_META } from "./strategy-meta";
@@ -21,19 +22,25 @@ export function VariationGrid({ state, slowStrategies, onExport }: VariationGrid
         onMouseLeave={() => setHoveredTierIndex(null)}
         className="grid grid-cols-1 items-start gap-4 md:grid-cols-3"
       >
-        {STRATEGY_META.map((meta) => (
-          <VariationCard
+        {STRATEGY_META.map((meta, index) => (
+          <motion.div
             key={meta.strategy}
-            strategy={meta.strategy}
-            strategyState={state.strategies[meta.strategy]}
-            isSlow={slowStrategies.has(meta.strategy)}
-            hoveredTierIndex={hoveredTierIndex}
-            onHoverTier={setHoveredTierIndex}
-            onExport={() => onExport(meta.strategy)}
-          />
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: index * 0.08 }}
+          >
+            <VariationCard
+              strategy={meta.strategy}
+              strategyState={state.strategies[meta.strategy]}
+              isSlow={slowStrategies.has(meta.strategy)}
+              hoveredTierIndex={hoveredTierIndex}
+              onHoverTier={setHoveredTierIndex}
+              onExport={() => onExport(meta.strategy)}
+            />
+          </motion.div>
         ))}
       </div>
-      <p className="text-center text-xs text-disabled">
+      <p className="text-center text-xs text-secondary">
         Hover a tier to highlight the equivalent plan across all three strategies.
       </p>
     </div>
