@@ -2,7 +2,9 @@
 
 import { Banner, Button, EmptyState, Text } from "@astryxdesign/core";
 import { useCallback, useState } from "react";
-import type { SiteProfile } from "@/domain";
+import type { PricingStrategy, SiteProfile } from "@/domain";
+import { ExportDialog } from "@/features/export/export-dialog";
+import { strategyMeta } from "@/features/generate-stream/strategy-meta";
 import { useGenerateStream } from "@/features/generate-stream/use-generate-stream";
 import { VariationGrid } from "@/features/generate-stream/variation-grid";
 import { UrlInputForm } from "@/features/url-input/url-input-form";
@@ -15,6 +17,7 @@ function sophisticationLabel(profile: SiteProfile): string {
 export default function StudioPage() {
   const [siteProfile, setSiteProfile] = useState<SiteProfile | null>(null);
   const [lastUrl, setLastUrl] = useState<string | null>(null);
+  const [exportStrategy, setExportStrategy] = useState<PricingStrategy | null>(null);
   const analyze = useAnalyze();
   const generateStream = useGenerateStream();
 
@@ -96,11 +99,23 @@ export default function StudioPage() {
         <VariationGrid
           state={generateStream.state}
           slowStrategies={generateStream.slowStrategies}
-          onExport={() => {
-            // Wired in features/export once the export dialog lands.
-          }}
+          onExport={setExportStrategy}
         />
       )}
+
+      <ExportDialog
+        isOpen={exportStrategy != null}
+        onOpenChange={(open) => {
+          if (!open) setExportStrategy(null);
+        }}
+        generationId={generateStream.state.generationId}
+        variationId={
+          exportStrategy && generateStream.state.strategies[exportStrategy]?.status === "completed"
+            ? (generateStream.state.strategies[exportStrategy]?.variation.id ?? null)
+            : null
+        }
+        strategyLabel={exportStrategy ? strategyMeta(exportStrategy).label : ""}
+      />
     </main>
   );
 }
