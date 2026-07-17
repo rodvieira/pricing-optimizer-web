@@ -19,10 +19,11 @@ commit-msg:
 pre-push:
   commands:
     test:
-      # Guard against no test files existing yet, same shape as the backend's
-      # lefthook config for an empty module.
+      # Tests are colocated with source (e.g. features/url-input/url-input-schema.test.ts)
+      # rather than mirrored under test/unit/, so the guard checks for any *.test.ts(x)
+      # file anywhere instead of one fixed path.
       run: |
-        if [ -n "$(git ls-files 'test/unit/**' 2>/dev/null)" ]; then
+        if [ -n "$(git ls-files '*.test.ts' '*.test.tsx' 2>/dev/null)" ]; then
           pnpm exec vitest run
         else
           echo "no unit tests yet; skipping"

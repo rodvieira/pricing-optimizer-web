@@ -3,7 +3,7 @@
 import { Button, TextInput } from "@astryxdesign/core";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
-import { type UrlInputValues, urlInputSchema } from "./url-input-schema";
+import { type UrlInputValues, urlInputSchema } from "../url-input-schema";
 
 const EXAMPLE_URLS = ["flowbase.com", "useorbit.io", "linehq.dev"];
 

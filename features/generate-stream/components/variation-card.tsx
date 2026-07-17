@@ -1,8 +1,8 @@
 import { Banner, Button, Card, Skeleton } from "@astryxdesign/core";
 import { motion } from "motion/react";
 import type { PricingStrategy, StrategyGenerationState } from "@/domain";
+import { strategyMeta } from "../strategy-meta";
 import { PricingTierRow } from "./pricing-tier-row";
-import { strategyMeta } from "./strategy-meta";
 
 export interface VariationCardProps {
   readonly strategy: PricingStrategy;

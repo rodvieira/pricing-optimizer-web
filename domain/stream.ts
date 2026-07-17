@@ -1,7 +1,7 @@
-import type { Generation } from "./generation";
-import type { PricingStrategy } from "./pricing";
-import type { Problem } from "./problem";
-import type { Variation } from "./variation";
+import type { Generation } from "./types/generation";
+import type { PricingStrategy } from "./types/pricing";
+import type { Problem } from "./types/problem";
+import type { Variation } from "./types/variation";
 
 /**
  * Domain-level stream event — distinct from the wire `StreamChunk` shape

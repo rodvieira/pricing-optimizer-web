@@ -1,4 +1,4 @@
-import type { Generation } from "./generation";
+import type { Generation } from "./types/generation";
 
 export const MAX_HISTORY_ENTRIES = 10;
 
