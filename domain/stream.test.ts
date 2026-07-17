@@ -29,6 +29,54 @@ describe("streamReducer", () => {
 
     expect(state.strategies.anchor).toEqual({ status: "streaming", partialText: "Hello world" });
   });
+
+  it("starts a fresh partial text when a token arrives with no prior streaming state", () => {
+    const state = streamReducer(initialGenerateStreamState(), {
+      type: "token",
+      strategy: "anchor",
+      delta: "Hi",
+    });
+
+    expect(state.strategies.anchor).toEqual({ status: "streaming", partialText: "Hi" });
+  });
+
+  it("marks a strategy completed on variation_completed", () => {
+    const variation = { id: "v1", strategy: "anchor" as const, headline: "H", tiers: [] };
+    const state = streamReducer(initialGenerateStreamState(), {
+      type: "variation_completed",
+      variation,
+    });
+
+    expect(state.strategies.anchor).toEqual({ status: "completed", variation });
+  });
+
+  it("marks only the named strategy errored, leaving the top-level status untouched", () => {
+    const problem = { title: "Model timeout", status: 504 };
+    const state = streamReducer(initialGenerateStreamState(), {
+      type: "error",
+      strategy: "freemium",
+      problem,
+    });
+
+    expect(state.strategies.freemium).toEqual({ status: "error", problem });
+    expect(state.status).toBe("idle");
+  });
+
+  it("marks the whole stream errored when the error carries no strategy", () => {
+    const problem = { title: "Connection lost", status: 0 };
+    const state = streamReducer(initialGenerateStreamState(), { type: "error", problem });
+
+    expect(state.status).toBe("error");
+    expect(state.problem).toEqual(problem);
+  });
+
+  it("ignores an unrecognized event type, returning state unchanged", () => {
+    const initial = initialGenerateStreamState();
+    // @ts-expect-error deliberately exercising the reducer's default branch
+    const state = streamReducer(initial, { type: "unknown_event" });
+
+    expect(state).toBe(initial);
+  });
 });
 
 describe("generationToStreamState", () => {

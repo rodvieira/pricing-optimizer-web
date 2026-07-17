@@ -45,7 +45,8 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm test
+      - name: Unit tests with coverage gate (>=90%, see vitest.config.ts)
+        run: pnpm test:coverage
 
   e2e:
     name: E2e (Playwright + axe-core)
