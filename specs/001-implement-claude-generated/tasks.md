@@ -20,18 +20,18 @@ separately unit-tested.
 
 **Purpose**: the `lib/api/` wire-mapping layer every user story's UI depends on.
 
-- [ ] T004 [P] `lib/api/analyze.ts` — wrap `apiClient.POST("/v1/analyze")`, map wire
+- [x] T004 [P] `lib/api/analyze.ts` — wrap `apiClient.POST("/v1/analyze")`, map wire
       `SiteProfile` → domain `SiteProfile`
-- [ ] T005 [P] `lib/api/generate.ts` — `streamGeneration()` async generator: raw `fetch()` +
+- [x] T005 [P] `lib/api/generate.ts` — `streamGeneration()` async generator: raw `fetch()` +
       `ReadableStream` reader, SSE frame split, `StreamChunk` → domain `StreamEvent` mapping,
       non-2xx → single `{type:"error", problem}`
-- [ ] T006 [P] `lib/api/get-generation.ts` — wrap `GET /v1/generations/{id}`
-- [ ] T007 [P] `lib/api/export.ts` — wrap `POST /v1/export/{id}`, map wire `ExportResult` →
+- [x] T006 [P] `lib/api/get-generation.ts` — wrap `GET /v1/generations/{id}`
+- [x] T007 [P] `lib/api/export.ts` — wrap `POST /v1/export/{id}`, map wire `ExportResult` →
       domain `ExportResult`
-- [ ] T008 `test/lib/api/generate.test.ts` — unit test `streamGeneration()`'s frame parser
+- [x] T008 `test/lib/api/generate.test.ts` — unit test `streamGeneration()`'s frame parser
       against a fixture `ReadableStream` (multi-chunk frames, a frame split across two
       reads, a terminal `done`, a non-2xx Problem response)
-- [ ] T009 [P] `features/generate-stream/strategy-meta.ts` — `anchor→orange`,
+- [x] T009 [P] `features/generate-stream/strategy-meta.ts` — `anchor→orange`,
       `freemium→teal`, `value_based→pink` label/variant map, shared by landing + Studio
 
 **Checkpoint**: wire layer + strategy color mapping ready — user story work can begin.
@@ -47,25 +47,25 @@ queued → generating → complete.
 
 ### Implementation for User Story 1
 
-- [ ] T010 [P] [US1] `features/url-input/url-input-schema.ts` — Zod URL validation/normalization
-- [ ] T011 [US1] `features/url-input/use-analyze.ts` — TanStack Query mutation wrapping T004
-- [ ] T012 [US1] `features/url-input/url-input-form.tsx` — react-hook-form + zod resolver,
+- [x] T010 [P] [US1] `features/url-input/url-input-schema.ts` — Zod URL validation/normalization
+- [x] T011 [US1] `features/url-input/use-analyze.ts` — TanStack Query mutation wrapping T004
+- [x] T012 [US1] `features/url-input/url-input-form.tsx` — react-hook-form + zod resolver,
       Astryx `TextInput`/`Button`, example chips (depends on T010, T011)
-- [ ] T013 [US1] `features/generate-stream/use-generate-stream.ts` — `useReducer(streamReducer)`,
+- [x] T013 [US1] `features/generate-stream/use-generate-stream.ts` — `useReducer(streamReducer)`,
       `AbortController`, `start()` iterating T005's generator, cleanup-on-unmount (depends on T005)
-- [ ] T014 [P] [US1] `features/generate-stream/pricing-tier-row.tsx` — one `PricingTier`:
+- [x] T014 [P] [US1] `features/generate-stream/pricing-tier-row.tsx` — one `PricingTier`:
       formatted price (`Intl.NumberFormat`, `customLabel` override), features, CTA, badge
-- [ ] T015 [US1] `features/generate-stream/variation-card.tsx` — header (dot + Badge/status),
+- [x] T015 [US1] `features/generate-stream/variation-card.tsx` — header (dot + Badge/status),
       rationale (types out via `partialText`, `Skeleton` while pending), tiers via T014,
       footer actions (depends on T009, T014)
-- [ ] T016 [US1] `features/generate-stream/variation-grid.tsx` — 3-column responsive grid,
+- [x] T016 [US1] `features/generate-stream/variation-grid.tsx` — 3-column responsive grid,
       renders three `variation-card.tsx` in fixed strategy order (depends on T015)
-- [ ] T017 [P] [US1] `components/ui/app-header.tsx` — sticky header, logo mark (T009 colors),
+- [x] T017 [P] [US1] `components/ui/app-header.tsx` — sticky header, logo mark (T009 colors),
       nav, reuses `features/theme/theme-toggle.tsx`
-- [ ] T018 [US1] `app/layout.tsx` — swap Geist for Bricolage Grotesque + IBM Plex Sans/Mono,
+- [x] T018 [US1] `app/layout.tsx` — swap Geist for Bricolage Grotesque + IBM Plex Sans/Mono,
       render `<AppHeader />` (depends on T017); verify Astryx `theme-neutral` font tokens
       pick up the swap
-- [ ] T019 [US1] `app/studio/page.tsx` — orchestrates: `UrlInputForm` submit → `use-analyze`
+- [x] T019 [US1] `app/studio/page.tsx` — orchestrates: `UrlInputForm` submit → `use-analyze`
       → audience bar → `useGenerateStream.start()` → `EmptyState`/`VariationGrid` (depends on
       T012, T013, T016, T018)
 
@@ -82,14 +82,14 @@ queued → generating → complete.
 
 ### Implementation for User Story 4
 
-- [ ] T020 [US4] Idle state: Astryx `EmptyState` in `app/studio/page.tsx` when no submission
+- [x] T020 [US4] Idle state: Astryx `EmptyState` in `app/studio/page.tsx` when no submission
       yet (depends on T019)
-- [ ] T021 [US4] Inline URL validation error surfaced by `url-input-form.tsx`'s Zod resolver
+- [x] T021 [US4] Inline URL validation error surfaced by `url-input-form.tsx`'s Zod resolver
       (depends on T012) — no network call on invalid input
-- [ ] T022 [US4] Analyze/generate failure: Astryx `Banner status="error"` rendering the real
+- [x] T022 [US4] Analyze/generate failure: Astryx `Banner status="error"` rendering the real
       `Problem.title`/`detail` with a retry action, wired to T011/T013's error states
       (depends on T019)
-- [ ] T023 [US4] Per-strategy "taking longer than usual" timer in
+- [x] T023 [US4] Per-strategy "taking longer than usual" timer in
       `use-generate-stream.ts` (10s since entering `"streaming"`, cleared on
       completion/error/unmount), surfaced in `variation-card.tsx` (depends on T013, T015)
 
@@ -105,9 +105,9 @@ queued → generating → complete.
 
 ### Implementation for User Story 2
 
-- [ ] T024 [US2] Lift `hoveredTierIndex` state into `variation-grid.tsx`, clear on
+- [x] T024 [US2] Lift `hoveredTierIndex` state into `variation-grid.tsx`, clear on
       `onMouseLeave` of the grid (depends on T016)
-- [ ] T025 [US2] `pricing-tier-row.tsx` accepts `isHighlighted`/`onHoverStart` props, applies
+- [x] T025 [US2] `pricing-tier-row.tsx` accepts `isHighlighted`/`onHoverStart` props, applies
       Astryx tint styling on match (depends on T014, T024)
 
 **Checkpoint**: hover-compare works across all three cards once results are showing.
@@ -122,12 +122,12 @@ queued → generating → complete.
 
 ### Implementation for User Story 3
 
-- [ ] T026 [P] [US3] `features/export/use-export.ts` — query/mutation wrapping T007, keyed by
+- [x] T026 [P] [US3] `features/export/use-export.ts` — query/mutation wrapping T007, keyed by
       `(variationId, format)`, fetched lazily per tab
-- [ ] T027 [US3] `features/export/export-dialog.tsx` — Astryx `Dialog` + `DialogHeader` +
+- [x] T027 [US3] `features/export/export-dialog.tsx` — Astryx `Dialog` + `DialogHeader` +
       `TabList` (jsx/html/stripe) + `CodeBlock` (`hasCopyButton`, `hasLineNumbers`) (depends
       on T026)
-- [ ] T028 [US3] Wire `variation-card.tsx`'s "Export" button to open T027, disabled until
+- [x] T028 [US3] Wire `variation-card.tsx`'s "Export" button to open T027, disabled until
       `completed` (depends on T015, T027)
 
 **Checkpoint**: export works for any completed variation in all three formats.
@@ -136,21 +136,31 @@ queued → generating → complete.
 
 ## Phase 7: Landing page
 
-- [ ] T029 [P] Redesigned `app/page.tsx` — hero, static illustrative preview panel, strategy
+- [x] T029 [P] Redesigned `app/page.tsx` — hero, static illustrative preview panel, strategy
       blurb row using T009's mapping (depends on T009, T017, T018)
 
 ---
 
 ## Phase 8: Polish & Cross-Cutting Concerns
 
-- [ ] T030 `pnpm typecheck && pnpm lint && pnpm test && pnpm build` all clean
-- [ ] T031 Manual browser verification via the `run` skill: landing renders with new fonts/
+- [x] T030 `pnpm typecheck && pnpm lint && pnpm test && pnpm build` all clean
+- [x] T031 Manual browser verification via the `run` skill: landing renders with new fonts/
       header, `/studio` empty state, URL validation, dark/light toggle on both routes
-- [ ] T032 File a GitHub issue for "Edit inline" real behavior (out of scope per spec.md
-      Assumptions) if not already tracked
-- [ ] T033 Run `pr-reviewer`-equivalent self-review of the branch diff before opening the PR
+- [x] T032 File a GitHub issue for "Edit inline" real behavior (out of scope per spec.md
+      Assumptions) if not already tracked — filed as
+      [rodvieira/pricing-optimizer-web#1](https://github.com/rodvieira/pricing-optimizer-web/issues/1)
+- [x] T033 Run `pr-reviewer`-equivalent self-review of the branch diff before opening the PR
       (no dedicated agent configured in this repo yet — do a careful manual pass against the
       constitution instead)
+
+**T031 found two real bugs invisible to typecheck/lint/tests, both fixed same-session:** a
+hydration-warning-triggered blocking dev overlay (`app/layout.tsx` needed
+`suppressHydrationWarning` for the pre-hydration theme-init script), and — more importantly —
+`z.url()`'s reliance on the runtime's native `URL` constructor meant Chromium's more lenient
+parsing let clearly-invalid input (`"not a url"`) reach the network in the real browser despite
+every Node-based test passing (`new URL("https://not a url")` throws in Node, silently
+percent-encodes in Chromium). Replaced with an environment-independent regex in
+`features/url-input/url-input-schema.ts`. See that commit's message for the full writeup.
 
 ---
 
