@@ -1,16 +1,17 @@
 <!--
 Sync Impact Report
-- Version change: none → 1.0.0 (initial ratification)
-- Rationale: First constitution for this repo. Spec Kit was scaffolded mid-Sprint-8, after
-  the repo was already bootstrapped (Astryx + Tailwind wiring, domain/ types, theme
-  provider). Principles below codify decisions already made and recorded in this repo's
-  own CLAUDE.md and the umbrella SESSION-HANDOFF.md section 8, rather than inventing new
-  ones.
-- Principles: I. Contract-First (OpenAPI), II. Feature-Based Architecture with an Isolated
-  Domain Layer, III. Design-System Discipline (Astryx), IV. Test Rigor, V. Shipped-Artifact
-  Discipline
-- Added sections: Additional Constraints (Stack & Cost); Development Workflow
-- Removed sections: none (initial version)
+- Version change: 1.0.0 → 1.1.0
+- Rationale: Added a mandatory `pr-reviewer` agent gate to Development Workflow &
+  Quality Gates, mirroring pricing-optimizer-api's own constitution requirement now that
+  this repo has an equivalent agent (`.claude/agents/pr-reviewer.md`). MINOR bump — a
+  materially expanded workflow requirement, not a clarification of existing text, and no
+  principle was removed or redefined.
+- Principles: unchanged (I. Contract-First, II. Feature-Based Architecture with an
+  Isolated Domain Layer, III. Design-System Discipline, IV. Test Rigor, V.
+  Shipped-Artifact Discipline)
+- Modified sections: Development Workflow & Quality Gates (added the pr-reviewer gate)
+- Added sections: none
+- Removed sections: none
 - Templates requiring updates:
     ✅ .specify/templates/plan-template.md (Constitution Check gate aligns; no edit needed)
     ✅ .specify/templates/spec-template.md (no mandatory-section conflict; no edit needed)
@@ -128,6 +129,10 @@ so both repos read as one coherent product.
 - Every change reaches `main` only through a Pull Request. Problems discovered mid-task
   (a bug, a missing capability, a deferred decision) MUST be filed as a GitHub issue rather
   than silently worked around or left undocumented.
+- Before pushing the branch or opening a PR, run the `pr-reviewer` agent
+  (`.claude/agents/pr-reviewer.md`) against the local diff (`git diff main...HEAD`) and
+  fix blocking findings — the PR should already be clean when it opens, not fixed up
+  after with a follow-up commit.
 - A PR that changes the contract MUST update the root `openapi.yaml` first, then
   `pnpm sync-openapi`, in the same change.
 
@@ -142,4 +147,4 @@ alignment on every amendment. All PRs and reviews MUST verify compliance with th
 principles; added complexity MUST be justified against them. Runtime development guidance
 lives in this repo's own `CLAUDE.md` and the umbrella `../.claude/CLAUDE.md`.
 
-**Version**: 1.0.0 | **Ratified**: 2026-07-16 | **Last Amended**: 2026-07-16
+**Version**: 1.1.0 | **Ratified**: 2026-07-16 | **Last Amended**: 2026-07-17
