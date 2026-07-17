@@ -1,12 +1,19 @@
 "use client";
 
 import { Banner, Button, EmptyState, Text } from "@astryxdesign/core";
-import { useCallback, useState } from "react";
-import type { PricingStrategy, SiteProfile } from "@/domain";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  type Generation,
+  generationToStreamState,
+  type PricingStrategy,
+  type SiteProfile,
+} from "@/domain";
 import { ExportDialog } from "@/features/export/components/export-dialog";
 import { VariationGrid } from "@/features/generate-stream/components/variation-grid";
 import { useGenerateStream } from "@/features/generate-stream/hooks/use-generate-stream";
 import { strategyMeta } from "@/features/generate-stream/strategy-meta";
+import { HistoryPanel } from "@/features/history/components/history-panel";
+import { useLocalHistory } from "@/features/history/hooks/use-local-history";
 import { UrlInputForm } from "@/features/url-input/components/url-input-form";
 import { useAnalyze } from "@/features/url-input/hooks/use-analyze";
 import { AudienceSummaryBar } from "./components/audience-summary-bar";
@@ -15,11 +22,15 @@ export function StudioPage() {
   const [siteProfile, setSiteProfile] = useState<SiteProfile | null>(null);
   const [lastUrl, setLastUrl] = useState<string | null>(null);
   const [exportStrategy, setExportStrategy] = useState<PricingStrategy | null>(null);
+  const [viewedGeneration, setViewedGeneration] = useState<Generation | null>(null);
   const analyze = useAnalyze();
   const generateStream = useGenerateStream();
+  const { history, addGeneration, clearHistory } = useLocalHistory();
+  const recordedGenerationId = useRef<string | null>(null);
 
   const runFor = useCallback(
     (url: string) => {
+      setViewedGeneration(null);
       setLastUrl(url);
       analyze.mutate(url, {
         onSuccess: (profile) => {
@@ -35,8 +46,29 @@ export function StudioPage() {
     if (lastUrl) runFor(lastUrl);
   }, [lastUrl, runFor]);
 
+  const viewHistoryEntry = useCallback((generation: Generation) => {
+    setViewedGeneration(generation);
+    setSiteProfile(generation.siteProfile ?? null);
+  }, []);
+
+  // Persist a live generation to local history exactly once, as soon as its
+  // stream reaches "done" — keyed off generationId so a re-render with the
+  // same finished stream doesn't append a duplicate entry.
+  useEffect(() => {
+    const { generation } = generateStream.state;
+    if (generation && recordedGenerationId.current !== generation.id) {
+      recordedGenerationId.current = generation.id;
+      addGeneration(generation);
+    }
+  }, [generateStream.state, addGeneration]);
+
+  const displayState = viewedGeneration
+    ? generationToStreamState(viewedGeneration)
+    : generateStream.state;
+
   const isBusy = analyze.isPending || generateStream.state.status === "streaming";
-  const hasStreamError = generateStream.state.status === "error" && generateStream.state.problem;
+  const hasStreamError =
+    !viewedGeneration && generateStream.state.status === "error" && generateStream.state.problem;
 
   return (
     <main className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-10">
@@ -48,6 +80,13 @@ export function StudioPage() {
       </div>
 
       <UrlInputForm onSubmitUrl={runFor} isBusy={isBusy} />
+
+      <HistoryPanel
+        history={history}
+        activeGenerationId={displayState.generationId}
+        onSelect={viewHistoryEntry}
+        onClear={clearHistory}
+      />
 
       {analyze.isError && (
         <Banner
@@ -69,16 +108,16 @@ export function StudioPage() {
         />
       )}
 
-      {!siteProfile && !analyze.isError && (
+      {!siteProfile && !viewedGeneration && !analyze.isError && (
         <EmptyState
           title="Nothing generated yet"
           description="Paste a product URL above to stream three pricing strategies side by side."
         />
       )}
 
-      {siteProfile && !hasStreamError && (
+      {(siteProfile || viewedGeneration) && !hasStreamError && (
         <VariationGrid
-          state={generateStream.state}
+          state={displayState}
           slowStrategies={generateStream.slowStrategies}
           onExport={setExportStrategy}
         />
@@ -89,10 +128,10 @@ export function StudioPage() {
         onOpenChange={(open) => {
           if (!open) setExportStrategy(null);
         }}
-        generationId={generateStream.state.generationId}
+        generationId={displayState.generationId}
         variationId={
-          exportStrategy && generateStream.state.strategies[exportStrategy]?.status === "completed"
-            ? (generateStream.state.strategies[exportStrategy]?.variation.id ?? null)
+          exportStrategy && displayState.strategies[exportStrategy]?.status === "completed"
+            ? (displayState.strategies[exportStrategy]?.variation.id ?? null)
             : null
         }
         strategyLabel={exportStrategy ? strategyMeta(exportStrategy).label : ""}
