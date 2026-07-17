@@ -1,6 +1,7 @@
 "use client";
 
 import { Banner, Button, EmptyState, Text } from "@astryxdesign/core";
+import { motion } from "motion/react";
 import { useCallback, useState } from "react";
 import type { PricingStrategy, SiteProfile } from "@/domain";
 import { ExportDialog } from "@/features/export/export-dialog";
@@ -62,7 +63,12 @@ export default function StudioPage() {
       )}
 
       {siteProfile && (
-        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card px-4 py-3">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card px-4 py-3"
+        >
           <span
             aria-hidden
             className="h-2 w-2 rounded-full"
@@ -76,7 +82,7 @@ export default function StudioPage() {
           <span className="rounded-md bg-accent-muted px-2 py-1 font-mono text-xs text-accent">
             {sophisticationLabel(siteProfile)}
           </span>
-        </div>
+        </motion.div>
       )}
 
       {hasStreamError && (

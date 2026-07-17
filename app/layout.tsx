@@ -1,3 +1,4 @@
+import { MotionConfig } from "motion/react";
 import type { Metadata } from "next";
 import { Bricolage_Grotesque, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import { AppHeader } from "@/components/ui/app-header";
@@ -48,8 +49,11 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <QueryProvider>
           <ThemeModeProvider>
-            <AppHeader />
-            {children}
+            {/* reducedMotion="user" makes every animation below respect prefers-reduced-motion automatically */}
+            <MotionConfig reducedMotion="user">
+              <AppHeader />
+              {children}
+            </MotionConfig>
           </ThemeModeProvider>
         </QueryProvider>
       </body>

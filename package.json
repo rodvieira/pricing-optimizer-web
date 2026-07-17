@@ -11,6 +11,7 @@
     "lint:fix": "biome check --write .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:e2e": "playwright test",
     "sync-openapi": "cp ../openapi.yaml ./openapi.yaml && pnpm run codegen",
     "codegen": "openapi-typescript openapi.yaml -o lib/api/schema.ts",
     "prepare": "lefthook install"
