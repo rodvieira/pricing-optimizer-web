@@ -3,7 +3,7 @@
 import { Button, Text } from "@astryxdesign/core";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ThemeToggle } from "@/features/theme/theme-toggle";
+import { ThemeToggle } from "@/features/theme/components/theme-toggle";
 
 const NAV_ITEMS = [
   { href: "/", label: "Overview" },

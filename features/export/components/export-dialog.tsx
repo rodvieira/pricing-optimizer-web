@@ -12,7 +12,7 @@ import {
 } from "@astryxdesign/core";
 import { useEffect, useState } from "react";
 import type { ExportFormat } from "@/domain";
-import { useExport } from "./use-export";
+import { useExport } from "../hooks/use-export";
 
 const FORMAT_LANGUAGE: Record<ExportFormat, string> = {
   jsx: "tsx",

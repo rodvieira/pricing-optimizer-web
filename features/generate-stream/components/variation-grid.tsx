@@ -3,7 +3,7 @@
 import { motion } from "motion/react";
 import { useState } from "react";
 import type { GenerateStreamState, PricingStrategy } from "@/domain";
-import { STRATEGY_META } from "./strategy-meta";
+import { STRATEGY_META } from "../strategy-meta";
 import { VariationCard } from "./variation-card";
 
 export interface VariationGridProps {

@@ -1,9 +1,8 @@
-import { MotionConfig } from "motion/react";
 import type { Metadata } from "next";
 import { Bricolage_Grotesque, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
+import { AppProviders } from "@/components/providers/app-providers";
 import { AppHeader } from "@/components/ui/app-header";
-import { ThemeModeProvider, themeModeInitScript } from "@/features/theme/theme-mode-provider";
-import { QueryProvider } from "@/lib/query-provider";
+import { themeModeInitScript } from "@/features/theme/theme-init-script";
 import "./globals.css";
 
 const bricolageGrotesque = Bricolage_Grotesque({
@@ -47,15 +46,10 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeModeInitScript }} />
       </head>
       <body className="min-h-full flex flex-col">
-        <QueryProvider>
-          <ThemeModeProvider>
-            {/* reducedMotion="user" makes every animation below respect prefers-reduced-motion automatically */}
-            <MotionConfig reducedMotion="user">
-              <AppHeader />
-              {children}
-            </MotionConfig>
-          </ThemeModeProvider>
-        </QueryProvider>
+        <AppProviders>
+          <AppHeader />
+          {children}
+        </AppProviders>
       </body>
     </html>
   );

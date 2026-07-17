@@ -3,10 +3,9 @@
 import { Theme } from "@astryxdesign/core";
 import { neutralTheme } from "@astryxdesign/theme-neutral";
 import { createContext, type ReactNode, useContext, useEffect, useState } from "react";
+import { THEME_STORAGE_KEY } from "../theme-init-script";
 
 type ThemeMode = "system" | "light" | "dark";
-
-const STORAGE_KEY = "pricing-optimizer-theme-mode";
 
 interface ThemeModeContextValue {
   mode: ThemeMode;
@@ -26,7 +25,7 @@ export function ThemeModeProvider({ children }: { children: ReactNode }) {
   const [mode, setModeState] = useState<ThemeMode>("system");
 
   useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
+    const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
     if (stored === "light" || stored === "dark" || stored === "system") {
       setModeState(stored);
     }
@@ -34,7 +33,7 @@ export function ThemeModeProvider({ children }: { children: ReactNode }) {
 
   const setMode = (next: ThemeMode) => {
     setModeState(next);
-    window.localStorage.setItem(STORAGE_KEY, next);
+    window.localStorage.setItem(THEME_STORAGE_KEY, next);
   };
 
   return (
@@ -53,21 +52,3 @@ export function useThemeMode(): ThemeModeContextValue {
   }
   return context;
 }
-
-/**
- * Inline, render-blocking script for the root layout's <head> — reads the
- * stored mode synchronously before hydration and sets data-theme on <html>,
- * avoiding a flash of the wrong theme. Astryx's <Theme> re-syncs this
- * attribute once it mounts; this only covers the gap before that.
- */
-export const themeModeInitScript = `
-(function() {
-  try {
-    var mode = window.localStorage.getItem("${STORAGE_KEY}") || "system";
-    var resolved = mode === "system"
-      ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
-      : mode;
-    document.documentElement.setAttribute("data-theme", resolved);
-  } catch (e) {}
-})();
-`;
