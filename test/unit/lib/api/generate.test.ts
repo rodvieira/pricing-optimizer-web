@@ -88,6 +88,33 @@ describe("streamGeneration", () => {
     expect(events).toEqual([{ type: "done", generation }]);
   });
 
+  it("flushes the final frame even when the stream ends without a trailing blank line", async () => {
+    // Regression: the frame parser only flushed frames delimited by "\n\n"
+    // inside the read loop — a stream that closes right after its last
+    // event, without one more blank-line separator, silently dropped it.
+    const generation = {
+      id: "gen-1",
+      sourceUrl: "https://example.com",
+      status: "completed",
+      variations: [],
+      createdAt: "2026-07-16T00:00:00Z",
+    };
+    const frameWithNoTrailingBlankLine = `data: ${JSON.stringify({ type: "done", generation })}`;
+    vi.mocked(fetch).mockResolvedValue(
+      okResponse(streamFromChunks([frameWithNoTrailingBlankLine])),
+    );
+
+    const events = [];
+    for await (const event of streamGeneration({
+      siteProfile: {} as never,
+      currency: "USD",
+    })) {
+      events.push(event);
+    }
+
+    expect(events).toEqual([{ type: "done", generation }]);
+  });
+
   it("yields a single error event for a non-2xx Problem response", async () => {
     const problem = { type: "about:blank", title: "Conflict", status: 409, detail: "in progress" };
     vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify(problem), { status: 409 }));

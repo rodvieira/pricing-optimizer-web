@@ -10,7 +10,7 @@ import {
   Tab,
   TabList,
 } from "@astryxdesign/core";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ExportFormat } from "@/domain";
 import { useExport } from "./use-export";
 
@@ -43,6 +43,13 @@ export function ExportDialog({
 }: ExportDialogProps) {
   const [format, setFormat] = useState<ExportFormat>("jsx");
   const { data, isLoading, isError } = useExport(generationId, variationId, format);
+
+  // Reset to the default tab when the dialog is reopened for a different
+  // variation, instead of carrying over whatever format was last viewed.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: variationId is intentionally the sole trigger for this reset, not read in the body.
+  useEffect(() => {
+    setFormat("jsx");
+  }, [variationId]);
 
   return (
     <Dialog isOpen={isOpen} onOpenChange={onOpenChange} width={720} purpose="info">

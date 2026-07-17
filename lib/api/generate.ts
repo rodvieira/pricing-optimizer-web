@@ -37,6 +37,15 @@ function toStreamEvent(chunk: StreamChunk): StreamEvent | null {
  * the SSE spec; only the `data:` field is used (the backend emits no other
  * fields).
  */
+function parseFrame(frame: string): StreamChunk | null {
+  const dataLines = frame
+    .split("\n")
+    .filter((line) => line.startsWith("data:"))
+    .map((line) => line.slice(5).trimStart());
+  if (dataLines.length === 0) return null;
+  return JSON.parse(dataLines.join("\n")) as StreamChunk;
+}
+
 async function* parseSseFrames(stream: ReadableStream<Uint8Array>): AsyncGenerator<StreamChunk> {
   const reader = stream.getReader();
   const decoder = new TextDecoder();
@@ -52,14 +61,17 @@ async function* parseSseFrames(stream: ReadableStream<Uint8Array>): AsyncGenerat
       buffer = frames.pop() ?? "";
 
       for (const frame of frames) {
-        const dataLines = frame
-          .split("\n")
-          .filter((line) => line.startsWith("data:"))
-          .map((line) => line.slice(5).trimStart());
-        if (dataLines.length === 0) continue;
-        yield JSON.parse(dataLines.join("\n")) as StreamChunk;
+        const chunk = parseFrame(frame);
+        if (chunk) yield chunk;
       }
     }
+
+    // The stream can legitimately end without a final blank-line separator
+    // after the last event (e.g. the server closes the connection right
+    // after its last write) — flush whatever is left in `buffer` instead of
+    // silently dropping it.
+    const lastChunk = parseFrame(buffer);
+    if (lastChunk) yield lastChunk;
   } finally {
     reader.releaseLock();
   }

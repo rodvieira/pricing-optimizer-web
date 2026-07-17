@@ -39,6 +39,11 @@ export function useGenerateStream(): UseGenerateStreamResult {
           { siteProfile, currency: "USD" },
           { signal: controller.signal },
         )) {
+          // A superseded start() call aborts this controller but can't
+          // retroactively cancel an event already in flight from a
+          // just-resolved read() — drop it instead of mixing it into the
+          // newer generation's state.
+          if (controller.signal.aborted) return;
           setState((prev) => streamReducer(prev, event));
         }
       } catch (err) {
