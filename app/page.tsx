@@ -36,7 +36,7 @@ export default function Home() {
               <span aria-hidden className="h-2.5 w-2.5 rounded-full border border-border-strong" />
               <span aria-hidden className="h-2.5 w-2.5 rounded-full border border-border-strong" />
             </div>
-            <div className="mx-auto max-w-xs flex-1 rounded-md bg-muted px-3 py-1 text-center font-mono text-xs text-disabled">
+            <div className="mx-auto max-w-xs flex-1 rounded-md bg-muted px-3 py-1 text-center font-mono text-xs text-primary">
               flowbase.com
             </div>
           </div>
@@ -57,7 +57,7 @@ export default function Home() {
                 </div>
                 <div className="font-heading text-2xl font-semibold tracking-tight">
                   {card.price}
-                  <span className="font-sans text-xs font-normal text-disabled"> {card.hint}</span>
+                  <span className="font-sans text-xs font-normal text-secondary"> {card.hint}</span>
                 </div>
               </div>
             ))}

@@ -30,8 +30,8 @@ export function AppHeader() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`rounded-md px-3 py-1.5 font-sans text-xs font-medium transition-colors ${
-                  pathname === item.href ? "bg-card text-primary" : "text-secondary"
+                className={`rounded-md px-3 py-1.5 font-sans text-xs font-medium text-primary transition-colors ${
+                  pathname === item.href ? "bg-card" : "opacity-70 hover:opacity-100"
                 }`}
               >
                 {item.label}
