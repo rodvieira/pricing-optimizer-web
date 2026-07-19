@@ -1,8 +1,8 @@
 "use client";
 
 import { Theme } from "@astryxdesign/core";
-import { neutralTheme } from "@astryxdesign/theme-neutral";
 import { createContext, type ReactNode, useContext, useEffect, useState } from "react";
+import { pricingOptimizerTheme } from "../pricing-optimizer-theme";
 import { THEME_STORAGE_KEY } from "../theme-init-script";
 
 type ThemeMode = "system" | "light" | "dark";
@@ -38,7 +38,7 @@ export function ThemeModeProvider({ children }: { children: ReactNode }) {
 
   return (
     <ThemeModeContext.Provider value={{ mode, setMode }}>
-      <Theme theme={neutralTheme} mode={mode}>
+      <Theme theme={pricingOptimizerTheme} mode={mode}>
         {children}
       </Theme>
     </ThemeModeContext.Provider>
