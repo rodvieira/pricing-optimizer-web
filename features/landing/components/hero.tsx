@@ -3,7 +3,7 @@ import { Eyebrow } from "@/components/ui/eyebrow";
 
 export function Hero() {
   return (
-    <section className="mx-auto w-full max-w-6xl px-6 py-16">
+    <section className="mx-auto w-full max-w-6xl px-8 pt-16 pb-10">
       <Eyebrow tone="accent" withRule className="mb-6">
         PSYCHOLOGY-DRIVEN PRICING
       </Eyebrow>
