@@ -15,7 +15,7 @@ export function AppHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-surface/90 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-3">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-8 py-4">
         <Link href="/" className="flex items-center gap-3">
           <span aria-hidden className="flex h-[18px] items-end gap-[3px]">
             <span className="h-[9px] w-1" style={{ background: "var(--color-icon-orange)" }} />
