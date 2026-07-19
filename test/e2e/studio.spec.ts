@@ -13,6 +13,25 @@ test("empty studio state has no serious accessibility violations", async ({ page
   expect(serious, JSON.stringify(serious, null, 2)).toEqual([]);
 });
 
+test("empty studio state fills its max-width column instead of shrinking to content", async ({
+  page,
+}) => {
+  // Regression: <main> sits inside Astryx's <Theme> wrapper, which renders
+  // display:contents — so <main> becomes a direct flex item of <body>'s
+  // flex-column layout instead of a normal block box. Without an explicit
+  // width, mx-auto's auto margins suppress flexbox's default stretch
+  // behavior and <main> shrinks to fit its content instead of filling
+  // max-w-6xl. Only visible with a real browser layout engine (not
+  // catchable in jsdom) and only obvious in low-content states — the
+  // generated-results grid is wide enough on its own to mask the bug, but
+  // the empty state a user sees first collapses to roughly half width.
+  await page.goto("/studio");
+  await expect(page.getByText("Nothing generated yet")).toBeVisible();
+
+  const width = await page.locator("main").evaluate((el) => el.getBoundingClientRect().width);
+  expect(width).toBeGreaterThan(1000);
+});
+
 test("blocks an invalid URL client-side, with no network call", async ({ page }) => {
   let analyzeCalled = false;
   await page.route("http://localhost:8080/v1/analyze", (route) => {

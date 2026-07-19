@@ -71,7 +71,7 @@ export function StudioPage() {
     !viewedGeneration && generateStream.state.status === "error" && generateStream.state.problem;
 
   return (
-    <main className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-10">
+    <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-10">
       <div>
         <Text type="display-3">Studio</Text>
         <Text type="body" color="secondary">
