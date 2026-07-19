@@ -5,7 +5,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { type UrlInputValues, urlInputSchema } from "../url-input-schema";
 
-const EXAMPLE_URLS = ["flowbase.com", "useorbit.io", "linehq.dev"];
+// Real, reachable sites — the original design mock's flowbase.com/useorbit.io/
+// linehq.dev are fictional placeholders that don't resolve, so every click
+// guaranteed a ~30s scraper timeout followed by an error (colly's 10s static
+// attempt, then chromedp's 20s browser fallback). Found via manual testing.
+const EXAMPLE_URLS = ["linear.app", "cal.com", "raycast.com"];
 
 export interface UrlInputFormProps {
   readonly onSubmitUrl: (url: string) => void;

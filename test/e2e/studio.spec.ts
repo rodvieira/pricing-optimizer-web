@@ -113,8 +113,8 @@ test("local history: persists a completed generation, survives reload, and re-di
   });
 
   // A history entry's label is "<host> · <relative time>" — the "·"
-  // disambiguates it from UrlInputForm's plain "flowbase.com" example
-  // button, which has no suffix.
+  // disambiguates it from a plain host-only button (e.g. an example URL
+  // pill), which has no suffix.
   const historyEntryName = /flowbase\.com ·/;
 
   await page.goto("/studio");
