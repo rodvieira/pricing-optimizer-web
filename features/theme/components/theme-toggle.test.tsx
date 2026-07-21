@@ -4,7 +4,7 @@ import { render, screen } from "@/test/render";
 import * as themeModeProvider from "./theme-mode-provider";
 import { ThemeToggle } from "./theme-toggle";
 
-function mockThemeMode(mode: "light" | "dark" | "system") {
+function mockThemeMode(mode: "light" | "dark") {
   const setMode = vi.fn();
   vi.spyOn(themeModeProvider, "useThemeMode").mockReturnValue({ mode, setMode });
   return setMode;
@@ -19,19 +19,27 @@ describe("ThemeToggle", () => {
     expect(setMode).toHaveBeenCalledWith("dark");
   });
 
-  it("cycles dark -> system", () => {
+  it("cycles dark -> light", () => {
     const setMode = mockThemeMode("dark");
-    render(<ThemeToggle />);
-
-    fireEvent.click(screen.getByRole("button", { name: /Switch to system theme/ }));
-    expect(setMode).toHaveBeenCalledWith("system");
-  });
-
-  it("cycles system -> light", () => {
-    const setMode = mockThemeMode("system");
     render(<ThemeToggle />);
 
     fireEvent.click(screen.getByRole("button", { name: /Switch to light theme/ }));
     expect(setMode).toHaveBeenCalledWith("light");
+  });
+
+  it("shows the moon icon in dark mode", () => {
+    mockThemeMode("dark");
+    render(<ThemeToggle />);
+
+    expect(document.querySelector("svg.lucide-moon")).toBeInTheDocument();
+    expect(document.querySelector("svg.lucide-sun")).not.toBeInTheDocument();
+  });
+
+  it("shows the sun icon in light mode", () => {
+    mockThemeMode("light");
+    render(<ThemeToggle />);
+
+    expect(document.querySelector("svg.lucide-sun")).toBeInTheDocument();
+    expect(document.querySelector("svg.lucide-moon")).not.toBeInTheDocument();
   });
 });
