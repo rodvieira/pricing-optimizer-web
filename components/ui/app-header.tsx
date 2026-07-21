@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@astryxdesign/core";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "@/features/theme/components/theme-toggle";
@@ -15,7 +14,7 @@ export function AppHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-surface/90 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-8 py-4">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-8 py-4">
         <Link href="/" className="flex items-center gap-3">
           <span aria-hidden className="flex h-[18px] items-end gap-[3px]">
             <span className="h-[9px] w-1" style={{ background: "var(--color-icon-orange)" }} />
@@ -31,15 +30,15 @@ export function AppHeader() {
           </span>
         </Link>
         <div className="flex items-center gap-4">
-          <nav className="flex gap-1 rounded-lg bg-card p-1">
+          <nav className="flex gap-[6px] rounded-[9px] border border-border bg-card p-1">
             {NAV_ITEMS.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`rounded-md px-3 py-1.5 font-sans text-xs font-medium text-primary transition-colors ${
+                className={`rounded-[7px] px-[13px] py-[7px] font-sans text-[12.5px] leading-[16px] font-medium transition-colors ${
                   pathname === item.href
-                    ? "border border-border bg-muted"
-                    : "border border-transparent opacity-70 hover:opacity-100"
+                    ? "border border-border bg-muted text-primary"
+                    : "border border-transparent text-secondary hover:text-primary"
                 }`}
               >
                 {item.label}
@@ -47,7 +46,6 @@ export function AppHeader() {
             ))}
           </nav>
           <ThemeToggle />
-          <Button label="Open Studio" variant="primary" href="/studio" as={Link} />
         </div>
       </div>
     </header>

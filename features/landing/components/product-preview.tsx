@@ -12,7 +12,7 @@ const PREVIEW_CARDS = [
 
 export function ProductPreview() {
   return (
-    <section className="mx-auto w-full max-w-6xl px-8">
+    <section className="mx-auto w-full max-w-7xl px-8">
       <Card variant="default" padding={0}>
         <PanelHeader>
           <div className="flex gap-1.5">

@@ -7,8 +7,8 @@ import { Eyebrow } from "@/components/ui/eyebrow";
  */
 export function TopRibbon() {
   return (
-    <div className="border-b border-border">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-8 py-3">
+    <div>
+      <div className="mx-auto flex max-w-7xl items-center justify-between border-b border-border px-8 py-3">
         <Eyebrow tone="muted">PRICING OPTIMIZER</Eyebrow>
         <Eyebrow tone="muted">PSYCHOLOGY-DRIVEN · SSE STREAMING</Eyebrow>
       </div>

@@ -49,7 +49,7 @@ export default function RootLayout({
         {/* biome-ignore lint/security/noDangerouslySetInnerHtml: render-blocking, no user input, avoids a theme flash before hydration */}
         <script dangerouslySetInnerHTML={{ __html: themeModeInitScript }} />
       </head>
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col bg-body">
         <AppProviders>
           <AppHeader />
           {children}
