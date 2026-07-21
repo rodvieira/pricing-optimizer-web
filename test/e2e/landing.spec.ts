@@ -21,7 +21,8 @@ test("landing page renders the hero and has no serious accessibility violations"
 
 test("theme toggle switches data-theme on <html>", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("button", { name: /switch to/i }).click();
+  // Binary light <-> dark toggle (no "system" option) — one click is enough
+  // from the default light state.
   await page.getByRole("button", { name: /switch to/i }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
 });
