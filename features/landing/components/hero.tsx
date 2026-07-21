@@ -16,7 +16,7 @@ const HERO_BUTTON_STYLE = {
 // "Watch a live run" jumps straight into the Studio with this example
 // already analyzing, so a visitor sees the real product move without typing
 // anything first.
-const LIVE_RUN_EXAMPLE_URL = "stripe.com";
+const LIVE_RUN_EXAMPLE_URL = "linear.app";
 
 export function Hero() {
   return (

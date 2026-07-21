@@ -6,12 +6,12 @@ import { useId } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { type UrlInputValues, urlInputSchema } from "../url-input-schema";
 
-// Real, fast-scraping domains — these are what the "Try:" pills actually
-// submit to the backend, unlike the fictional product names used elsewhere
-// in the mock (product-preview.tsx's "flowbase.com" is decorative only and
-// never hits the network). A placeholder brand name here would 502 every
-// time, since the scraper has nothing real to fetch.
-const EXAMPLE_URLS = ["stripe.com", "linear.app", "vercel.com"];
+// Real, reachable sites — the original design mock's flowbase.com/useorbit.io/
+// linehq.dev (and product-preview.tsx's decorative "flowbase.com") are
+// fictional placeholders that don't resolve, so every click guaranteed a
+// ~30s scraper timeout followed by an error (colly's 10s static attempt,
+// then chromedp's 20s browser fallback). Found via manual testing.
+const EXAMPLE_URLS = ["linear.app", "cal.com", "raycast.com"];
 
 export interface UrlInputFormProps {
   readonly onSubmitUrl: (url: string) => void;
