@@ -4,6 +4,10 @@ import type { ReactElement } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Generation, StreamEvent } from "@/domain";
 
+const mockSearchParams = vi.fn(() => new URLSearchParams());
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => mockSearchParams(),
+}));
 vi.mock("@/lib/api/analyze", () => ({ analyzeSite: vi.fn() }));
 vi.mock("@/lib/api/generate", () => ({ streamGeneration: vi.fn() }));
 vi.mock("@/lib/api/export", () => ({ exportVariation: vi.fn() }));
@@ -58,10 +62,31 @@ describe("StudioPage", () => {
     window.localStorage.clear();
     vi.mocked(analyzeSite).mockReset();
     vi.mocked(streamGeneration).mockReset();
+    mockSearchParams.mockReturnValue(new URLSearchParams());
   });
 
   it("shows the empty state with nothing generated yet", () => {
     renderStudio();
+    expect(screen.getByText("Nothing generated yet")).toBeInTheDocument();
+  });
+
+  it("auto-runs analyze for a valid ?url= query param, pre-filling the field", async () => {
+    mockSearchParams.mockReturnValue(new URLSearchParams("url=stripe.com"));
+    vi.mocked(analyzeSite).mockResolvedValue(SITE_PROFILE);
+    vi.mocked(streamGeneration).mockReturnValue(fakeStream([]));
+
+    renderStudio();
+
+    expect(screen.getByPlaceholderText("your-product.com")).toHaveValue("stripe.com");
+    await waitFor(() => expect(analyzeSite).toHaveBeenCalledWith("https://stripe.com"));
+  });
+
+  it("ignores an invalid ?url= query param instead of reaching the API", () => {
+    mockSearchParams.mockReturnValue(new URLSearchParams({ url: "not a url" }));
+
+    renderStudio();
+
+    expect(analyzeSite).not.toHaveBeenCalled();
     expect(screen.getByText("Nothing generated yet")).toBeInTheDocument();
   });
 

@@ -6,11 +6,18 @@ import { useId } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { type UrlInputValues, urlInputSchema } from "../url-input-schema";
 
-const EXAMPLE_URLS = ["flowbase.com", "useorbit.io", "linehq.dev"];
+// Real, fast-scraping domains — these are what the "Try:" pills actually
+// submit to the backend, unlike the fictional product names used elsewhere
+// in the mock (product-preview.tsx's "flowbase.com" is decorative only and
+// never hits the network). A placeholder brand name here would 502 every
+// time, since the scraper has nothing real to fetch.
+const EXAMPLE_URLS = ["stripe.com", "linear.app", "vercel.com"];
 
 export interface UrlInputFormProps {
   readonly onSubmitUrl: (url: string) => void;
   readonly isBusy: boolean;
+  /** Pre-fills the field, e.g. when arriving from a "Watch a live run" link that auto-submits. */
+  readonly initialUrl?: string;
 }
 
 /**
@@ -20,10 +27,10 @@ export interface UrlInputFormProps {
  * <input> (not Astryx TextInput) because the mock's embedded-button layout
  * has no Astryx equivalent.
  */
-export function UrlInputForm({ onSubmitUrl, isBusy }: UrlInputFormProps) {
+export function UrlInputForm({ onSubmitUrl, isBusy, initialUrl }: UrlInputFormProps) {
   const { control, handleSubmit, setValue, formState } = useForm<UrlInputValues>({
     resolver: zodResolver(urlInputSchema),
-    defaultValues: { url: "" },
+    defaultValues: { url: initialUrl ?? "" },
   });
   const errorId = useId();
   const errorMessage = formState.errors.url?.message;

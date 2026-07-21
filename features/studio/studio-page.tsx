@@ -1,6 +1,7 @@
 "use client";
 
 import { Banner, Button, Text } from "@astryxdesign/core";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   type Generation,
@@ -16,6 +17,7 @@ import { HistoryPanel } from "@/features/history/components/history-panel";
 import { useLocalHistory } from "@/features/history/hooks/use-local-history";
 import { UrlInputForm } from "@/features/url-input/components/url-input-form";
 import { useAnalyze } from "@/features/url-input/hooks/use-analyze";
+import { urlInputSchema } from "@/features/url-input/url-input-schema";
 import { AudienceSummaryBar } from "./components/audience-summary-bar";
 import { type DemoScenario, StudioDemoControls } from "./components/studio-demo-controls";
 import { StudioEmptyState } from "./components/studio-empty-state";
@@ -36,6 +38,9 @@ export function StudioPage() {
   const generateStream = useGenerateStream();
   const { history, addGeneration, clearHistory } = useLocalHistory();
   const recordedGenerationId = useRef<string | null>(null);
+  const searchParams = useSearchParams();
+  const autoRunUrl = searchParams.get("url");
+  const autoRunHandled = useRef(false);
 
   const runFor = useCallback(
     (url: string) => {
@@ -51,6 +56,17 @@ export function StudioPage() {
     },
     [analyze, generateStream],
   );
+
+  // "Watch a live run" (the landing page's hero) links here with `?url=` so
+  // the Studio starts analyzing immediately instead of showing the empty
+  // state — reuses the same schema the form itself validates against, so a
+  // malformed query string is silently ignored rather than reaching the API.
+  useEffect(() => {
+    if (autoRunHandled.current || !autoRunUrl) return;
+    autoRunHandled.current = true;
+    const parsed = urlInputSchema.safeParse({ url: autoRunUrl });
+    if (parsed.success) runFor(parsed.data.url);
+  }, [autoRunUrl, runFor]);
 
   const retry = useCallback(() => {
     if (lastUrl) runFor(lastUrl);
@@ -113,7 +129,7 @@ export function StudioPage() {
   const showEmpty = !isDemo && !siteProfile && !viewedGeneration && !analyze.isError;
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-8 py-10">
+    <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-8 py-10">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <Text type="display-3" className="block">
@@ -131,7 +147,7 @@ export function StudioPage() {
         />
       </div>
 
-      <UrlInputForm onSubmitUrl={runFor} isBusy={isBusy} />
+      <UrlInputForm onSubmitUrl={runFor} isBusy={isBusy} initialUrl={autoRunUrl ?? undefined} />
 
       <HistoryPanel
         history={history}
