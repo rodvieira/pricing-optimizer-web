@@ -33,9 +33,9 @@ describe("UrlInputForm", () => {
     const onSubmitUrl = vi.fn();
     render(<UrlInputForm onSubmitUrl={onSubmitUrl} isBusy={false} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "flowbase.com" }));
+    fireEvent.click(screen.getByRole("button", { name: "linear.app" }));
 
-    expect(screen.getByPlaceholderText("your-product.com")).toHaveValue("flowbase.com");
+    expect(screen.getByPlaceholderText("your-product.com")).toHaveValue("linear.app");
   });
 
   it("disables the input, submit, and example buttons while busy", () => {
@@ -44,6 +44,6 @@ describe("UrlInputForm", () => {
 
     expect(screen.getByPlaceholderText("your-product.com")).toBeDisabled();
     expect(screen.getByRole("button", { name: "Generating" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "flowbase.com" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "linear.app" })).toBeDisabled();
   });
 });
