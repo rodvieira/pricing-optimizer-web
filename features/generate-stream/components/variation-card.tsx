@@ -1,5 +1,8 @@
 import { Banner, Button, Card, Skeleton } from "@astryxdesign/core";
 import { motion } from "motion/react";
+import { ColorDot } from "@/components/ui/color-dot";
+import { Eyebrow } from "@/components/ui/eyebrow";
+import { PanelHeader } from "@/components/ui/panel-header";
 import type { PricingStrategy, StrategyGenerationState } from "@/domain";
 import { strategyMeta } from "../strategy-meta";
 import { PricingTierRow } from "./pricing-tier-row";
@@ -51,22 +54,18 @@ export function VariationCard({
 
   return (
     <Card variant="default" padding={0}>
-      <div className="flex items-center gap-2 border-b border-border px-4 py-3">
-        <span
-          aria-hidden
-          className="h-2 w-2 rounded-full"
-          style={{ background: `var(--color-icon-${meta.variant})` }}
-        />
+      <PanelHeader>
+        <ColorDot color={meta.variant} />
         <span className="font-heading text-sm font-semibold">{meta.label}</span>
-        <span className="ml-auto font-mono text-[11px] tracking-wide text-secondary">
+        <Eyebrow tone="secondary" className="ml-auto">
           {statusLabel(strategyState, isSlow)}
-        </span>
-      </div>
+        </Eyebrow>
+      </PanelHeader>
 
       <div className="min-h-[76px] border-b border-border px-4 py-3">
-        <div className="mb-2 font-mono text-[10px] tracking-widest text-secondary">
+        <Eyebrow tone="secondary" className="mb-2">
           STRATEGY RATIONALE
-        </div>
+        </Eyebrow>
         <Rationale state={strategyState} />
       </div>
 

@@ -46,4 +46,11 @@ describe("UrlInputForm", () => {
     expect(screen.getByRole("button", { name: "Generating" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "linear.app" })).toBeDisabled();
   });
+
+  it("pre-fills the field from initialUrl", () => {
+    const onSubmitUrl = vi.fn();
+    render(<UrlInputForm onSubmitUrl={onSubmitUrl} isBusy={false} initialUrl="stripe.com" />);
+
+    expect(screen.getByPlaceholderText("your-product.com")).toHaveValue("stripe.com");
+  });
 });

@@ -4,6 +4,10 @@ import type { ReactElement } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Generation, StreamEvent } from "@/domain";
 
+const mockSearchParams = vi.fn(() => new URLSearchParams());
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => mockSearchParams(),
+}));
 vi.mock("@/lib/api/analyze", () => ({ analyzeSite: vi.fn() }));
 vi.mock("@/lib/api/generate", () => ({ streamGeneration: vi.fn() }));
 vi.mock("@/lib/api/export", () => ({ exportVariation: vi.fn() }));
@@ -58,10 +62,31 @@ describe("StudioPage", () => {
     window.localStorage.clear();
     vi.mocked(analyzeSite).mockReset();
     vi.mocked(streamGeneration).mockReset();
+    mockSearchParams.mockReturnValue(new URLSearchParams());
   });
 
   it("shows the empty state with nothing generated yet", () => {
     renderStudio();
+    expect(screen.getByText("Nothing generated yet")).toBeInTheDocument();
+  });
+
+  it("auto-runs analyze for a valid ?url= query param, pre-filling the field", async () => {
+    mockSearchParams.mockReturnValue(new URLSearchParams("url=stripe.com"));
+    vi.mocked(analyzeSite).mockResolvedValue(SITE_PROFILE);
+    vi.mocked(streamGeneration).mockReturnValue(fakeStream([]));
+
+    renderStudio();
+
+    expect(screen.getByPlaceholderText("your-product.com")).toHaveValue("stripe.com");
+    await waitFor(() => expect(analyzeSite).toHaveBeenCalledWith("https://stripe.com"));
+  });
+
+  it("ignores an invalid ?url= query param instead of reaching the API", () => {
+    mockSearchParams.mockReturnValue(new URLSearchParams({ url: "not a url" }));
+
+    renderStudio();
+
+    expect(analyzeSite).not.toHaveBeenCalled();
     expect(screen.getByText("Nothing generated yet")).toBeInTheDocument();
   });
 
@@ -175,5 +200,35 @@ describe("StudioPage", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Close" }));
     await waitFor(() => expect(dialog.hasAttribute("open")).toBe(false));
+  });
+});
+
+describe("StudioPage demo controls", () => {
+  it("shows the empty state until a demo scenario is chosen", () => {
+    renderStudio();
+    expect(screen.getByText("Nothing generated yet")).toBeInTheDocument();
+  });
+
+  it("'Server error' shows the simulated error banner, dismissible back to empty", () => {
+    renderStudio();
+
+    fireEvent.click(screen.getByRole("button", { name: "Server error" }));
+    expect(screen.getByText("Generation failed")).toBeInTheDocument();
+    expect(screen.getByText(/simulated demo failure/i)).toBeInTheDocument();
+    expect(screen.queryByText("Nothing generated yet")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Dismiss" }));
+    expect(screen.getByText("Nothing generated yet")).toBeInTheDocument();
+  });
+
+  it("'Slow generation' shows the audience bar and the slow variation grid", () => {
+    renderStudio();
+
+    fireEvent.click(screen.getByRole("button", { name: "Slow generation" }));
+    expect(screen.getByText("Product-led B2B teams")).toBeInTheDocument();
+    expect(screen.getAllByText(/taking longer/i).length).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getByRole("button", { name: "Reset" }));
+    expect(screen.getByText("Nothing generated yet")).toBeInTheDocument();
   });
 });

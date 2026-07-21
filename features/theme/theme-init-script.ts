@@ -10,10 +10,10 @@ export const THEME_STORAGE_KEY = "pricing-optimizer-theme-mode";
 export const themeModeInitScript = `
 (function() {
   try {
-    var mode = window.localStorage.getItem("${THEME_STORAGE_KEY}") || "system";
-    var resolved = mode === "system"
-      ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
-      : mode;
+    var stored = window.localStorage.getItem("${THEME_STORAGE_KEY}");
+    var resolved = (stored === "light" || stored === "dark")
+      ? stored
+      : (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
     document.documentElement.setAttribute("data-theme", resolved);
   } catch (e) {}
 })();

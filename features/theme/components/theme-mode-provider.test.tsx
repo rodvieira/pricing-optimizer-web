@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { THEME_STORAGE_KEY } from "../theme-init-script";
 import { ThemeModeProvider, useThemeMode } from "./theme-mode-provider";
 
@@ -11,8 +11,24 @@ function Probe() {
       <button type="button" onClick={() => setMode("dark")}>
         go dark
       </button>
+      <button type="button" onClick={() => setMode("light")}>
+        go light
+      </button>
     </div>
   );
+}
+
+function mockOsPreference(prefersDark: boolean) {
+  return vi.spyOn(window, "matchMedia").mockReturnValue({
+    matches: prefersDark,
+    media: "(prefers-color-scheme: dark)",
+    onchange: null,
+    addListener: () => {},
+    removeListener: () => {},
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => false,
+  } as MediaQueryList);
 }
 
 describe("ThemeModeProvider / useThemeMode", () => {
@@ -20,13 +36,26 @@ describe("ThemeModeProvider / useThemeMode", () => {
     window.localStorage.clear();
   });
 
-  it("defaults to system mode with nothing stored", async () => {
+  it("defaults to the OS light preference with nothing stored", async () => {
+    const matchMediaSpy = mockOsPreference(false);
     render(
       <ThemeModeProvider>
         <Probe />
       </ThemeModeProvider>,
     );
-    await waitFor(() => expect(screen.getByText("mode: system")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText("mode: light")).toBeInTheDocument());
+    matchMediaSpy.mockRestore();
+  });
+
+  it("defaults to the OS dark preference with nothing stored", async () => {
+    const matchMediaSpy = mockOsPreference(true);
+    render(
+      <ThemeModeProvider>
+        <Probe />
+      </ThemeModeProvider>,
+    );
+    await waitFor(() => expect(screen.getByText("mode: dark")).toBeInTheDocument());
+    matchMediaSpy.mockRestore();
   });
 
   it("adopts a validly stored mode on mount", async () => {
@@ -39,14 +68,16 @@ describe("ThemeModeProvider / useThemeMode", () => {
     await waitFor(() => expect(screen.getByText("mode: dark")).toBeInTheDocument());
   });
 
-  it("ignores a stored value outside the known mode set", async () => {
-    window.localStorage.setItem(THEME_STORAGE_KEY, "purple");
+  it("ignores a stored value outside the known mode set (including legacy 'system')", async () => {
+    const matchMediaSpy = mockOsPreference(false);
+    window.localStorage.setItem(THEME_STORAGE_KEY, "system");
     render(
       <ThemeModeProvider>
         <Probe />
       </ThemeModeProvider>,
     );
-    await waitFor(() => expect(screen.getByText("mode: system")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText("mode: light")).toBeInTheDocument());
+    matchMediaSpy.mockRestore();
   });
 
   it("setMode updates state and persists to localStorage", async () => {
@@ -60,6 +91,21 @@ describe("ThemeModeProvider / useThemeMode", () => {
 
     await waitFor(() => expect(screen.getByText("mode: dark")).toBeInTheDocument());
     expect(window.localStorage.getItem(THEME_STORAGE_KEY)).toBe("dark");
+  });
+
+  it("stops following OS preference changes once the user picks a mode explicitly", async () => {
+    const matchMediaSpy = mockOsPreference(false);
+    render(
+      <ThemeModeProvider>
+        <Probe />
+      </ThemeModeProvider>,
+    );
+    await waitFor(() => expect(screen.getByText("mode: light")).toBeInTheDocument());
+
+    fireEvent.click(screen.getByRole("button", { name: "go dark" }));
+    await waitFor(() => expect(screen.getByText("mode: dark")).toBeInTheDocument());
+    expect(window.localStorage.getItem(THEME_STORAGE_KEY)).toBe("dark");
+    matchMediaSpy.mockRestore();
   });
 
   it("throws when useThemeMode is called outside the provider", () => {

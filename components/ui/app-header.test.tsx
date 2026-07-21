@@ -24,15 +24,15 @@ describe("AppHeader", () => {
     mockUsePathname.mockReturnValue("/studio");
     render();
 
-    expect(screen.getByRole("link", { name: "Studio" }).className).toContain("bg-card");
-    expect(screen.getByRole("link", { name: "Overview" }).className).not.toContain("bg-card");
+    expect(screen.getByRole("link", { name: "Studio" }).className).toContain("bg-muted");
+    expect(screen.getByRole("link", { name: "Overview" }).className).not.toContain("bg-muted");
   });
 
   it("marks Overview as the active nav item on /", () => {
     mockUsePathname.mockReturnValue("/");
     render();
 
-    expect(screen.getByRole("link", { name: "Overview" }).className).toContain("bg-card");
-    expect(screen.getByRole("link", { name: "Studio" }).className).not.toContain("bg-card");
+    expect(screen.getByRole("link", { name: "Overview" }).className).toContain("bg-muted");
+    expect(screen.getByRole("link", { name: "Studio" }).className).not.toContain("bg-muted");
   });
 });

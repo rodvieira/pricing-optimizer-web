@@ -1,4 +1,6 @@
 import { Badge, Button } from "@astryxdesign/core";
+import { CheckGlyph } from "@/components/ui/color-dot";
+import { PriceDisplay } from "@/components/ui/price-display";
 import type { PricingTier } from "@/domain";
 
 function formatPrice(tier: PricingTier): { amount: string; period: string } {
@@ -49,17 +51,12 @@ export function PricingTierRow({
             <Badge variant={strategyVariant} label={tier.badge ?? "Most popular"} />
           )}
         </div>
-        <span className="font-heading text-lg font-semibold tracking-tight">
-          {amount}
-          <span className="text-xs font-normal text-secondary">{period}</span>
-        </span>
+        <PriceDisplay amount={amount} period={period} size="sm" />
       </div>
       <ul className="flex flex-col gap-1 text-xs text-secondary">
         {tier.features.map((feature) => (
           <li key={feature} className="flex items-center gap-2">
-            <span aria-hidden style={{ color: `var(--color-icon-${strategyVariant})` }}>
-              ✓
-            </span>
+            <CheckGlyph color={strategyVariant} />
             {feature}
           </li>
         ))}
