@@ -73,8 +73,10 @@ export function StudioPage() {
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-10">
       <div>
-        <Text type="display-3">Studio</Text>
-        <Text type="body" color="secondary">
+        <Text type="display-3" className="block">
+          Studio
+        </Text>
+        <Text type="body" color="secondary" className="block">
           Paste a product URL — we generate three pricing strategies in parallel.
         </Text>
       </div>

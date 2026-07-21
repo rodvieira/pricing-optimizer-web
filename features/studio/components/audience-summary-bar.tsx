@@ -1,5 +1,6 @@
 import { Text } from "@astryxdesign/core";
 import { motion } from "motion/react";
+import { ColorDot } from "@/components/ui/color-dot";
 import type { SiteProfile } from "@/domain";
 
 function sophisticationLabel(profile: SiteProfile): string {
@@ -14,11 +15,7 @@ export function AudienceSummaryBar({ siteProfile }: { readonly siteProfile: Site
       transition={{ duration: 0.3 }}
       className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card px-4 py-3"
     >
-      <span
-        aria-hidden
-        className="h-2 w-2 rounded-full"
-        style={{ background: "var(--color-icon-teal)" }}
-      />
+      <ColorDot color="teal" />
       <Text type="supporting" color="secondary">
         Scraped <strong className="font-mono text-primary">{siteProfile.title}</strong> — detected
         audience

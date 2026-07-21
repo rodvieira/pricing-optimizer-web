@@ -1,8 +1,14 @@
 "use client";
 
-import { IconButton } from "@astryxdesign/core";
+import { Button } from "@astryxdesign/core";
 import { Moon, Sun } from "lucide-react";
 import { useThemeMode } from "./theme-mode-provider";
+
+const MODE_LABEL: Record<"light" | "dark" | "system", string> = {
+  light: "Light",
+  dark: "Dark",
+  system: "System",
+};
 
 /** Cycles light -> dark -> system -> light. */
 export function ThemeToggle() {
@@ -12,11 +18,15 @@ export function ThemeToggle() {
   const Icon = mode === "dark" ? Moon : Sun;
 
   return (
-    <IconButton
+    <Button
       label={`Switch to ${next} theme (current: ${mode})`}
-      icon={<Icon size={18} />}
+      icon={<Icon size={14} />}
       onClick={() => setMode(next)}
       variant="secondary"
-    />
+      size="sm"
+      className="font-mono text-[11px] tracking-wide"
+    >
+      {MODE_LABEL[mode]}
+    </Button>
   );
 }

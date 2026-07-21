@@ -7,7 +7,7 @@ test("landing page renders the hero and has no serious accessibility violations"
   await page.goto("/");
 
   await expect(page.getByRole("heading", { name: /three pricing pages/i })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Open Studio" })).toBeVisible();
+  await expect(page.getByRole("link", { name: /open the studio/i })).toBeVisible();
 
   const results = await new AxeBuilder({ page }).analyze();
   const serious = results.violations.filter(

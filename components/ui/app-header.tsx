@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Text } from "@astryxdesign/core";
+import { Text } from "@astryxdesign/core";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "@/features/theme/components/theme-toggle";
@@ -23,15 +23,18 @@ export function AppHeader() {
             <span className="h-[13px] w-1" style={{ background: "var(--color-icon-pink)" }} />
           </span>
           <Text type="label">Pricing Optimizer</Text>
+          <span className="rounded border border-border px-1.5 py-0.5 font-mono text-[10px] tracking-wide text-secondary">
+            v1.0
+          </span>
         </Link>
         <div className="flex items-center gap-4">
-          <nav className="flex gap-1 rounded-lg bg-muted p-1">
+          <nav className="flex gap-1 rounded-lg bg-card p-1">
             {NAV_ITEMS.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 className={`rounded-md px-3 py-1.5 font-sans text-xs font-medium text-primary transition-colors ${
-                  pathname === item.href ? "bg-card" : "opacity-70 hover:opacity-100"
+                  pathname === item.href ? "bg-muted" : "opacity-70 hover:opacity-100"
                 }`}
               >
                 {item.label}
@@ -39,7 +42,6 @@ export function AppHeader() {
             ))}
           </nav>
           <ThemeToggle />
-          <Button label="Open Studio" variant="primary" href="/studio" as={Link} />
         </div>
       </div>
     </header>
