@@ -177,3 +177,33 @@ describe("StudioPage", () => {
     await waitFor(() => expect(dialog.hasAttribute("open")).toBe(false));
   });
 });
+
+describe("StudioPage demo controls", () => {
+  it("shows the empty state until a demo scenario is chosen", () => {
+    renderStudio();
+    expect(screen.getByText("Nothing generated yet")).toBeInTheDocument();
+  });
+
+  it("'Server error' shows the simulated error banner, dismissible back to empty", () => {
+    renderStudio();
+
+    fireEvent.click(screen.getByRole("button", { name: "Server error" }));
+    expect(screen.getByText("Generation failed")).toBeInTheDocument();
+    expect(screen.getByText(/simulated demo failure/i)).toBeInTheDocument();
+    expect(screen.queryByText("Nothing generated yet")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Dismiss" }));
+    expect(screen.getByText("Nothing generated yet")).toBeInTheDocument();
+  });
+
+  it("'Slow generation' shows the audience bar and the slow variation grid", () => {
+    renderStudio();
+
+    fireEvent.click(screen.getByRole("button", { name: "Slow generation" }));
+    expect(screen.getByText("Product-led B2B teams")).toBeInTheDocument();
+    expect(screen.getAllByText(/taking longer/i).length).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getByRole("button", { name: "Reset" }));
+    expect(screen.getByText("Nothing generated yet")).toBeInTheDocument();
+  });
+});

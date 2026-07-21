@@ -12,7 +12,7 @@ const PREVIEW_CARDS = [
 
 export function ProductPreview() {
   return (
-    <section className="mx-auto w-full max-w-6xl px-6">
+    <section className="mx-auto w-full max-w-6xl px-8">
       <Card variant="default" padding={0}>
         <PanelHeader>
           <div className="flex gap-1.5">
@@ -29,11 +29,17 @@ export function ProductPreview() {
             <ColorAccentColumn key={card.label} color={card.variant} className="px-5 py-5">
               <div className="mb-3 flex items-center gap-2">
                 <Eyebrow>{card.label}</Eyebrow>
-                <span aria-hidden className="ml-auto text-success">
+                <span aria-hidden className="ml-auto text-xs text-success">
                   ✓
                 </span>
               </div>
               <PriceDisplay amount={card.price} period={card.hint} />
+              {/* Static placeholder bars, matching the mock's "content loading" preview. */}
+              <div aria-hidden className="mt-4 flex flex-col gap-2">
+                <span className="h-1.5 w-[68%] rounded-full bg-border" />
+                <span className="h-1.5 w-[84%] rounded-full bg-border" />
+                <span className="h-1.5 w-[52%] rounded-full bg-border" />
+              </div>
             </ColorAccentColumn>
           ))}
         </div>

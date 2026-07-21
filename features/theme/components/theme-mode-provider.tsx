@@ -2,7 +2,10 @@
 
 import { Theme } from "@astryxdesign/core";
 import { createContext, type ReactNode, useContext, useEffect, useState } from "react";
-import { pricingOptimizerTheme } from "../pricing-optimizer-theme";
+// The pre-built theme object (has __built: true) so <Theme> skips runtime style
+// injection — the CSS is shipped statically via app/globals.css. Regenerate
+// both with `pnpm build:theme` after editing pricing-optimizer-theme.ts.
+import { pricingOptimizerTheme } from "../generated/pricing-optimizer";
 import { THEME_STORAGE_KEY } from "../theme-init-script";
 
 type ThemeMode = "system" | "light" | "dark";

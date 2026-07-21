@@ -1,6 +1,6 @@
 "use client";
 
-import { Banner, Button, EmptyState, Text } from "@astryxdesign/core";
+import { Banner, Button, Text } from "@astryxdesign/core";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   type Generation,
@@ -17,12 +17,21 @@ import { useLocalHistory } from "@/features/history/hooks/use-local-history";
 import { UrlInputForm } from "@/features/url-input/components/url-input-form";
 import { useAnalyze } from "@/features/url-input/hooks/use-analyze";
 import { AudienceSummaryBar } from "./components/audience-summary-bar";
+import { type DemoScenario, StudioDemoControls } from "./components/studio-demo-controls";
+import { StudioEmptyState } from "./components/studio-empty-state";
+import {
+  DEMO_PROBLEM,
+  DEMO_SITE_PROFILE,
+  DEMO_SLOW_STRATEGIES,
+  demoSlowStreamState,
+} from "./demo-fixtures";
 
 export function StudioPage() {
   const [siteProfile, setSiteProfile] = useState<SiteProfile | null>(null);
   const [lastUrl, setLastUrl] = useState<string | null>(null);
   const [exportStrategy, setExportStrategy] = useState<PricingStrategy | null>(null);
   const [viewedGeneration, setViewedGeneration] = useState<Generation | null>(null);
+  const [demo, setDemo] = useState<DemoScenario>("none");
   const analyze = useAnalyze();
   const generateStream = useGenerateStream();
   const { history, addGeneration, clearHistory } = useLocalHistory();
@@ -30,6 +39,7 @@ export function StudioPage() {
 
   const runFor = useCallback(
     (url: string) => {
+      setDemo("none");
       setViewedGeneration(null);
       setLastUrl(url);
       analyze.mutate(url, {
@@ -47,8 +57,16 @@ export function StudioPage() {
   }, [lastUrl, runFor]);
 
   const viewHistoryEntry = useCallback((generation: Generation) => {
+    setDemo("none");
     setViewedGeneration(generation);
     setSiteProfile(generation.siteProfile ?? null);
+  }, []);
+
+  const resetDemo = useCallback(() => {
+    setDemo("none");
+    setSiteProfile(null);
+    setViewedGeneration(null);
+    setLastUrl(null);
   }, []);
 
   // Persist a live generation to local history exactly once, as soon as its
@@ -62,23 +80,55 @@ export function StudioPage() {
     }
   }, [generateStream.state, addGeneration]);
 
-  const displayState = viewedGeneration
-    ? generationToStreamState(viewedGeneration)
-    : generateStream.state;
+  const isDemo = demo !== "none";
+
+  function currentDisplayState() {
+    if (viewedGeneration) return generationToStreamState(viewedGeneration);
+    if (demo === "slow") return demoSlowStreamState();
+    return generateStream.state;
+  }
+  const displayState = currentDisplayState();
+  const slowStrategies = demo === "slow" ? DEMO_SLOW_STRATEGIES : generateStream.slowStrategies;
+
+  function currentProfile() {
+    if (demo === "slow") return DEMO_SITE_PROFILE;
+    if (isDemo) return null;
+    return siteProfile;
+  }
+  const shownProfile = currentProfile();
 
   const isBusy = analyze.isPending || generateStream.state.status === "streaming";
-  const hasStreamError =
-    !viewedGeneration && generateStream.state.status === "error" && generateStream.state.problem;
+  const showErrorBanner =
+    demo === "error" ||
+    (!isDemo &&
+      !viewedGeneration &&
+      generateStream.state.status === "error" &&
+      generateStream.state.problem != null);
+  const errorProblem =
+    demo === "error"
+      ? DEMO_PROBLEM
+      : (generateStream.state.problem ?? { title: "Generation failed", status: 500 });
+  const showGrid =
+    demo === "slow" || (!isDemo && (siteProfile != null || viewedGeneration != null));
+  const showEmpty = !isDemo && !siteProfile && !viewedGeneration && !analyze.isError;
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-10">
-      <div>
-        <Text type="display-3" className="block">
-          Studio
-        </Text>
-        <Text type="body" color="secondary" className="block">
-          Paste a product URL — we generate three pricing strategies in parallel.
-        </Text>
+    <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-8 py-10">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <Text type="display-3" className="block">
+            Studio
+          </Text>
+          <Text type="body" color="secondary" className="block">
+            Paste a product URL — we generate three pricing strategies in parallel.
+          </Text>
+        </div>
+        <StudioDemoControls
+          active={demo}
+          onReset={resetDemo}
+          onServerError={() => setDemo("error")}
+          onSlow={() => setDemo("slow")}
+        />
       </div>
 
       <UrlInputForm onSubmitUrl={runFor} isBusy={isBusy} />
@@ -90,7 +140,7 @@ export function StudioPage() {
         onClear={clearHistory}
       />
 
-      {analyze.isError && (
+      {analyze.isError && !isDemo && (
         <Banner
           status="error"
           title={analyze.error.problem.title}
@@ -99,28 +149,29 @@ export function StudioPage() {
         />
       )}
 
-      {siteProfile && <AudienceSummaryBar siteProfile={siteProfile} />}
+      {shownProfile && <AudienceSummaryBar siteProfile={shownProfile} />}
 
-      {hasStreamError && (
+      {showErrorBanner && (
         <Banner
           status="error"
-          title={generateStream.state.problem?.title ?? "Generation failed"}
-          description={generateStream.state.problem?.detail}
-          endContent={<Button label="Retry" variant="ghost" onClick={retry} />}
+          title={errorProblem.title}
+          description={errorProblem.detail}
+          endContent={
+            demo === "error" ? (
+              <Button label="Dismiss" variant="ghost" onClick={resetDemo} />
+            ) : (
+              <Button label="Retry" variant="ghost" onClick={retry} />
+            )
+          }
         />
       )}
 
-      {!siteProfile && !viewedGeneration && !analyze.isError && (
-        <EmptyState
-          title="Nothing generated yet"
-          description="Paste a product URL above to stream three pricing strategies side by side."
-        />
-      )}
+      {showEmpty && <StudioEmptyState />}
 
-      {(siteProfile || viewedGeneration) && !hasStreamError && (
+      {showGrid && (
         <VariationGrid
           state={displayState}
-          slowStrategies={generateStream.slowStrategies}
+          slowStrategies={slowStrategies}
           onExport={setExportStrategy}
         />
       )}

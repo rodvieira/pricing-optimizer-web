@@ -35,6 +35,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      // Static theme scope so the pre-compiled theme CSS (globals.css) applies on
+      // first paint, before <Theme> mounts — the generated rules are scoped to
+      // [data-astryx-theme="pricing-optimizer"]. The theme name is constant.
+      data-astryx-theme="pricing-optimizer"
       // themeModeInitScript below sets data-theme on this element before hydration to
       // avoid a flash of the wrong theme; suppress the resulting, expected mismatch
       // warning rather than have React fight the intentional pre-hydration mutation.

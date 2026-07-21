@@ -10,6 +10,7 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "typecheck": "tsc --noEmit",
+    "build:theme": "astryx theme build features/theme/pricing-optimizer-theme.ts -o features/theme/generated/pricing-optimizer.css",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
@@ -32,6 +33,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@astryxdesign/cli": "0.1.6",
     "@axe-core/playwright": "^4.12.1",
     "@biomejs/biome": "2.5.4",
     "@commitlint/cli": "^21.2.1",

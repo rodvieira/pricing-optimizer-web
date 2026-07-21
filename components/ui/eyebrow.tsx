@@ -1,10 +1,13 @@
 import type { CSSProperties, ReactNode } from "react";
 
-export type EyebrowTone = "accent" | "secondary" | "inherit";
+export type EyebrowTone = "accent" | "secondary" | "muted" | "rust" | "inherit";
 
 const TONE_CLASS: Record<EyebrowTone, string> = {
   accent: "text-accent",
   secondary: "text-secondary",
+  // Bespoke warm mock tokens (defined in app/globals.css):
+  muted: "text-(--po-text-muted)", // top ribbon, price "/mo"
+  rust: "text-(--po-accent-rust)", // hero "PSYCHOLOGY-DRIVEN PRICING"
   inherit: "",
 };
 
@@ -35,7 +38,7 @@ export function Eyebrow({
       className={`inline-flex items-center gap-2 font-mono text-[11px] tracking-widest ${TONE_CLASS[tone]} ${className}`}
       style={style}
     >
-      {withRule && <span aria-hidden className="h-px w-6 bg-accent" />}
+      {withRule && <span aria-hidden className="h-px w-6 bg-current" />}
       {children}
     </span>
   );

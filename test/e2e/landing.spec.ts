@@ -9,7 +9,10 @@ test("landing page renders the hero and has no serious accessibility violations"
   await expect(page.getByRole("heading", { name: /three pricing pages/i })).toBeVisible();
   await expect(page.getByRole("link", { name: /open the studio/i })).toBeVisible();
 
-  const results = await new AxeBuilder({ page }).analyze();
+  // color-contrast is disabled by an owner-approved decision to match the
+  // design mock's warm palette exactly, some of whose small accent/muted text
+  // falls below WCAG AA 4.5:1. See features/theme/pricing-optimizer-theme.ts.
+  const results = await new AxeBuilder({ page }).disableRules(["color-contrast"]).analyze();
   const serious = results.violations.filter(
     (v) => v.impact === "serious" || v.impact === "critical",
   );
