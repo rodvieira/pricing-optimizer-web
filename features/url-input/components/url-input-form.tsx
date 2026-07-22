@@ -40,8 +40,12 @@ export function UrlInputForm({ onSubmitUrl, isBusy, initialUrl }: UrlInputFormPr
   return (
     <div className="flex flex-col gap-3">
       <form onSubmit={onSubmit} className="flex flex-col gap-2">
-        <div className="flex items-center gap-2 rounded-[10px] border border-border-strong bg-surface p-1.5">
-          <span aria-hidden className="pl-2 font-mono text-sm text-(--po-text-muted)">
+        <div
+          className={`flex items-center gap-2 rounded-[10px] border bg-surface p-1.5 transition-colors ${
+            errorMessage ? "border-error" : "border-border-strong"
+          }`}
+        >
+          <span aria-hidden className="pl-3 font-mono text-[13px] text-(--po-text-muted)">
             https://
           </span>
           <Controller
@@ -57,7 +61,7 @@ export function UrlInputForm({ onSubmitUrl, isBusy, initialUrl }: UrlInputFormPr
                 onBlur={field.onBlur}
                 placeholder="your-product.com"
                 disabled={isBusy}
-                className="min-w-0 flex-1 bg-transparent py-2 font-mono text-sm text-primary outline-none placeholder:text-(--po-text-muted) disabled:opacity-60"
+                className="min-w-0 flex-1 bg-transparent py-[11px] font-mono text-[14px] text-primary outline-none placeholder:text-(--po-text-muted) disabled:opacity-60"
               />
             )}
           />
@@ -66,6 +70,13 @@ export function UrlInputForm({ onSubmitUrl, isBusy, initialUrl }: UrlInputFormPr
             label={isBusy ? "Generating" : "Analyze"}
             variant="primary"
             isLoading={isBusy}
+            style={{
+              height: 40,
+              paddingInline: 20,
+              borderRadius: 8,
+              fontSize: 14,
+              fontWeight: 600,
+            }}
           />
         </div>
         {errorMessage && (
@@ -75,14 +86,14 @@ export function UrlInputForm({ onSubmitUrl, isBusy, initialUrl }: UrlInputFormPr
         )}
       </form>
       <div className="flex flex-wrap items-center gap-2">
-        <span className="font-sans text-xs text-(--po-text-muted)">Try:</span>
+        <span className="font-sans text-[12px] text-(--po-text-muted)">Try:</span>
         {EXAMPLE_URLS.map((example) => (
           <button
             key={example}
             type="button"
             disabled={isBusy}
             onClick={() => setValue("url", example)}
-            className="rounded-md border border-border bg-surface px-2.5 py-1 font-mono text-xs text-secondary transition-colors hover:border-border-strong disabled:opacity-60"
+            className="rounded-[6px] border border-border bg-surface px-2.5 py-1 font-mono text-[11.5px] text-secondary transition-colors hover:border-border-strong disabled:opacity-60"
           >
             {example}
           </button>

@@ -53,10 +53,18 @@ export function VariationCard({
   const isComplete = strategyState?.status === "completed";
 
   return (
-    <Card variant="default" padding={0}>
+    <Card
+      variant="default"
+      padding={0}
+      style={{
+        borderTopWidth: 2,
+        borderTopColor: `var(--color-icon-${meta.variant})`,
+        borderRadius: "2px 2px 12px 12px",
+      }}
+    >
       <PanelHeader>
         <ColorDot color={meta.variant} />
-        <span className="font-heading text-sm font-semibold">{meta.label}</span>
+        <span className="font-heading text-[14.5px] font-semibold">{meta.label}</span>
         <Eyebrow tone="secondary" className="ml-auto">
           {statusLabel(strategyState, isSlow)}
         </Eyebrow>
@@ -101,15 +109,33 @@ export function VariationCard({
         )}
       </div>
 
-      <div className="flex gap-2 border-t border-border px-4 py-3">
+      <div className="flex gap-[9px] border-t border-border px-4 py-3">
         <Button
           label="Export"
           variant="primary"
           size="sm"
           isDisabled={!isComplete}
           onClick={onExport}
+          className="flex-1"
+          style={{ padding: 9, borderRadius: 8, fontSize: 12.5, fontWeight: 600, height: "auto" }}
         />
-        <Button label="Edit inline" variant="secondary" size="sm" isDisabled={!isComplete} />
+        <Button
+          label="Edit inline"
+          variant="secondary"
+          size="sm"
+          isDisabled={!isComplete}
+          className="flex-1"
+          style={{
+            padding: 9,
+            borderRadius: 8,
+            fontSize: 12.5,
+            fontWeight: 500,
+            height: "auto",
+            backgroundColor: "transparent",
+            border: "1px solid var(--color-border-emphasized)",
+            color: "var(--color-text-secondary)",
+          }}
+        />
       </div>
     </Card>
   );
