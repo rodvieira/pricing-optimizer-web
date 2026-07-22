@@ -21,7 +21,7 @@ function DemoPill({ label, isActive = false, onClick }: PillProps) {
       type="button"
       onClick={onClick}
       aria-pressed={isActive}
-      className={`rounded-md border px-2.5 py-1.5 font-sans text-xs font-medium transition-colors ${
+      className={`rounded-[7px] border px-[11px] py-1.5 font-sans text-[12px] font-medium transition-colors ${
         isActive
           ? "border-border-strong bg-muted text-primary"
           : "border-border bg-surface text-secondary hover:border-border-strong"

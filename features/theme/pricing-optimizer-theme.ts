@@ -27,7 +27,8 @@ import { neutralTheme } from "@astryxdesign/theme-neutral";
  * Font-size/weight numbers below are read directly off the design mock via
  * getComputedStyle, not eyeballed: display-1 (landing hero) is 60px/600
  * there vs this theme's default 42px/400; display-3 (Studio page heading)
- * is 28px/600 vs 29px/400. Letter-spacing (-2.1px / -0.7px) has no semantic
+ * is 28px/600 vs neutral's default 29px/400 (`--font-size-3xl`) — both size
+ * and weight need overriding, not just weight. Letter-spacing (-2.1px / -0.7px) has no semantic
  * token — set via a `components.text` override instead, keyed the same way
  * Text reads its `type` prop (see @astryxdesign/core's Text.js `themeProps`
  * call).
@@ -82,6 +83,7 @@ export const pricingOptimizerTheme = defineTheme({
     "--text-display-1-size": "3.75rem",
     "--text-display-1-weight": "600",
     "--text-display-1-leading": "1.02",
+    "--text-display-3-size": "1.75rem",
     "--text-display-3-weight": "600",
   },
   components: {

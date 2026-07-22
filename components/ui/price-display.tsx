@@ -7,7 +7,11 @@ export interface PriceDisplayProps {
 }
 
 const SIZE_CLASS: Record<NonNullable<PriceDisplayProps["size"]>, string> = {
-  sm: "text-lg",
+  // The Studio tier row's price ("$49/mo") is 21px/-0.42px letter-spacing on
+  // the design mock — off Astryx's text-lg (17px) scale step, so pinned to
+  // the exact value with `!` to win over the unconditional `tracking-tight`
+  // below.
+  sm: "!text-[21px] !tracking-[-0.42px]",
   lg: "text-2xl",
 };
 
