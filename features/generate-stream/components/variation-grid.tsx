@@ -20,7 +20,7 @@ export function VariationGrid({ state, slowStrategies, onExport }: VariationGrid
       {/* biome-ignore lint/a11y/noStaticElementInteractions: clears a hover-only visual highlight; no keyboard/screen-reader equivalent needed (see pricing-tier-row.tsx). */}
       <div
         onMouseLeave={() => setHoveredTierIndex(null)}
-        className="grid grid-cols-1 items-start gap-4 md:grid-cols-3"
+        className="grid grid-cols-1 items-start gap-4 lg:grid-cols-3"
       >
         {STRATEGY_META.map((meta, index) => (
           <motion.div
