@@ -62,6 +62,20 @@ test("happy path: analyze then stream three variations to completion", async ({ 
   await expect(page.getByRole("button", { name: "Export" }).first()).toBeEnabled();
 });
 
+test("?url= deep link pre-fills the field and auto-starts analysis", async ({ page }) => {
+  await mockAnalyzeAndGenerate(page);
+  await page.goto("/studio?url=flowbase.com");
+
+  // Regression coverage for issue #5: this flow's useSearchParams() read
+  // lives in its own <Suspense>-isolated leaf (studio-auto-run.tsx) so the
+  // rest of the page can render from the static HTML shell instead of
+  // waiting on client hydration — this test exercises that the split still
+  // delivers the same field-prefill + auto-run behavior as before.
+  await expect(page.getByRole("textbox", { name: "Product URL" })).toHaveValue("flowbase.com");
+  await expect(page.getByText("Product-led B2B teams")).toBeVisible();
+  await expect(page.getByText("ready")).toHaveCount(3, { timeout: 10_000 });
+});
+
 test("shows a distinct error banner with retry when analyze fails", async ({ page }) => {
   await mockAnalyzeFailure(page);
   await page.goto("/studio");

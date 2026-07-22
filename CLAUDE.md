@@ -141,11 +141,37 @@ Getting this wrong (gating only on `siteProfile`) silently hides the grid for an
 history entry the backend returned without a profile — caught by the e2e test in
 `test/e2e/studio.spec.ts` before it shipped, worth keeping if this code is touched again.
 
+## `useSearchParams()` needs its own `<Suspense>` leaf, not a page-level one
+
+Next.js requires a `<Suspense>` boundary somewhere above any `useSearchParams()` call
+on a statically-prerendered route, since the value genuinely isn't known at build time.
+Wrapping the *whole page* in that boundary (the original approach in
+`app/studio/page.tsx`, for the "Watch a live run" `?url=` deep link) means Next.js emits
+an **empty static shell** for everything inside it — the heading, URL bar, empty state,
+all of it — with real content appearing only once the JS bundle hydrates. Measured
+impact (issue #5): Studio scored ~90 on Lighthouse performance even against the real
+Vercel deployment, with the LCP breakdown insight showing hundreds of ms of
+"element render delay" and no matching network cost. Fixed by isolating the hook into
+its own leaf (`features/studio/components/studio-auto-run.tsx`), Suspense-wrapped
+*inside* `StudioPage` rather than around it in `app/studio/page.tsx` — the rest of the
+page is ordinary static content again. If a future page needs `useSearchParams()`
+(or any other hook requiring Suspense), push the boundary down to the smallest leaf
+that actually needs it; don't wrap the route component.
+
 ## Known, tracked gaps (don't re-discover these — check the issue first)
 
-- **Lighthouse has never been measured** — see issue #5.
 - **"Edit inline"** (present in the generated design, disabled until a variation
   completes) has no defined behavior — see issue #1.
+
+Issue #5 (Lighthouse >= 95, HANDOFF.md Sprint 9 target) is resolved as far as code
+changes go: `pnpm lighthouse` (`scripts/lighthouse.mjs`) now exists for repeatable
+measurement, and the real root cause (the Suspense issue above) is fixed. Production
+scored 99/92 (landing/studio) *before* that fix; re-measure `pnpm lighthouse
+https://pricing-optimizer-web.vercel.app` after this deploys to confirm Studio clears
+95 too. Local `pnpm dev`/`pnpm start` measurements on a shared dev machine are noisy —
+Lighthouse's simulated-throttling LCP estimate has been observed swinging 8+ score
+points and 1+ second across back-to-back runs of the same unchanged build; treat a
+local run as a smoke check, not the authoritative number.
 
 Issue #4 ("no session has run the Studio flow against a live `pricing-optimizer-api`")
 is closed — the Studio flow (analyze → generate SSE → export) has been verified against

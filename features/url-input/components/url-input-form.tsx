@@ -2,7 +2,7 @@
 
 import { Button } from "@astryxdesign/core";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useId } from "react";
+import { useEffect, useId } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { type UrlInputValues, urlInputSchema } from "../url-input-schema";
 
@@ -34,6 +34,14 @@ export function UrlInputForm({ onSubmitUrl, isBusy, initialUrl }: UrlInputFormPr
   });
   const errorId = useId();
   const errorMessage = formState.errors.url?.message;
+
+  // initialUrl can arrive after this form has already mounted (it's read
+  // from useSearchParams() in a Suspense-isolated sibling, resolved
+  // post-hydration — see features/studio/components/studio-auto-run.tsx),
+  // so defaultValues alone (read once, at mount) isn't enough to pick it up.
+  useEffect(() => {
+    if (initialUrl !== undefined) setValue("url", initialUrl);
+  }, [initialUrl, setValue]);
 
   const onSubmit = handleSubmit((values) => onSubmitUrl(values.url));
 
