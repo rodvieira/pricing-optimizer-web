@@ -14,6 +14,7 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
+    "lighthouse": "mkdir -p .lighthouse && node scripts/lighthouse.mjs",
     "sync-openapi": "cp ../openapi.yaml ./openapi.yaml && pnpm run codegen",
     "codegen": "openapi-typescript openapi.yaml -o lib/api/schema.ts",
     "prepare": "lefthook install"
@@ -47,8 +48,10 @@
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^6.0.3",
     "@vitest/coverage-v8": "^4.1.10",
+    "chrome-launcher": "^1.2.1",
     "jsdom": "^29.1.1",
     "lefthook": "^2.1.10",
+    "lighthouse": "^13.4.1",
     "openapi-typescript": "^7.13.0",
     "tailwindcss": "^4",
     "typescript": "^5",
