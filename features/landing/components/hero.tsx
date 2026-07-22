@@ -20,18 +20,29 @@ const LIVE_RUN_EXAMPLE_URL = "linear.app";
 
 export function Hero() {
   return (
-    <section className="mx-auto w-full max-w-7xl px-8 pt-16 pb-10">
+    <section className="mx-auto w-full max-w-7xl px-6 pt-16 pb-10 sm:px-8">
       <Eyebrow tone="rust" withRule className="mb-6">
         PSYCHOLOGY-DRIVEN PRICING
       </Eyebrow>
-      {/* Two-tone headline: second sentence drops to secondary, matching the mock. */}
-      <Text type="display-1" as="h1" className="block text-balance">
+      {/* Two-tone headline: second sentence drops to secondary, matching the
+          mock. Font-size/tracking scale down gradually below the mock's
+          native 60px/-2.1px so the two lines fit a narrow viewport without
+          wrapping onto four or five lines. */}
+      <Text
+        type="display-1"
+        as="h1"
+        className="block text-[32px] tracking-[-1.1px] text-balance sm:text-[42px] sm:tracking-[-1.4px] lg:text-[60px] lg:tracking-[-2.1px]"
+      >
         Three pricing pages. Three strategies.
         <br />
         <span className="text-secondary">Generated live from one URL.</span>
       </Text>
       {/* font-normal: Astryx's `large` text defaults to 600; the mock's subcopy is 400. */}
-      <Text type="large" color="secondary" className="mt-6 block max-w-xl font-normal text-pretty">
+      <Text
+        type="large"
+        color="secondary"
+        className="mt-6 block max-w-xl text-[15px] font-normal text-pretty sm:text-[16px] lg:text-[17px]"
+      >
         Paste any product URL. We scrape it, classify the audience with an LLM, and stream three
         psychology-backed pricing pages in parallel — compare side by side and export to JSX, HTML,
         or a Stripe Pricing Table.
