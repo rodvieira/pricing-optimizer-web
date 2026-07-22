@@ -1,8 +1,7 @@
 "use client";
 
 import { Banner, Button, Text } from "@astryxdesign/core";
-import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import {
   type Generation,
   generationToStreamState,
@@ -19,6 +18,7 @@ import { UrlInputForm } from "@/features/url-input/components/url-input-form";
 import { useAnalyze } from "@/features/url-input/hooks/use-analyze";
 import { urlInputSchema } from "@/features/url-input/url-input-schema";
 import { AudienceSummaryBar } from "./components/audience-summary-bar";
+import { StudioAutoRun } from "./components/studio-auto-run";
 import { type DemoScenario, StudioDemoControls } from "./components/studio-demo-controls";
 import { StudioEmptyState } from "./components/studio-empty-state";
 import {
@@ -38,9 +38,9 @@ export function StudioPage() {
   const generateStream = useGenerateStream();
   const { history, addGeneration, clearHistory } = useLocalHistory();
   const recordedGenerationId = useRef<string | null>(null);
-  const searchParams = useSearchParams();
-  const autoRunUrl = searchParams.get("url");
-  const autoRunHandled = useRef(false);
+  // Set by <StudioAutoRun> once useSearchParams() resolves on the client —
+  // see that component for why the read lives there instead of here.
+  const [autoRunUrl, setAutoRunUrl] = useState<string | undefined>(undefined);
 
   const runFor = useCallback(
     (url: string) => {
@@ -59,11 +59,13 @@ export function StudioPage() {
 
   // "Watch a live run" (the landing page's hero) links here with `?url=` so
   // the Studio starts analyzing immediately instead of showing the empty
-  // state — reuses the same schema the form itself validates against, so a
-  // malformed query string is silently ignored rather than reaching the API.
+  // state. <StudioAutoRun> reports the raw, already-validated query value;
+  // re-run it through the schema here to get the https://-normalized form
+  // runFor expects (the same transform manual form submission goes through).
+  const handledAutoRunUrl = useRef<string | null>(null);
   useEffect(() => {
-    if (autoRunHandled.current || !autoRunUrl) return;
-    autoRunHandled.current = true;
+    if (!autoRunUrl || handledAutoRunUrl.current === autoRunUrl) return;
+    handledAutoRunUrl.current = autoRunUrl;
     const parsed = urlInputSchema.safeParse({ url: autoRunUrl });
     if (parsed.success) runFor(parsed.data.url);
   }, [autoRunUrl, runFor]);
@@ -130,6 +132,10 @@ export function StudioPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-8 py-10">
+      <Suspense fallback={null}>
+        <StudioAutoRun onUrl={setAutoRunUrl} />
+      </Suspense>
+
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <Text type="display-3" className="block">
@@ -147,7 +153,7 @@ export function StudioPage() {
         />
       </div>
 
-      <UrlInputForm onSubmitUrl={runFor} isBusy={isBusy} initialUrl={autoRunUrl ?? undefined} />
+      <UrlInputForm onSubmitUrl={runFor} isBusy={isBusy} initialUrl={autoRunUrl} />
 
       <HistoryPanel
         history={history}

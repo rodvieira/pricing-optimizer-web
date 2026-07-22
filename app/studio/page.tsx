@@ -1,13 +1,10 @@
-import { Suspense } from "react";
 import { StudioPage } from "@/features/studio/studio-page";
 
 export default function Studio() {
-  // StudioPage reads `?url=` via useSearchParams (for the hero's "Watch a
-  // live run" auto-run link), which requires a Suspense boundary so the
-  // route can still be statically prerendered instead of failing the build.
-  return (
-    <Suspense>
-      <StudioPage />
-    </Suspense>
-  );
+  // StudioPage's own <StudioAutoRun> (features/studio/components/) owns the
+  // one useSearchParams() read (for the hero's "Watch a live run" ?url=
+  // link) and its own <Suspense> boundary — kept out of this route
+  // component so the static shell here isn't gated behind it. See
+  // studio-auto-run.tsx for why (issue #5).
+  return <StudioPage />;
 }
