@@ -4,9 +4,9 @@ import { STRATEGY_META } from "@/features/generate-stream/strategy-meta";
 
 export function StrategyTrio() {
   return (
-    <section className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-0 px-8 py-16 sm:grid-cols-3">
+    <section className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-0 px-6 py-16 sm:grid-cols-3 sm:px-8">
       {STRATEGY_META.map((meta, index) => (
-        <ColorAccentColumn key={meta.strategy} color={meta.variant} className="px-6 pt-5">
+        <ColorAccentColumn key={meta.strategy} color={meta.variant} className="px-6 pt-5 pb-6">
           <Eyebrow
             tone="inherit"
             className="mb-2"
