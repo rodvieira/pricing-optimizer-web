@@ -113,7 +113,14 @@ setter — the toggle button (`features/theme/components/theme-toggle.tsx`) driv
 state we own, not an Astryx-provided hook. The pre-hydration init script
 (`features/theme/theme-init-script.ts`) sets `data-theme` on `<html>` before React
 hydrates to avoid a flash of the wrong theme — `app/layout.tsx`'s `suppressHydrationWarning`
-on `<html>` is intentional and expected, not a bug to "fix."
+on `<html>` is intentional and expected, not a bug to "fix." **`mode` is binary
+(`"light" | "dark"` only, no third `"system"` state the toggle cycles through)** — an
+earlier version added a `system` option to the toggle itself, but its icon/label tracked
+raw `mode` instead of the actually-resolved theme, so on a dark-OS machine it kept
+showing the sun icon over a dark page. An unset preference still follows the OS scheme
+live (`ThemeModeProvider` listens for `matchMedia` changes until the user picks
+explicitly) — that part of the original design brief holds — it just isn't a state the
+toggle itself exposes anymore.
 
 ## Local history (`features/history/`)
 
@@ -136,12 +143,17 @@ history entry the backend returned without a profile — caught by the e2e test 
 
 ## Known, tracked gaps (don't re-discover these — check the issue first)
 
-- **No session has run the Studio flow against a live `pricing-optimizer-api`** — see
-  issue #4. Everything is verified via Playwright route-interception mocks
-  (`test/e2e/mock-backend.ts`) or the backend being deliberately unreachable.
 - **Lighthouse has never been measured** — see issue #5.
 - **"Edit inline"** (present in the generated design, disabled until a variation
   completes) has no defined behavior — see issue #1.
+
+Issue #4 ("no session has run the Studio flow against a live `pricing-optimizer-api`")
+is closed — the Studio flow (analyze → generate SSE → export) has been verified against
+a real, locally-running backend, and the deployed production stack (Vercel calling the
+live Cloud Run API) has been smoke-tested end to end. Playwright's mocked backend
+(`test/e2e/mock-backend.ts`) remains the right approach for CI/automated e2e regardless
+— it's about not depending on a live backend in the test suite, not a substitute for the
+one-time real-integration check that's now done.
 
 ## Color-contrast discipline (a real, repeated bug class here)
 
@@ -229,10 +241,15 @@ after merge.
 
 ## Sprint status
 
-Sprint 8 (Studio/landing feature, PR #2) and Sprint 9 (motion + a11y + e2e polish, PR #3)
-shipped. CI added (PR #6). Folder architecture reorganized (PR #7, see
-`../docs/decisions/0011-frontend-feature-based-reorg.md`) — domain split into
-types/logic, `app/` thinned to routing-only, every feature given a consistent
-components/hooks/logic shape. First RTL component tests added (PR #8). F5 (local
-history, `features/history/`) implemented — see the section above. See "Known, tracked
-gaps" above for what's next; full Sprint 8-10 scope in `../HANDOFF.md` section 12.
+Sprints 8-9 (Studio/landing, motion + a11y + e2e, CI, folder reorg — PRs #2/#3/#6/#7),
+RTL coverage and the 90% coverage floor (#8, #10), local history (#9), the warm-cream
+design-mock palette (#12), and further design-parity passes against
+`docs/design/Pricing Optimizer.html` (#13-#16 — real example URLs replacing the mock's
+fictional placeholder domains, Bricolage Grotesque typography, header/hero/container
+sizing, the binary light/dark toggle, and the landing hero's "Watch a live run" now
+deep-linking into an auto-running Studio) are all shipped and merged. **Deployed**: live
+on Vercel at `https://pricing-optimizer-web.vercel.app`, calling the real
+`pricing-optimizer-api` on Cloud Run (`NEXT_PUBLIC_API_URL` set manually in the Vercel
+project's env vars, not automated — reconfirm it still points at the live backend URL if
+that ever changes). See "Known, tracked gaps" above for what's next; full Sprint 8-10
+scope in `../HANDOFF.md` section 12.
