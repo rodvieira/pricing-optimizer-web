@@ -81,6 +81,80 @@ app/                Next.js App Router — routing only. Every page is a thin de
   kept showing the wrong icon on a dark-OS machine. An unset preference still follows
   the OS scheme live; it's just not a state the toggle itself exposes.
 
+## State management & concurrency-adjacent patterns
+
+Three pricing strategies stream in over one interleaved SSE connection, independently,
+in whatever order the backend finishes them. There's no real multithreading in a
+browser tab, but demultiplexing three concurrent async timelines into consistent UI
+state is the same category of problem as backend concurrency, just with `fetch` and
+`AbortController` standing in for goroutines and channels.
+
+**A reducer demultiplexing three interleaved timelines.** `domain/stream.ts` is a pure
+Redux-style reducer — `streamReducer(state, event) => state`, no React, no `fetch`, no
+knowledge of the wire format, trivially unit-testable in isolation. Each strategy owns
+its own 4-state machine:
+
+```ts
+type StrategyGenerationState =
+  | { status: "pending" }
+  | { status: "streaming"; partialText: string }
+  | { status: "completed"; variation: Variation }
+  | { status: "error"; problem: Problem };
+```
+
+held in `strategies: Partial<Record<PricingStrategy, StrategyGenerationState>>` — the
+reducer's whole job is routing each incoming `StreamEvent` (a 6-variant discriminated
+union: `generation_started | variation_started | token | variation_completed | done |
+error`) to the one strategy sub-state-machine it belongs to, leaving the other two
+untouched.
+
+**A real race condition, and the fix.** Reopening the URL bar mid-stream and submitting
+again has to cancel the in-flight request — but a `fetch()` reader's `.read()` can
+already have resolved with a chunk *in flight* at the exact instant `abort()` fires, so
+the async loop can still yield one more event from the *superseded* stream after
+cancellation. Applying it anyway would silently mix a dead generation's data into the
+new one's state:
+
+```ts
+const controller = new AbortController();
+abortControllerRef.current?.abort();      // cancel whatever was running
+abortControllerRef.current = controller;
+for await (const event of streamGeneration(input, { signal: controller.signal })) {
+  if (controller.signal.aborted) return;  // a stale event from the old stream — drop it
+  setState((prev) => streamReducer(prev, event));
+}
+```
+
+The guard is checked again in the `catch` block too, so an abort-induced fetch
+rejection doesn't surface as a false "connection lost" error to the user. This — plus a
+dropped final SSE frame with no trailing blank line — are the two real bugs this parser
+has shipped; both are now covered by regression tests, not just fixed and forgotten.
+
+**A hook can own more than one state machine.** `useGenerateStream` owns the primary
+`GenerateStreamState` via the reducer above, *and* a second, smaller one: a per-strategy
+`setTimeout` that flags a strategy as "taking longer than usual" after 10s of
+`streaming`, cleared the moment it leaves that status. Deliberately kept out of the pure
+reducer — it's a presentation-timing concern, not a business rule, so it lives in the
+hook instead of leaking a `setTimeout` side effect into otherwise-pure state logic.
+
+**Patterns underneath it all:**
+
+- **Adapter / anti-corruption layer** — every function in `lib/api/` calls the
+  generated `openapi-fetch` client, then maps the response through a `toDomain*`
+  function before it ever reaches a component. `domain/` is not allowed to import the
+  generated wire types at all; a backend contract change becomes a type error at this
+  one seam, not a runtime surprise three components deep. Network failures and
+  HTTP-level errors are normalized through the same seam into one `Problem` shape, so a
+  caller never has to special-case "the server said no" versus "we never reached it."
+- **One rendering path for live and historical data** — `generationToStreamState`
+  rebuilds the exact same `GenerateStreamState` shape from a persisted `Generation`
+  that a live SSE run produces, so `VariationGrid` has no separate "read-only" branch:
+  selecting a history entry and watching a live stream complete render through
+  identical code.
+- **Provider composition root** — `AppProviders` centralizes every cross-cutting client
+  provider (TanStack Query, theme mode, motion config) in one place, keeping
+  `app/layout.tsx` a thin framework shell with no business logic in it.
+
 ## Quality
 
 Measured against the live production deployment, not `next dev`:
