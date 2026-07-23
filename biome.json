@@ -24,6 +24,88 @@
       }
     }
   },
+  "overrides": [
+    {
+      "includes": ["src/shared/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["@/features/**", "@/views/**", "@/entities/**", "@/app/**"],
+                    "message": "shared/ is the bottom layer (app -> views -> features -> entities -> shared, ADR-0016) and must not import from a layer above it. If shared/ genuinely needs this code, move the code into shared/ instead (see ADR-0016's theme/ move for precedent)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/entities/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["@/features/**", "@/views/**", "@/app/**"],
+                    "message": "entities/ sits below features/views/app (app -> views -> features -> entities -> shared, ADR-0016) and must not import from a layer above it."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/features/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["@/views/**", "@/app/**"],
+                    "message": "features/ sits below views/app (app -> views -> features -> entities -> shared, ADR-0016) and must not import from a layer above it."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/views/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["@/app/**"],
+                    "message": "views/ sits below app/ (app -> views -> features -> entities -> shared, ADR-0016) and must not import from app/."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
   "javascript": {
     "formatter": {
       "quoteStyle": "double"
