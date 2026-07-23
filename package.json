@@ -10,13 +10,13 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "typecheck": "tsc --noEmit",
-    "build:theme": "astryx theme build features/theme/pricing-optimizer-theme.ts -o features/theme/generated/pricing-optimizer.css",
+    "build:theme": "astryx theme build src/shared/theme/pricing-optimizer-theme.ts -o src/shared/theme/generated/pricing-optimizer.css",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "lighthouse": "mkdir -p .lighthouse && node scripts/lighthouse.mjs",
     "sync-openapi": "cp ../openapi.yaml ./openapi.yaml && pnpm run codegen",
-    "codegen": "openapi-typescript openapi.yaml -o lib/api/schema.ts",
+    "codegen": "openapi-typescript openapi.yaml -o src/shared/api/schema.ts",
     "prepare": "lefthook install"
   },
   "dependencies": {

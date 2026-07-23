@@ -12,25 +12,35 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],
-      include: ["domain/**", "features/**", "lib/**", "components/ui/**"],
+      include: [
+        "src/shared/domain/**",
+        "src/features/**",
+        "src/entities/**",
+        "src/views/**",
+        "src/shared/api/**",
+        "src/shared/ui/**",
+        "src/shared/theme/**",
+      ],
       exclude: [
         // Generated from openapi.yaml, never hand-edited (see CLAUDE.md).
-        "lib/api/schema.ts",
+        "src/shared/api/schema.ts",
         // Theme definition compiled to static CSS/JS at build time (pnpm
         // build:theme); the app imports the generated output, not this source.
-        "features/theme/pricing-optimizer-theme.ts",
-        "features/theme/generated/**",
+        "src/shared/theme/pricing-optimizer-theme.ts",
+        "src/shared/theme/generated/**",
         // Pure data shape declarations — no runtime logic to cover.
-        "domain/types/**",
+        "src/shared/domain/types/**",
         // Static marketing composition (constitution IV: "UI composition
         // that is purely presentational does not require a dedicated test
         // if it has no branching logic of its own") — every component here
         // maps a fixed local array to JSX with no conditionals.
-        "features/landing/**",
+        "src/views/landing/**",
         // Framework wiring with zero branching of its own (a QueryClient
         // constructor call, an openapi-fetch client config object).
-        "lib/query-provider.tsx",
-        "lib/api/client.ts",
+        "src/shared/providers/query-provider.tsx",
+        "src/shared/api/client.ts",
+        // Barrels: re-export statements only, no logic of their own.
+        "**/index.ts",
         "**/*.test.{ts,tsx}",
       ],
       thresholds: {
@@ -42,8 +52,15 @@ export default defineConfig({
     },
   },
   resolve: {
+    // Vite's object-form alias matches on a "/"-terminated boundary
+    // (importee === pattern || importee.startsWith(pattern + "/")), so "@"
+    // only ever matches "@/..." — "@test/render" does not start with "@/"
+    // and can never be shadowed by it. Declaration order doesn't matter
+    // here; "@test" is listed first only because it's the more specific
+    // alias, not because order affects resolution.
     alias: {
-      "@": fileURLToPath(new URL(".", import.meta.url)),
+      "@test": fileURLToPath(new URL("./test", import.meta.url)),
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
 });

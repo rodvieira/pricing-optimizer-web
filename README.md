@@ -29,33 +29,49 @@ contract in `openapi.yaml`.
 
 ## Architecture
 
-Feature-based, not a layered mirror of the backend — colocation over indirection for a
-component-heavy UI codebase:
+FSD-lite (Feature-Sliced Design, sized down to this app's scope) under `src/` —
+colocation over indirection for a component-heavy UI codebase, with an explicit layer
+direction (`app -> views -> features -> entities -> shared`) instead of the flatter
+feature-based layout this repo started with (see ADR-0016 for why):
 
 ```
-domain/            pure business types + logic. Zero React/Next/Zod/TanStack imports —
-                    the one layer that would port to a different framework unchanged.
-  types/             data shapes only
-  stream.ts          the SSE stream-demux reducer
-  history.ts          local-history dedupe rule
+src/
+  app/                Next.js App Router — routing only. Every page is a thin default
+                      export rendering a view's own top-level component.
 
-features/<name>/    colocated by feature: components/, hooks/, loose feature-local logic
-  theme/ url-input/ generate-stream/ export/ landing/ studio/ history/
+  views/              page compositions, each rendered by exactly one app/ route
+    studio/ landing/
 
-components/ui/      shared cross-feature composition (app header, price display, ...)
-lib/api/            the only layer that knows the backend's raw wire format —
-                    openapi-typescript-generated types, the fetch client, and
-                    per-endpoint wrappers mapping wire shapes to domain/ types
+  features/<name>/    reusable capability slices, each with an index.ts barrel as its
+                      public surface: components/, hooks/, loose feature-local logic
+    url-input/ generate-stream/ export/ history/
 
-app/                Next.js App Router — routing only. Every page is a thin default
-                    export rendering a feature's own top-level component.
+  entities/           domain concepts shared across views/features that are more than
+                      a pure type but owned by no single feature
+    strategy/           display metadata (label, blurb, Astryx color variant) per
+                        pricing strategy — used by both the landing preview and Studio
+
+  shared/             framework-agnostic or cross-cutting code with no feature identity
+    domain/             pure business types + logic. Zero React/Next/Zod/TanStack
+                        imports — the one layer that would port to a different
+                        framework unchanged. types/ (data shapes only), stream.ts
+                        (the SSE stream-demux reducer), history.ts (dedupe rule)
+    api/                the only layer that knows the backend's raw wire format —
+                        openapi-typescript-generated types, the fetch client, and
+                        per-endpoint wrappers mapping wire shapes to shared/domain/ types
+    ui/                 shared cross-feature composition (app header, price display, ...)
+    providers/          cross-cutting client providers composed once (QueryProvider,
+                        ThemeModeProvider) so app/layout.tsx stays a thin document shell
+    theme/              Astryx color-mode integration — cross-cutting infrastructure,
+                        not a features/ slice, since shared/ui and shared/providers
+                        both depend on it (see ADR-0016)
 ```
 
 ## Key engineering decisions
 
 - **Hand-rolled SSE consumption, not `EventSource`.** `POST /v1/generate` needs a JSON
   request body and browser `EventSource` can only do bodyless `GET`. A `fetch()` +
-  `ReadableStream` frame parser in `lib/api/generate.ts` fills the gap — the single
+  `ReadableStream` frame parser in `shared/api/generate.ts` fills the gap — the single
   most bug-prone piece of code in this repo (a dropped final frame with no trailing
   blank line, a stale event landing after a superseded `AbortController` both shipped
   as real bugs before being caught).
@@ -69,7 +85,7 @@ app/                Next.js App Router — routing only. Every page is a thin de
   independently hit the same class of bug: a platform that only allocates resources
   while actively serving a request doesn't reliably run background flush timers.
 - **Contract-first client generation.** `openapi-typescript` generates the wire types
-  from the same `openapi.yaml` the backend's handlers are generated from; `lib/api/`
+  from the same `openapi.yaml` the backend's handlers are generated from; `shared/api/`
   is the only layer allowed to import the generated schema directly, so a contract
   change surfaces as a type error at the boundary, not a runtime surprise deep in a
   component.

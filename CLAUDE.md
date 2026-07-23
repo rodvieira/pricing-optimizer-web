@@ -12,68 +12,90 @@ stream in live over SSE, comparing them (hover-highlight equivalent tiers across
 strategies), and exporting as JSX/HTML/Stripe Pricing Table config. See `openapi.yaml`
 (synced from the umbrella root) for the backend contract this consumes.
 
-## Architecture — feature-based, with an isolated domain layer
+## Architecture — FSD-lite under src/, layered `app -> views -> features -> entities -> shared`
 
 ```
-domain/           pure business types + pure logic. Zero imports from react, next, zod,
-                  @tanstack/*, or lib/api/schema.ts (generated wire types) anywhere in
-                  this tree — the one layer that would port to a different framework
-                  unchanged. Kept a top-level sibling of app/, deliberately not nested
-                  inside Next's own directory.
-  types/          pure data shape declarations ONLY (site-profile, pricing, variation,
-                  generation, problem, export). No logic lives here.
-  stream.ts       the SSE stream-demux reducer (streamReducer, StreamEvent) — real
-                  logic, not a type file; imports from ./types.
-  history.ts      the local-history dedupe rule (addToHistory) — same reasoning.
+src/
+  app/              Next.js App Router — routing ONLY. Every page is a thin default
+                    export rendering a view's own top-level component
+                    (app/page.tsx → <LandingPage/>, app/studio/page.tsx → <StudioPage/>).
+                    app/layout.tsx keeps only the framework-mandated <html>/<head>/<body>
+                    shell plus font/metadata setup — no business logic, no raw markup
+                    beyond that shell.
 
-features/<name>/  colocated, feature-scoped. Consistent shape across every feature:
-  components/     JSX/markup — only where a feature actually has any.
-  hooks/          use-*.ts — only where a feature actually has any.
-  <loose files>   feature-local logic/config that's neither a component nor a hook
-                  (a Zod schema, a strategy color/label lookup table, an init-script
-                  string constant).
-  Current features: theme/, url-input/, generate-stream/, export/, landing/, studio/,
-  history/.
-  A feature imports domain/ and lib/api/ freely. Features generally should not import
-  from each other directly — if two need to share something, it belongs in domain/,
-  lib/, or components/ui/.
+  views/<name>/     page compositions, each rendered by exactly one app/ route.
+                    Current: studio/, landing/. Same internal shape as features/
+                    (components/, loose files) — the distinction from features/ is
+                    purely "does this have its own route," not internal structure.
 
-components/
-  ui/             Shared Astryx composition wrappers used across features (app-header).
-                  No business logic here.
-  providers/      Cross-cutting client providers composed in one place
-                  (app-providers.tsx: QueryProvider + ThemeModeProvider + MotionConfig)
-                  so app/layout.tsx stays a thin document shell.
+  features/<name>/  reusable capability slices, colocated: components/, hooks/, loose
+                    feature-local logic/config that's neither (a Zod schema, an
+                    init-script string constant). Current: url-input/, generate-stream/,
+                    export/, history/. Each has an index.ts barrel — its declared
+                    public surface; something outside the feature imports from the
+                    barrel, never a deep path into it. Imports *within* the same
+                    feature (including that feature's own tests) keep importing the
+                    concrete file directly, no barrel indirection needed.
 
-lib/api/          The only layer allowed to know the backend's raw wire format: the
-                  openapi-typescript-generated schema (lib/api/schema.ts, regenerate
-                  with `pnpm sync-openapi` — never hand-edit), the openapi-fetch client
-                  instance, per-endpoint call wrappers that map wire shapes into
-                  domain/ types, and network-error.ts (normalizes a raw fetch()
-                  failure into the same Problem shape as an HTTP-level error, so
-                  callers never have to distinguish "the server said no" from "we
-                  never reached the server").
+  entities/<name>/  domain concepts shared across views/features that are more than a
+                    pure type but owned by no single feature. Current: strategy/
+                    (STRATEGY_META, strategyMeta — display metadata the landing preview
+                    and Studio's variation cards both need). Also has an index.ts barrel.
 
-app/              Next.js App Router — routing ONLY. Every page is a thin default
-                  export rendering a feature's own top-level page component
-                  (app/page.tsx → <LandingPage/>, app/studio/page.tsx → <StudioPage/>).
-                  app/layout.tsx keeps only the framework-mandated <html>/<head>/<body>
-                  shell plus font/metadata setup — no business logic, no raw markup
-                  beyond that shell.
+  shared/           framework-agnostic or cross-cutting code with no feature identity.
+    domain/           pure business types + pure logic. Zero imports from react, next,
+                      zod, @tanstack/*, or shared/api/schema.ts (generated wire types)
+                      anywhere in this tree — the one layer that would port to a
+                      different framework unchanged.
+      types/          pure data shape declarations ONLY (site-profile, pricing,
+                      variation, generation, problem, export). No logic lives here.
+      stream.ts       the SSE stream-demux reducer (streamReducer, StreamEvent) — real
+                      logic, not a type file; imports from ./types.
+      history.ts      the local-history dedupe rule (addToHistory) — same reasoning.
+    api/              The only layer allowed to know the backend's raw wire format: the
+                      openapi-typescript-generated schema (shared/api/schema.ts,
+                      regenerate with `pnpm sync-openapi` — never hand-edit), the
+                      openapi-fetch client instance, per-endpoint call wrappers that
+                      map wire shapes into shared/domain/ types, and network-error.ts
+                      (normalizes a raw fetch() failure into the same Problem shape as
+                      an HTTP-level error, so callers never have to distinguish "the
+                      server said no" from "we never reached the server").
+    ui/               Shared Astryx composition wrappers used across features
+                      (app-header, price-display, card-action-button, ...). No
+                      business logic here.
+    providers/        Cross-cutting client providers composed in one place
+                      (app-providers.tsx: QueryProvider + ThemeModeProvider +
+                      MotionConfig) so app/layout.tsx stays a thin document shell.
+    theme/            Astryx color-mode integration — moved here, not kept as a
+                      features/ slice, because shared/ui/ and shared/providers/
+                      both need it, and shared/ importing from features/ would
+                      itself be a backward-layer violation (see ADR-0016).
+                      theme-mode-provider.tsx, theme-toggle.tsx, theme-init-script.ts,
+                      pricing-optimizer-theme.ts (source), generated/ (build output,
+                      see Stack below). Also has an index.ts barrel.
 ```
 
-This is a lighter-touch mirror of the backend's Clean Architecture than a strict
-layer-for-layer port: `domain/` keeps the same "pure, framework-agnostic, imports
-nothing" property as the Go backend's `internal/domain`, but the rest of the tree
-follows idiomatic Next.js feature-based colocation rather than forcing a
+Layer dependency direction is `app -> views -> features -> entities -> shared`, never
+sideways (a feature importing another feature's internals) or backward (shared
+importing from features). This is a lighter-touch mirror of the backend's Clean
+Architecture than a strict layer-for-layer port: `shared/domain/` keeps the same "pure,
+framework-agnostic, imports nothing" property as the Go backend's `internal/domain`, but
+the rest of the tree follows FSD-lite layering sized to this app rather than forcing a
 `usecase`/`adapter` split that doesn't fit a component-oriented UI codebase. See
-`../docs/decisions/0011-frontend-feature-based-reorg.md` for the full account of why
-this shape was chosen over the flat structure the repo started with.
+`../docs/decisions/0011-frontend-feature-based-reorg.md` for the original feature-based
+reorg and `../docs/decisions/0016-frontend-fsd-layers.md` for why it was superseded by
+this layered shape (the short version: `features/studio` and `features/landing` were
+page compositions, not reusable slices, indistinguishable by location from the six that
+actually were — and `features/landing` importing directly from
+`features/generate-stream/strategy-meta.ts` for shared display metadata had already
+violated the original "features don't import each other" rule with nothing enforcing it).
 
-TypeScript has no compiler-enforced import wall the way Go does — the `domain/`
-boundary above is convention only unless backed by a lint rule. Add one before it's
-needed for real (a `no-restricted-imports`-style Biome rule blocking `domain/**` from
-importing `react`/`zod`/`@tanstack/*`) rather than relying on the doc comment alone.
+TypeScript has no compiler-enforced import wall the way Go does — the layer boundaries
+above are convention only unless backed by a lint rule; Biome's boundary-enforcement
+options are narrower than ESLint's plugin ecosystem (no direct
+`eslint-plugin-boundaries` equivalent as of ADR-0016). Add one before it's needed for
+real (a `shared/domain/**` importing `react`/`zod`/`@tanstack/*` rule is the cheapest
+first slice) rather than relying on the doc comment alone.
 
 ## Stack
 
@@ -93,12 +115,12 @@ deviated vs. is still missing) is a published artifact referenced from
 Browser `EventSource` can only do GET with no body, so it cannot call this endpoint —
 HANDOFF.md's stack table says "native EventSource," which is technically impossible for
 this contract. The actual approach: a hand-rolled `fetch()` + `ReadableStream` frame
-parser in `lib/api/generate.ts` (zero new dependency; the backend has no
+parser in `shared/api/generate.ts` (zero new dependency; the backend has no
 chunk-replay/resume capability, so a library's retry/resume features wouldn't be usable
 anyway). This parser has been the single most bug-prone piece of code in this repo — a
 silently-dropped final frame with no trailing blank line, and a stale event landing
 after a superseded `AbortController` both shipped as real bugs before being caught and
-fixed. Read `lib/api/generate.ts` and `features/generate-stream/hooks/use-generate-stream.ts`
+fixed. Read `shared/api/generate.ts` and `features/generate-stream/hooks/use-generate-stream.ts`
 in full before touching either again.
 
 ## Dark/light theme
@@ -106,12 +128,12 @@ in full before touching either again.
 Astryx owns `data-theme="light|dark"` on `<html>` via its `<Theme>` component
 (`@astryxdesign/core`) — do not add `next-themes` or any second color-mode provider;
 Astryx's own docs explicitly warn against two unsynchronized owners.
-`features/theme/components/theme-mode-provider.tsx` owns the one piece of state Astryx
+`shared/theme/components/theme-mode-provider.tsx` owns the one piece of state Astryx
 needs (the `mode` prop passed to `<Theme>`), persisted to `localStorage`; `useTheme()`
 from `@astryxdesign/core` is read-only (resolves current tokens), it does not expose a
-setter — the toggle button (`features/theme/components/theme-toggle.tsx`) drives `mode`
+setter — the toggle button (`shared/theme/components/theme-toggle.tsx`) drives `mode`
 state we own, not an Astryx-provided hook. The pre-hydration init script
-(`features/theme/theme-init-script.ts`) sets `data-theme` on `<html>` before React
+(`shared/theme/theme-init-script.ts`) sets `data-theme` on `<html>` before React
 hydrates to avoid a flash of the wrong theme — `app/layout.tsx`'s `suppressHydrationWarning`
 on `<html>` is intentional and expected, not a bug to "fix." **`mode` is binary
 (`"light" | "dark"` only, no third `"system"` state the toggle cycles through)** — an
@@ -124,14 +146,14 @@ toggle itself exposes anymore.
 
 ## Local history (`features/history/`)
 
-`domain/history.ts`'s `addToHistory` (prepend, dedupe by id, trim to
+`shared/domain/history.ts`'s `addToHistory` (prepend, dedupe by id, trim to
 `MAX_HISTORY_ENTRIES`) is the pure business rule; `features/history/local-history-storage.ts`
 + `hooks/use-local-history.ts` is the localStorage adapter (structural-only validation —
 this is data the app itself wrote, not external input, so a full Zod schema would be
 overkill; a shape that doesn't look like a `Generation` is just dropped rather than
 crashing the reader). `StudioPage` records a live generation to history exactly once,
 keyed off `generationId`, as soon as its stream reaches `done`. Selecting a history
-entry doesn't replay a request — `domain/stream.ts`'s `generationToStreamState` turns a
+entry doesn't replay a request — `shared/domain/stream.ts`'s `generationToStreamState` turns a
 stored `Generation` back into the same `GenerateStreamState` shape a live stream
 produces, so `VariationGrid` has one rendering path for both. **`Generation.siteProfile`
 is optional on the wire** (not in `openapi.yaml`'s `required` list for that schema) — a
@@ -152,7 +174,7 @@ all of it — with real content appearing only once the JS bundle hydrates. Meas
 impact (issue #5): Studio scored ~90 on Lighthouse performance even against the real
 Vercel deployment, with the LCP breakdown insight showing hundreds of ms of
 "element render delay" and no matching network cost. Fixed by isolating the hook into
-its own leaf (`features/studio/components/studio-auto-run.tsx`), Suspense-wrapped
+its own leaf (`views/studio/components/studio-auto-run.tsx`), Suspense-wrapped
 *inside* `StudioPage` rather than around it in `app/studio/page.tsx` — the rest of the
 page is ordinary static content again. If a future page needs `useSearchParams()`
 (or any other hook requiring Suspense), push the boundary down to the smallest leaf
@@ -195,12 +217,12 @@ eyeballing it.
 
 `openapi.yaml` is generated/owned at the umbrella root, synced here via
 `pnpm sync-openapi` (or manually: `cp ../openapi.yaml ./openapi.yaml`). This repo's copy
-MUST NOT be edited directly. Regenerate `lib/api/schema.ts` after every sync:
-`pnpm exec openapi-typescript openapi.yaml -o lib/api/schema.ts`.
+MUST NOT be edited directly. Regenerate `shared/api/schema.ts` after every sync:
+`pnpm exec openapi-typescript openapi.yaml -o src/shared/api/schema.ts`.
 
 ## Testing
 
-Vitest for logic, colocated with the file it tests (e.g. `lib/api/analyze.test.ts` next
+Vitest for logic, colocated with the file it tests (e.g. `shared/api/analyze.test.ts` next
 to `analyze.ts`) rather than mirrored under a separate test tree. Playwright + axe-core
 for e2e/accessibility under `test/e2e/`, backend fully mocked via
 `test/e2e/mock-backend.ts`'s route interception — no live backend needed to run
@@ -209,15 +231,21 @@ wraps a component under test in Astryx's `<Theme>` (matching how `AppProviders` 
 for real); `test/query-wrapper.tsx` does the same for TanStack Query hooks. jsdom is
 missing a few browser APIs Astryx depends on — `matchMedia` and `<dialog>`'s
 `showModal()`/`close()` — polyfilled once in `test/setup.ts` rather than per test file.
+`test/` stays centralized at the repo root (not under `src/`, per ADR-0011's original
+reasoning and unchanged by ADR-0016's later layer reorg) — since `@/*` resolves to
+`src/*`, a colocated unit test reaching for `test/render.tsx` or
+`test/query-wrapper.tsx` imports it via the separate `@test/*` alias
+(`import { render, screen } from "@test/render"`), configured in both `tsconfig.json`
+and `vitest.config.ts` — keep the two in sync if either changes.
 
 **Coverage gate: `pnpm test:coverage` (`vitest run --coverage`) enforces a 90% floor on
 statements/branches/functions/lines**, configured in `vitest.config.ts` and run in CI
 (`.github/workflows/ci.yml`'s `test` job — plain `pnpm test` stays the pre-push hook's
 fast path locally). The include/exclude list in `vitest.config.ts` is deliberate, not
-exhaustive-by-default: generated code (`lib/api/schema.ts`), pure type declarations
-(`domain/types/**`), and files with genuinely zero branching logic of their own
-(`features/landing/**`'s static marketing composition, `lib/query-provider.tsx`,
-`lib/api/client.ts`) are excluded, per Constitution IV's stance that purely presentational
+exhaustive-by-default: generated code (`shared/api/schema.ts`), pure type declarations
+(`shared/domain/types/**`), and files with genuinely zero branching logic of their own
+(`views/landing/**`'s static marketing composition, `shared/providers/query-provider.tsx`,
+`shared/api/client.ts`) are excluded, per Constitution IV's stance that purely presentational
 composition doesn't need a dedicated test. Everything else — including the TanStack Query
 hooks (`use-analyze.ts`, `use-export.ts`) and dialog/provider components that look like
 "just wiring" — is in scope and was brought up to the floor; a hook or component with a
@@ -260,7 +288,7 @@ after merge.
 ## Project agents (`.claude/agents/`)
 
 - `pr-reviewer` — read-only senior review of a diff/PR against this repo's constitution,
-  the domain/features/components/lib architecture boundaries, Astryx design-system
+  the shared/views/features/entities architecture boundaries, Astryx design-system
   discipline, and test rigor, with a focus on flagging unnecessary/dead code and this
   repo's own recurring bug classes (the SSE parser, WCAG contrast). Run it on the branch
   diff before opening a PR (not after) and fix blocking findings first.

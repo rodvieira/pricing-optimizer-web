@@ -1,6 +1,6 @@
 ---
 name: pr-reviewer
-description: Reviews a change in pricing-optimizer-web against project context — the constitution, feature-based architecture (domain/features/components/lib boundaries), design-system discipline (Astryx), and test rigor — and flags unnecessary/dead code. Use before opening or merging a PR, or when the user asks to review the current diff or a specific PR. Read-only; it reports findings, it does not edit code.
+description: Reviews a change in pricing-optimizer-web against project context — the constitution, layered architecture (app/views/features/entities/shared boundaries), design-system discipline (Astryx), and test rigor — and flags unnecessary/dead code. Use before opening or merging a PR, or when the user asks to review the current diff or a specific PR. Read-only; it reports findings, it does not edit code.
 tools: Read, Grep, Glob, Bash
 model: opus
 ---
@@ -29,7 +29,7 @@ ground your criteria before reviewing.
 ### A. Correctness & behavior (highest priority)
 
 - Does the code do what the change intends? Trace the real execution path, including
-  async/streaming code (`lib/api/generate.ts`'s SSE frame parser and its callers) — this
+  async/streaming code (`shared/api/generate.ts`'s SSE frame parser and its callers) — this
   is where this project's real bugs have lived: a dropped final SSE frame with no
   trailing blank line, a stale event landing after a superseded `AbortController`, a
   validation check that behaves differently between Node (tests) and the browser
@@ -41,7 +41,7 @@ ground your criteria before reviewing.
   derived state that should be computed instead of duplicated in `useState`, keys that
   aren't stable/unique in a `.map()`.
 - Concrete failure scenarios in data fetching: an error path that isn't normalized into
-  the `Problem`/`*Error` shape the rest of the app expects (see `lib/api/network-error.ts`
+  the `Problem`/`*Error` shape the rest of the app expects (see `shared/api/network-error.ts`
   for the pattern), a TanStack Query mutation/query with no error or loading state
   handled at the call site, an unawaited promise.
 - Edge cases and boundaries the code silently mishandles — empty lists, zero/negative
@@ -51,32 +51,46 @@ ground your criteria before reviewing.
 
 ### B. Constitution & architecture compliance
 
-- Layer boundaries (`.specify/memory/constitution.md` Principle II, this repo's
-  `CLAUDE.md`): `domain/types/` MUST be pure data shapes with zero imports from react,
-  next, zod, @tanstack/*, or `lib/api/schema.ts`; `domain/stream.ts` and `domain/history.ts`
-  are the only domain-level logic and import only from `./types`. Verify with grep on
-  imports, don't just trust file placement.
+- Layer direction (`.specify/memory/constitution.md` Principle II, this repo's
+  `CLAUDE.md`, ADR-0016): `app -> views -> features -> entities -> shared`, never
+  sideways (a feature importing another feature's internals directly) or backward
+  (`shared/` importing from `features/`/`views/`). Verify with grep on imports, don't
+  just trust file placement.
+- `shared/domain/types/` MUST be pure data shapes with zero imports from react, next,
+  zod, @tanstack/*, or `shared/api/schema.ts`; `shared/domain/stream.ts` and
+  `shared/domain/history.ts` are the only domain-level logic and import only from
+  `./types`.
 - `app/` MUST stay routing-only: a page under `app/` should be a thin default export
-  rendering a feature's own top-level page component, not raw JSX/Tailwind markup
-  authored inline. Flag markup reintroduced directly into an `app/*.tsx` file.
+  rendering a view's own top-level component, not raw JSX/Tailwind markup authored
+  inline. Flag markup reintroduced directly into an `app/*.tsx` file.
+- `views/<name>/` are page compositions (one per `app/` route) — flag one importing
+  from another view directly, or business/presentation logic that belongs in a
+  `features/` slice instead landing in a view.
 - Per-feature shape: `features/<name>/components/` for JSX, `features/<name>/hooks/` for
   `use-*.ts`, loose files at the feature root only for logic/config that's neither
-  (schema, meta, init-script). Flag a new component or hook landing outside that shape,
-  or a feature importing directly from another feature's internals instead of through
-  `domain/`, `lib/`, or `components/ui/`.
+  (schema, meta, init-script). Flag a new component or hook landing outside that shape.
+  Each feature has an `index.ts` barrel as its declared public surface — flag a `views/`
+  or another `features/` file importing a feature's internals via a deep path instead of
+  through its barrel; imports *within* the same feature (including its own tests) should
+  keep using the concrete file directly, not round-trip through the barrel.
+- `entities/<name>/` holds domain concepts shared across views/features that are more
+  than a pure type but owned by no single feature (currently just `entities/strategy/`).
+  Flag something feature-specific landing here, or a genuinely shared concept still
+  living inside one feature and reached into sideways by another (the
+  `strategy-meta.ts` case ADR-0016 fixed — watch for a new instance of the same pattern).
 - Contract-first: if the wire shape changed, was `openapi.yaml` updated at the umbrella
-  root first, then `pnpm sync-openapi` run in the same change? Is `lib/api/schema.ts`
+  root first, then `pnpm sync-openapi` run in the same change? Is `shared/api/schema.ts`
   hand-edited anywhere (it's generated, never hand-edit)?
-- `lib/api/` stays the only layer allowed to know wire shapes — flag a `features/`or
-  `app/` file importing `lib/api/schema.ts` types directly instead of going through a
-  `lib/api/*.ts` wrapper that maps to `domain/` types.
+- `shared/api/` stays the only layer allowed to know wire shapes — flag a `features/`,
+  `views/`, or `app/` file importing `shared/api/schema.ts` types directly instead of
+  going through a `shared/api/*.ts` wrapper that maps to `shared/domain/` types.
 
 ### C. Design-system discipline (Astryx)
 
 - New UI should compose existing Astryx components (`Button`, `Card`, `Badge`, `Dialog`,
   `TabList`, `CodeBlock`, `Skeleton`, `EmptyState`, `Banner`, `TextInput`, etc.) and its
   non-semantic color variants (`orange`/`teal`/`pink`/etc., already mapped in
-  `features/generate-stream/strategy-meta.ts`) before inventing custom CSS, hand-rolled
+  `entities/strategy/strategy-meta.ts`) before inventing custom CSS, hand-rolled
   animations/spinners, or one-off color tokens. Flag a hand-rolled equivalent of
   something Astryx already ships.
 - No second dark-mode owner: Astryx's `<Theme>` (via `ThemeModeProvider`) is the only
