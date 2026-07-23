@@ -4,11 +4,17 @@ import type { CSSProperties } from "react";
 export type CardActionVariant = "primary" | "secondary";
 
 const VARIANT_STYLE: Record<CardActionVariant, CSSProperties> = {
-  primary: { padding: 9, borderRadius: 8, fontSize: 12.5, fontWeight: 600, height: "auto" },
+  primary: {
+    padding: 9,
+    borderRadius: 8,
+    fontSize: "var(--po-text-compact-control)",
+    fontWeight: 600,
+    height: "auto",
+  },
   secondary: {
     padding: 9,
     borderRadius: 8,
-    fontSize: 12.5,
+    fontSize: "var(--po-text-compact-control)",
     fontWeight: 500,
     height: "auto",
     // A deliberate departure from Astryx's own "secondary" look at this

@@ -37,7 +37,7 @@ export function AppHeader() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`rounded-[7px] px-[13px] py-[7px] font-sans text-[12.5px] leading-[16px] font-medium transition-colors ${
+                className={`rounded-[7px] px-[13px] py-[7px] font-sans text-(length:--po-text-compact-control) leading-[16px] font-medium transition-colors ${
                   pathname === item.href
                     ? "border border-border bg-muted text-primary"
                     : "border border-transparent text-secondary hover:text-primary"
