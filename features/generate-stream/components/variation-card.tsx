@@ -1,5 +1,6 @@
-import { Banner, Button, Card, Skeleton } from "@astryxdesign/core";
+import { Banner, Card, Skeleton } from "@astryxdesign/core";
 import { motion } from "motion/react";
+import { CardActionButton } from "@/components/ui/card-action-button";
 import { ColorDot } from "@/components/ui/color-dot";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { PanelHeader } from "@/components/ui/panel-header";
@@ -110,32 +111,13 @@ export function VariationCard({
       </div>
 
       <div className="flex gap-[9px] border-t border-border px-4 py-3">
-        <Button
+        <CardActionButton
           label="Export"
           variant="primary"
-          size="sm"
           isDisabled={!isComplete}
           onClick={onExport}
-          className="flex-1"
-          style={{ padding: 9, borderRadius: 8, fontSize: 12.5, fontWeight: 600, height: "auto" }}
         />
-        <Button
-          label="Edit inline"
-          variant="secondary"
-          size="sm"
-          isDisabled={!isComplete}
-          className="flex-1"
-          style={{
-            padding: 9,
-            borderRadius: 8,
-            fontSize: 12.5,
-            fontWeight: 500,
-            height: "auto",
-            backgroundColor: "transparent",
-            border: "1px solid var(--color-border-emphasized)",
-            color: "var(--color-text-secondary)",
-          }}
-        />
+        <CardActionButton label="Edit inline" variant="secondary" isDisabled={!isComplete} />
       </div>
     </Card>
   );
