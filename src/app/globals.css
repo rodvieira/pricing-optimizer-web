@@ -49,4 +49,19 @@
    */
   --po-accent-rust: light-dark(#bb5330, #e0916f);
   --po-text-muted: light-dark(#8d887c, #a3a3a3);
+
+  /*
+   * The compact interactive-control label size (a step off Astryx's own
+   * text-xs/text-sm scale, per the mock) shared by three genuinely-the-same
+   * kind of element: AppHeader's nav pills, CardActionButton's Export/Edit
+   * inline labels, and PricingTierRow's tier CTA button. Most other one-off
+   * arbitrary Tailwind px values across this codebase are NOT duplicated
+   * like this — they coincidentally share a number with something unrelated
+   * in a different CSS property (padding vs. font-size, height vs.
+   * tracking) and pinning those into shared tokens too would create false
+   * coupling between values that only look the same by accident. This one
+   * is the one that measurably repeats for the same semantic reason
+   * (checked before adding it).
+   */
+  --po-text-compact-control: 12.5px;
 }

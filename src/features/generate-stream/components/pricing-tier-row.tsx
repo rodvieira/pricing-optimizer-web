@@ -83,7 +83,7 @@ export function PricingTierRow({
         style={{
           padding: 9,
           borderRadius: 8,
-          fontSize: 12.5,
+          fontSize: "var(--po-text-compact-control)",
           fontWeight: tier.highlighted ? 600 : 500,
           height: "auto",
           ...(!tier.highlighted && {
