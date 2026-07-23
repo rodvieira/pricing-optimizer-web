@@ -1,6 +1,8 @@
 # Pricing Optimizer
 
 [![CI](https://github.com/rodvieira/pricing-optimizer-web/actions/workflows/ci.yml/badge.svg)](https://github.com/rodvieira/pricing-optimizer-web/actions/workflows/ci.yml)
+[![Deploy](https://img.shields.io/badge/Vercel-deployed-black?logo=vercel)](https://pricing-optimizer-web.vercel.app)
+[![Coverage](https://img.shields.io/badge/coverage-90%25%2B%20floor-brightgreen)](./vitest.config.ts)
 [![Lighthouse](https://img.shields.io/badge/Lighthouse-98%20perf%20%C2%B7%2095%2B%20a11y-brightgreen)](#quality)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
@@ -12,6 +14,11 @@ the one that fits as JSX, HTML, or a Stripe Pricing Table config.
 Backend: [`pricing-optimizer-api`](https://github.com/rodvieira/pricing-optimizer-api)
 (Go, [live](https://pricing-optimizer-api-hnzq7nvuqq-uc.a.run.app)), consumed via the
 contract in `openapi.yaml`.
+
+![Studio: paste a URL, watch three pricing strategies stream in over SSE, export the finished JSX](./docs/media/studio-demo.gif)
+
+*Live run against [linear.app](https://linear.app) on the deployed production stack (Vercel
+→ Cloud Run → Groq) — not a mock or a fixture.*
 
 ## What it does
 
