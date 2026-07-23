@@ -52,10 +52,13 @@ ground your criteria before reviewing.
 ### B. Constitution & architecture compliance
 
 - Layer direction (`.specify/memory/constitution.md` Principle II, this repo's
-  `CLAUDE.md`, ADR-0016): `app -> views -> features -> entities -> shared`, never
-  sideways (a feature importing another feature's internals directly) or backward
-  (`shared/` importing from `features/`/`views/`). Verify with grep on imports, don't
-  just trust file placement.
+  `CLAUDE.md`, ADR-0016, ADR-0017): `app -> views -> features -> entities -> shared`,
+  never sideways (a feature importing another feature's internals directly) or backward
+  (`shared/` importing from `features/`/`views/`). The backward case is a CI-blocking
+  `biome.json` `noRestrictedImports` override as of ADR-0017 — if `pnpm lint` is green,
+  that direction is already sound; don't re-derive it by hand. The sideways case (one
+  feature reaching into another's internals instead of its `index.ts` barrel) is NOT
+  covered by that rule — this still needs a manual grep check.
 - `shared/domain/types/` MUST be pure data shapes with zero imports from react, next,
   zod, @tanstack/*, or `shared/api/schema.ts`; `shared/domain/stream.ts` and
   `shared/domain/history.ts` are the only domain-level logic and import only from

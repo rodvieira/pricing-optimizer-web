@@ -90,12 +90,18 @@ actually were — and `features/landing` importing directly from
 `features/generate-stream/strategy-meta.ts` for shared display metadata had already
 violated the original "features don't import each other" rule with nothing enforcing it).
 
-TypeScript has no compiler-enforced import wall the way Go does — the layer boundaries
-above are convention only unless backed by a lint rule; Biome's boundary-enforcement
-options are narrower than ESLint's plugin ecosystem (no direct
-`eslint-plugin-boundaries` equivalent as of ADR-0016). Add one before it's needed for
-real (a `shared/domain/**` importing `react`/`zod`/`@tanstack/*` rule is the cheapest
-first slice) rather than relying on the doc comment alone.
+TypeScript has no compiler-enforced import wall the way Go does. The layer *direction*
+above (a lower layer never importing from a higher one) is enforced, not just
+documented: `biome.json`'s `overrides` restrict `noRestrictedImports` per layer glob
+(`src/shared/**` can't import `@/features/**`/`@/views/**`/`@/entities/**`/`@/app/**`,
+and so on up the stack) — see ADR-0017 for why this was worth doing (a real violation of
+this exact rule shipped once, in ADR-0016's own first draft, and the full green pipeline
+didn't catch it). Two things it deliberately does NOT cover, still convention only:
+sideways imports (one `features/<name>/` reaching into another feature's internals
+instead of its barrel — see ADR-0017's Decision for why), and `shared/domain/`'s own
+stricter purity rule (zero react/zod/@tanstack/* imports anywhere in that subtree) —
+add a fifth override for that specifically before it's needed for real, rather than
+relying on the doc comment alone.
 
 ## Stack
 
