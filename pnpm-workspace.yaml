@@ -7,3 +7,25 @@ onlyBuiltDependencies:
   - '@sentry/cli'
   - sharp
   - unrs-resolver
+# Forces patched versions of transitive dependencies pnpm audit flagged
+# (none of these are direct deps of this project). See
+# ../docs/decisions/0015-dependency-vulnerability-scanning.md for the
+# advisory each addresses. Revisit whenever the packages that pull them in
+# (next, @sentry/nextjs, openapi-typescript) bump past a version that
+# already includes the fix, so these can be dropped.
+overrides:
+  js-yaml: '>=4.3.0'
+  # Bounded to the 3.x line on purpose: an unbounded '>=3.1.4' would also
+  # silently accept fast-uri's 4.x major (a real jump this override resolved
+  # to once, pulled in via ajv) on a routine `pnpm install`/lockfile refresh
+  # — this pin is a security floor, not an invitation to ride along with
+  # unrelated major bumps.
+  fast-uri: '>=3.1.4 <4'
+  sharp: '>=0.35.0'
+  # next vendors its own postcss internally (8.4.31, independent of next's
+  # own version — bumping next to 16.2.11 above did not change this), so
+  # this stays required even though @tailwindcss/postcss and vite already
+  # pull a patched postcss on their own. Verified: removing this entry still
+  # left `postcss@8.4.31` resolved under next>@sentry/nextjs and next
+  # directly, so it is not a redundant/leftover pin.
+  postcss: '>=8.5.12'
