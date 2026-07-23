@@ -66,6 +66,80 @@ describe("streamGeneration", () => {
     expect(events).toEqual([{ type: "token", strategy: "freemium", delta: "Hello" }]);
   });
 
+  it("reassembles a frame split exactly at the blank-line delimiter", async () => {
+    // Distinct from the mid-content split above: the read boundary here
+    // falls between the two "\n" characters of the "\n\n" delimiter itself
+    // ("...}\n" | "\n"), the one place a naive fixed-width or regex-based
+    // frame split could miss the boundary entirely. The
+    // buffer-and-append approach must still find it once both halves join.
+    const full = `data: ${JSON.stringify({ type: "token", strategy: "anchor", delta: "Hi" })}\n\n`;
+    const delimiterIndex = full.indexOf("\n\n") + 1;
+    vi.mocked(fetch).mockResolvedValue(
+      okResponse(streamFromChunks([full.slice(0, delimiterIndex), full.slice(delimiterIndex)])),
+    );
+
+    const events = [];
+    for await (const event of streamGeneration({
+      siteProfile: {} as never,
+      currency: "USD",
+    })) {
+      events.push(event);
+    }
+
+    expect(events).toEqual([{ type: "token", strategy: "anchor", delta: "Hi" }]);
+  });
+
+  it("yields both frames when two complete frames arrive in a single read", async () => {
+    const frame1 = `data: ${JSON.stringify({ type: "variation_started", strategy: "anchor" })}\n\n`;
+    const frame2 = `data: ${JSON.stringify({ type: "variation_started", strategy: "freemium" })}\n\n`;
+    vi.mocked(fetch).mockResolvedValue(okResponse(streamFromChunks([frame1 + frame2])));
+
+    const events = [];
+    for await (const event of streamGeneration({
+      siteProfile: {} as never,
+      currency: "USD",
+    })) {
+      events.push(event);
+    }
+
+    expect(events).toEqual([
+      { type: "variation_started", strategy: "anchor" },
+      { type: "variation_started", strategy: "freemium" },
+    ]);
+  });
+
+  it("ignores non-data SSE fields and reassembles a multi-line data field", async () => {
+    // The backend only ever emits a single "data:" line per event (per this
+    // repo's CLAUDE.md), but the parser itself doesn't assume that: it
+    // filters to "data:"-prefixed lines and joins them, so a differently-
+    // behaved event source (or a future backend change) wouldn't silently
+    // corrupt or drop content. Also proves an interleaved comment/event
+    // field is dropped rather than breaking the join. The split point (right
+    // after the opening brace) lands on valid JSON whitespace rather than
+    // mid-token, since \n-joining two "data:" lines inserts a literal
+    // newline between them — anywhere else would produce invalid JSON.
+    const payload = JSON.stringify({ type: "token", strategy: "value_based", delta: "Hi" });
+    const frame = [
+      "event: message",
+      ":a comment line",
+      `data: ${payload.slice(0, 1)}`,
+      `data: ${payload.slice(1)}`,
+      "",
+      "",
+    ].join("\n");
+    vi.mocked(fetch).mockResolvedValue(okResponse(streamFromChunks([frame])));
+
+    const events = [];
+    for await (const event of streamGeneration({
+      siteProfile: {} as never,
+      currency: "USD",
+    })) {
+      events.push(event);
+    }
+
+    expect(events).toEqual([{ type: "token", strategy: "value_based", delta: "Hi" }]);
+  });
+
   it("stops at a terminal done event carrying the full generation", async () => {
     const generation = {
       id: "gen-1",
