@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Bricolage_Grotesque, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import { AppProviders } from "@/shared/providers/app-providers";
 import { themeModeInitScript } from "@/shared/theme";
-import { AppHeader } from "@/shared/ui/app-header";
+import { AppHeader } from "@/shared/ui";
 import "./globals.css";
 
 const bricolageGrotesque = Bricolage_Grotesque({

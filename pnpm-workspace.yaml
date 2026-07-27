@@ -14,6 +14,13 @@ onlyBuiltDependencies:
 # (next, @sentry/nextjs, openapi-typescript) bump past a version that
 # already includes the fix, so these can be dropped.
 overrides:
+  # GHSA-mh99-v99m-4gvg: DoS via unbounded expansion length. Reached through
+  # three paths, none a direct dep: @sentry/nextjs's bundler/webpack plugins
+  # (glob > minimatch) and openapi-typescript's @redocly/openapi-core
+  # (minimatch directly). Bounded to the 5.x line (5.0.8 is the only patched
+  # release as of this writing) for the same reason as fast-uri below: an
+  # unbounded floor would silently ride along with a future major bump.
+  brace-expansion: '>=5.0.8 <6'
   js-yaml: '>=4.3.0'
   # Bounded to the 3.x line on purpose: an unbounded '>=3.1.4' would also
   # silently accept fast-uri's 4.x major (a real jump this override resolved
