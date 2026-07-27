@@ -10,8 +10,9 @@ afterEach(() => {
   cleanup();
 });
 
-// jsdom has no matchMedia implementation; Astryx's <Theme>/useTheme reads it
-// (via useMediaQuery, e.g. for prefers-color-scheme) on every render.
+// jsdom has no matchMedia implementation; ThemeModeProvider reads it
+// (prefers-color-scheme) to follow the OS scheme until the user picks
+// explicitly, and on every render while no explicit choice has been made.
 if (typeof window !== "undefined" && !window.matchMedia) {
   window.matchMedia = (query: string) => ({
     matches: false,
@@ -23,19 +24,4 @@ if (typeof window !== "undefined" && !window.matchMedia) {
     removeEventListener: () => {},
     dispatchEvent: () => false,
   });
-}
-
-// jsdom doesn't implement the native <dialog> element's modal behavior;
-// Astryx's <Dialog> calls showModal()/close() directly.
-if (typeof HTMLDialogElement !== "undefined") {
-  if (!HTMLDialogElement.prototype.showModal) {
-    HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
-      this.setAttribute("open", "");
-    };
-  }
-  if (!HTMLDialogElement.prototype.close) {
-    HTMLDialogElement.prototype.close = function close(this: HTMLDialogElement) {
-      this.removeAttribute("open");
-    };
-  }
 }

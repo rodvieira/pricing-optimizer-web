@@ -9,7 +9,7 @@ export interface SkeletonProps {
 export function Skeleton({ width = "100%", height = 16, index = 0 }: SkeletonProps) {
   return (
     <div
-      className="animate-pulse rounded-md bg-[var(--color-skeleton)]"
+      className="animate-pulse rounded-md bg-skeleton"
       style={{ width, height, animationDelay: `${index * 150}ms` }}
     />
   );

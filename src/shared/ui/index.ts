@@ -24,7 +24,12 @@ export {
   type ButtonProps,
   Card,
   type CardProps,
+  Dialog,
+  type DialogProps,
   Skeleton,
   type SkeletonProps,
+  type TabItem,
+  Tabs,
+  type TabsProps,
 } from "./primitives";
 export { Text, type TextProps, type TextType } from "./text";
