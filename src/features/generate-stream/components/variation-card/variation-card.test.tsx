@@ -104,16 +104,19 @@ describe("VariationCard", () => {
     expect(onHoverTier).toHaveBeenCalledWith(1);
   });
 
-  it("renders the failure banner for an errored strategy", () => {
+  it("renders the failure banner for an errored strategy, translated from status rather than the raw backend title", () => {
     const problem: Problem = {
-      title: "Generation failed",
+      title: "could not fetch or parse the target site",
       status: 502,
       detail: "Upstream timeout",
     };
     renderCard({ status: "error", problem });
 
     expect(screen.getByText("failed")).toBeInTheDocument();
-    expect(screen.getByText("Generation failed")).toBeInTheDocument();
+    expect(
+      screen.getByText("We couldn't reach or read that site. Double-check the URL and try again."),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("could not fetch or parse the target site")).not.toBeInTheDocument();
     expect(screen.getByText("Upstream timeout")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Export" })).toBeDisabled();
   });

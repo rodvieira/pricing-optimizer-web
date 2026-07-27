@@ -93,14 +93,26 @@ describe("StudioPage", () => {
   it("shows an error banner with retry when analyze fails, and retry re-submits the same URL", async () => {
     vi.mocked(analyzeSite).mockRejectedValue(
       Object.assign(new Error("scrape failed"), {
-        problem: { title: "Scrape failed", status: 502, detail: "site down" },
+        problem: {
+          title: "could not fetch or parse the target site",
+          status: 502,
+          detail: "site down",
+        },
       }),
     );
 
     renderStudio();
     await submitUrl("flowbase.com");
 
-    await waitFor(() => expect(screen.getByText("Scrape failed")).toBeInTheDocument());
+    // Translated from the response's status (502), not the raw backend title
+    // — see problem-message.ts / ADR-0019.
+    await waitFor(() =>
+      expect(
+        screen.getByText(
+          "We couldn't reach or read that site. Double-check the URL and try again.",
+        ),
+      ).toBeInTheDocument(),
+    );
     expect(analyzeSite).toHaveBeenCalledTimes(1);
 
     fireEvent.click(screen.getByRole("button", { name: "Retry" }));
@@ -142,7 +154,13 @@ describe("StudioPage", () => {
     renderStudio();
     await submitUrl("flowbase.com");
 
-    await waitFor(() => expect(screen.getByText("Connection lost")).toBeInTheDocument());
+    // Translated from status 0 (this app's own client-synthesized
+    // network-failure status), not the raw "Connection lost" backend title.
+    await waitFor(() =>
+      expect(
+        screen.getByText("We couldn't reach the server. Check your connection and try again."),
+      ).toBeInTheDocument(),
+    );
     expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument();
   });
 

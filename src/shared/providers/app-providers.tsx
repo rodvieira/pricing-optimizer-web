@@ -2,6 +2,7 @@
 
 import { MotionConfig } from "motion/react";
 import type { ReactNode } from "react";
+import { LocaleProvider } from "@/shared/i18n";
 import { QueryProvider } from "@/shared/providers/query-provider";
 import { ThemeModeProvider } from "@/shared/theme";
 
@@ -13,8 +14,10 @@ export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <QueryProvider>
       <ThemeModeProvider>
-        {/* reducedMotion="user" makes every animation in the app respect prefers-reduced-motion automatically */}
-        <MotionConfig reducedMotion="user">{children}</MotionConfig>
+        <LocaleProvider>
+          {/* reducedMotion="user" makes every animation in the app respect prefers-reduced-motion automatically */}
+          <MotionConfig reducedMotion="user">{children}</MotionConfig>
+        </LocaleProvider>
       </ThemeModeProvider>
     </QueryProvider>
   );

@@ -2,15 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { LocaleSelector } from "@/shared/i18n";
 import { ThemeToggle } from "@/shared/theme";
 
 const NAV_ITEMS = [
-  { href: "/", label: "Overview" },
-  { href: "/studio", label: "Studio" },
+  { href: "/", labelKey: "overview" },
+  { href: "/studio", labelKey: "studio" },
 ] as const;
 
 export function AppHeader() {
   const pathname = usePathname();
+  const t = useTranslations("nav");
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-surface/90 backdrop-blur">
@@ -31,7 +34,7 @@ export function AppHeader() {
             v1.0
           </span>
         </Link>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4">
           <nav className="flex gap-[6px] rounded-[9px] border border-border bg-card p-1">
             {NAV_ITEMS.map((item) => (
               <Link
@@ -43,10 +46,11 @@ export function AppHeader() {
                     : "border border-transparent text-secondary hover:text-primary"
                 }`}
               >
-                {item.label}
+                {t(item.labelKey)}
               </Link>
             ))}
           </nav>
+          <LocaleSelector />
           <ThemeToggle />
         </div>
       </div>

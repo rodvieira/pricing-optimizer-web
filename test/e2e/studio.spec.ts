@@ -82,7 +82,11 @@ test("shows a distinct error banner with retry when analyze fails", async ({ pag
   await page.getByRole("textbox", { name: "Product URL" }).fill("flowbase.com");
   await page.getByRole("button", { name: "Analyze" }).click();
 
-  await expect(page.getByText("Scrape failed")).toBeVisible();
+  // Translated from the response's status (502), not the raw backend title
+  // "Scrape failed" — see src/shared/api/problem-message.ts / ADR-0019.
+  await expect(
+    page.getByText("We couldn't reach or read that site. Double-check the URL and try again."),
+  ).toBeVisible();
   await expect(page.getByRole("button", { name: "Retry" })).toBeVisible();
 });
 

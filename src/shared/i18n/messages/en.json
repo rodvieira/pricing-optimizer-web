@@ -1,0 +1,107 @@
+{
+  "nav": {
+    "overview": "Overview",
+    "studio": "Studio",
+    "language": "Language"
+  },
+  "strategy": {
+    "anchor": {
+      "label": "Anchor pricing",
+      "blurb": "A premium anchor plan reframes the middle tier as the sensible default — the contrast does the selling."
+    },
+    "freemium": {
+      "label": "Freemium ladder",
+      "blurb": "Clear steps from free to enterprise, each removing one limit so every upgrade feels small and inevitable."
+    },
+    "value_based": {
+      "label": "Value-based",
+      "blurb": "Price mapped to outcomes — hours saved, revenue unlocked — so cost reads as return on investment."
+    }
+  },
+  "generateStream": {
+    "status": {
+      "queued": "queued",
+      "ready": "ready",
+      "failed": "failed",
+      "slow": "taking longer…",
+      "generating": "generating"
+    },
+    "rationaleLabel": "STRATEGY RATIONALE",
+    "slowBanner": "Taking longer than usual — model still streaming this variant.",
+    "exportLabel": "Export",
+    "editInlineLabel": "Edit inline",
+    "mostPopularBadge": "Most popular",
+    "choosePlanCta": "Choose plan",
+    "periodMonthly": "/mo",
+    "periodYearly": "/yr"
+  },
+  "history": {
+    "recentGenerations": "Recent generations",
+    "clear": "Clear"
+  },
+  "export": {
+    "dialogTitle": "Export — {strategy}",
+    "formatError": "Couldn't generate this export format. Try switching tabs or reopening the dialog.",
+    "previewTitle": "{format} export"
+  },
+  "urlInput": {
+    "required": "Paste a product URL to get started.",
+    "invalid": "Invalid URL — include a valid domain like flowbase.com.",
+    "analyzeCta": "Analyze",
+    "generatingCta": "Generating",
+    "placeholder": "your-product.com",
+    "tryLabel": "Try:",
+    "fieldLabel": "Product URL"
+  },
+  "errors": {
+    "status400": "That request didn't look right. Double-check the URL and try again.",
+    "status404": "We couldn't find that generation or variation.",
+    "status409": "A generation is already in progress for this request. Give it a moment and try again.",
+    "status422": "That request wasn't valid. Double-check the URL and try again.",
+    "status429": "Too many requests right now. Wait a moment and try again.",
+    "status500": "Something went wrong on our end. Try again in a moment.",
+    "status502": "We couldn't reach or read that site. Double-check the URL and try again.",
+    "network": "We couldn't reach the server. Check your connection and try again.",
+    "generic": "Something went wrong. Try again in a moment."
+  },
+  "studio": {
+    "heading": "Studio",
+    "subheading": "Paste a product URL — we generate three pricing strategies in parallel.",
+    "retry": "Retry",
+    "generationFailedFallback": "Generation failed",
+    "emptyTitle": "Nothing generated yet",
+    "emptyBody": "Paste a product URL above to stream three pricing strategies side by side.",
+    "audienceScraped": "Scraped <strong>{title}</strong> — detected audience",
+    "sophistication": {
+      "low": "low sophistication",
+      "medium": "medium sophistication",
+      "high": "high sophistication"
+    }
+  },
+  "landing": {
+    "eyebrow": "PSYCHOLOGY-DRIVEN PRICING",
+    "headlineMain": "Three pricing pages. Three strategies.",
+    "headlineSecondary": "Generated live from one URL.",
+    "subcopy": "Paste any product URL. We scrape it, classify the audience with an LLM, and stream three psychology-backed pricing pages in parallel — compare side by side and export to JSX, HTML, or a Stripe Pricing Table.",
+    "openStudioCta": "Open the Studio →",
+    "watchLiveRunCta": "Watch a live run",
+    "preview": {
+      "anchor": {
+        "label": "ANCHOR",
+        "price": "$49",
+        "hint": " /mo"
+      },
+      "freemium": {
+        "label": "FREEMIUM",
+        "price": "$0",
+        "hint": " free"
+      },
+      "value": {
+        "label": "VALUE",
+        "price": "$79",
+        "hint": " /mo"
+      }
+    },
+    "ribbonTagline": "PSYCHOLOGY-DRIVEN · SSE STREAMING"
+  }
+}

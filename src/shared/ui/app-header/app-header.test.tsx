@@ -6,15 +6,19 @@ vi.mock("next/navigation", () => ({
 }));
 
 import { render as rtlRender, screen } from "@testing-library/react";
+import { LocaleProvider } from "@/shared/i18n";
 import { ThemeModeProvider } from "@/shared/theme";
 import { AppHeader } from "./app-header";
 
-// ThemeToggle (rendered inside AppHeader) reads theme mode from context, so
-// this needs the real provider rather than the plain @test/render wrapper.
+// ThemeToggle and LocaleSelector (both rendered inside AppHeader) read from
+// context, so this needs the real providers rather than the plain
+// @test/render wrapper (which only provides LocaleProvider, not ThemeModeProvider).
 function render() {
   return rtlRender(
     <ThemeModeProvider>
-      <AppHeader />
+      <LocaleProvider>
+        <AppHeader />
+      </LocaleProvider>
     </ThemeModeProvider>,
   );
 }

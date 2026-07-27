@@ -1,12 +1,13 @@
+"use client";
+
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import type { SiteProfile } from "@/shared/domain";
 import { ColorDot, Text } from "@/shared/ui";
 
-function sophisticationLabel(profile: SiteProfile): string {
-  return `${profile.audience.sophistication} sophistication`;
-}
-
 export function AudienceSummaryBar({ siteProfile }: { readonly siteProfile: SiteProfile }) {
+  const t = useTranslations("studio");
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -16,12 +17,19 @@ export function AudienceSummaryBar({ siteProfile }: { readonly siteProfile: Site
     >
       <ColorDot color="teal" />
       <Text type="supporting" color="secondary">
-        Scraped <strong className="font-mono text-primary">{siteProfile.title}</strong> — detected
-        audience
+        {t.rich("audienceScraped", {
+          title: siteProfile.title,
+          strong: (chunks) => <strong className="font-mono text-primary">{chunks}</strong>,
+        })}
       </Text>
+      {/* siteProfile.audience.segment is free-form backend-classified text
+          (not a fixed enum), the same category as the LLM-generated pricing
+          content — stays untranslated by design (ADR-0019, spec FR-009's
+          reasoning extended). sophistication IS a fixed "low"|"medium"|"high"
+          enum this app already owns the display wording for. */}
       <Text type="label">{siteProfile.audience.segment}</Text>
       <span className="rounded-md bg-accent-muted px-2 py-1 font-mono text-xs text-accent">
-        {sophisticationLabel(siteProfile)}
+        {t(`sophistication.${siteProfile.audience.sophistication}`)}
       </span>
     </motion.div>
   );
