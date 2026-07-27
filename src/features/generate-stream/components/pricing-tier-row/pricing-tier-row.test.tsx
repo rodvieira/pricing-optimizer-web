@@ -1,7 +1,8 @@
 import { render, screen } from "@test/render";
 import { fireEvent } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { PricingTier } from "@/shared/domain";
+import { LOCALE_STORAGE_KEY } from "@/shared/i18n";
 import { PricingTierRow } from "./pricing-tier-row";
 
 function baseTier(overrides: Partial<PricingTier> = {}): PricingTier {
@@ -14,6 +15,10 @@ function baseTier(overrides: Partial<PricingTier> = {}): PricingTier {
 }
 
 describe("PricingTierRow", () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
   it("formats a monthly price with the /mo suffix", () => {
     render(
       <PricingTierRow
@@ -114,5 +119,20 @@ describe("PricingTierRow", () => {
     );
     fireEvent.mouseEnter(screen.getByText("Pro"));
     expect(onHoverStart).toHaveBeenCalledOnce();
+  });
+
+  it("formats the same price with pt-BR grouping/currency conventions when that locale is stored", () => {
+    window.localStorage.setItem(LOCALE_STORAGE_KEY, "pt-BR");
+    render(
+      <PricingTierRow
+        tier={baseTier()}
+        strategyVariant="orange"
+        isHighlighted={false}
+        onHoverStart={vi.fn()}
+      />,
+    );
+    expect(screen.getByText("US$ 49")).toBeInTheDocument();
+    expect(screen.getByText("/mês")).toBeInTheDocument();
+    expect(screen.queryByText("$49")).not.toBeInTheDocument();
   });
 });

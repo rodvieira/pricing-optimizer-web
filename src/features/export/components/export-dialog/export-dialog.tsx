@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import type { ExportFormat } from "@/shared/domain";
 import { CodePreview, Dialog, Skeleton, Tabs } from "@/shared/ui";
@@ -39,6 +40,7 @@ export function ExportDialog({
 }: ExportDialogProps) {
   const [format, setFormat] = useState<ExportFormat>("jsx");
   const { data, isLoading, isError } = useExport(generationId, variationId, format);
+  const t = useTranslations("export");
 
   // Reset to the default tab when the dialog is reopened for a different
   // variation, instead of carrying over whatever format was last viewed.
@@ -48,7 +50,11 @@ export function ExportDialog({
   }, [variationId]);
 
   return (
-    <Dialog isOpen={isOpen} onOpenChange={onOpenChange} title={`Export — ${strategyLabel}`}>
+    <Dialog
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      title={t("dialogTitle", { strategy: strategyLabel })}
+    >
       <div className="p-4">
         <Tabs
           value={format}
@@ -57,16 +63,12 @@ export function ExportDialog({
         />
         <div className="pt-4">
           {isLoading && <Skeleton height={240} />}
-          {isError && (
-            <p className="text-sm text-error">
-              Couldn't generate this export format. Try switching tabs or reopening the dialog.
-            </p>
-          )}
+          {isError && <p className="text-sm text-error">{t("formatError")}</p>}
           {data && (
             <CodePreview
               code={data.content}
               language={FORMAT_LANGUAGE[format]}
-              title={`${FORMAT_LABEL[format]} export`}
+              title={t("previewTitle", { format: FORMAT_LABEL[format] })}
             />
           )}
         </div>

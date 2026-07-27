@@ -1,11 +1,12 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
-import { strategyMeta } from "@/entities/strategy";
 import { ExportDialog } from "@/features/export";
 import { useGenerateStream, VariationGrid } from "@/features/generate-stream";
 import { HistoryPanel, useLocalHistory } from "@/features/history";
 import { UrlInputForm, urlInputSchema, useAnalyze } from "@/features/url-input";
+import { problemMessageKey } from "@/shared/api/problem-message";
 import {
   type Generation,
   generationToStreamState,
@@ -18,6 +19,9 @@ import { StudioAutoRun } from "./components/studio-auto-run";
 import { StudioEmptyState } from "./components/studio-empty-state";
 
 export function StudioPage() {
+  const t = useTranslations("studio");
+  const tErrors = useTranslations("errors");
+  const tStrategy = useTranslations("strategy");
   const [siteProfile, setSiteProfile] = useState<SiteProfile | null>(null);
   const [lastUrl, setLastUrl] = useState<string | null>(null);
   const [exportStrategy, setExportStrategy] = useState<PricingStrategy | null>(null);
@@ -93,10 +97,10 @@ export function StudioPage() {
 
       <div>
         <Text type="display-3" className="block">
-          Studio
+          {t("heading")}
         </Text>
         <Text type="body" color="secondary" className="block">
-          Paste a product URL — we generate three pricing strategies in parallel.
+          {t("subheading")}
         </Text>
       </div>
 
@@ -112,9 +116,9 @@ export function StudioPage() {
       {analyze.isError && (
         <Alert
           status="error"
-          title={analyze.error.problem.title}
+          title={tErrors(problemMessageKey(analyze.error.problem))}
           description={analyze.error.problem.detail}
-          endContent={<Button label="Retry" variant="ghost" onClick={retry} />}
+          endContent={<Button label={t("retry")} variant="ghost" onClick={retry} />}
         />
       )}
 
@@ -123,9 +127,13 @@ export function StudioPage() {
       {hasStreamError && (
         <Alert
           status="error"
-          title={generateStream.state.problem?.title ?? "Generation failed"}
+          title={
+            generateStream.state.problem
+              ? tErrors(problemMessageKey(generateStream.state.problem))
+              : t("generationFailedFallback")
+          }
           description={generateStream.state.problem?.detail}
-          endContent={<Button label="Retry" variant="ghost" onClick={retry} />}
+          endContent={<Button label={t("retry")} variant="ghost" onClick={retry} />}
         />
       )}
 
@@ -150,7 +158,7 @@ export function StudioPage() {
             ? (displayState.strategies[exportStrategy]?.variation.id ?? null)
             : null
         }
-        strategyLabel={exportStrategy ? strategyMeta(exportStrategy).label : ""}
+        strategyLabel={exportStrategy ? tStrategy(`${exportStrategy}.label`) : ""}
       />
     </main>
   );

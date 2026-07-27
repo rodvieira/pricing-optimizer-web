@@ -1,0 +1,107 @@
+{
+  "nav": {
+    "overview": "Visão geral",
+    "studio": "Estúdio",
+    "language": "Idioma"
+  },
+  "strategy": {
+    "anchor": {
+      "label": "Precificação âncora",
+      "blurb": "Um plano âncora premium reformula o nível intermediário como a escolha sensata por padrão — o contraste é que vende."
+    },
+    "freemium": {
+      "label": "Escada freemium",
+      "blurb": "Passos claros do gratuito ao empresarial, cada um removendo um limite para que cada upgrade pareça pequeno e inevitável."
+    },
+    "value_based": {
+      "label": "Baseado em valor",
+      "blurb": "Preço mapeado a resultados — horas economizadas, receita desbloqueada — para que o custo seja lido como retorno sobre investimento."
+    }
+  },
+  "generateStream": {
+    "status": {
+      "queued": "na fila",
+      "ready": "pronto",
+      "failed": "falhou",
+      "slow": "demorando mais…",
+      "generating": "gerando"
+    },
+    "rationaleLabel": "JUSTIFICATIVA DA ESTRATÉGIA",
+    "slowBanner": "Demorando mais que o normal — o modelo ainda está gerando esta variação.",
+    "exportLabel": "Exportar",
+    "editInlineLabel": "Editar no local",
+    "mostPopularBadge": "Mais popular",
+    "choosePlanCta": "Escolher plano",
+    "periodMonthly": "/mês",
+    "periodYearly": "/ano"
+  },
+  "history": {
+    "recentGenerations": "Gerações recentes",
+    "clear": "Limpar"
+  },
+  "export": {
+    "dialogTitle": "Exportar — {strategy}",
+    "formatError": "Não foi possível gerar este formato de exportação. Tente trocar de aba ou reabrir a caixa de diálogo.",
+    "previewTitle": "Exportação {format}"
+  },
+  "urlInput": {
+    "required": "Cole a URL de um produto para começar.",
+    "invalid": "URL inválida — inclua um domínio válido como flowbase.com.",
+    "analyzeCta": "Analisar",
+    "generatingCta": "Gerando",
+    "placeholder": "seu-produto.com",
+    "tryLabel": "Tente:",
+    "fieldLabel": "URL do produto"
+  },
+  "errors": {
+    "status400": "Essa requisição não pareceu correta. Verifique a URL e tente novamente.",
+    "status404": "Não encontramos essa geração ou variação.",
+    "status409": "Já existe uma geração em andamento para esta requisição. Aguarde um momento e tente novamente.",
+    "status422": "Essa requisição não é válida. Verifique a URL e tente novamente.",
+    "status429": "Muitas requisições no momento. Aguarde um momento e tente novamente.",
+    "status500": "Algo deu errado do nosso lado. Tente novamente em instantes.",
+    "status502": "Não conseguimos acessar ou ler esse site. Verifique a URL e tente novamente.",
+    "network": "Não conseguimos alcançar o servidor. Verifique sua conexão e tente novamente.",
+    "generic": "Algo deu errado. Tente novamente em instantes."
+  },
+  "studio": {
+    "heading": "Estúdio",
+    "subheading": "Cole a URL de um produto — geramos três estratégias de precificação em paralelo.",
+    "retry": "Tentar novamente",
+    "generationFailedFallback": "Falha na geração",
+    "emptyTitle": "Nada gerado ainda",
+    "emptyBody": "Cole a URL de um produto acima para transmitir três estratégias de precificação lado a lado.",
+    "audienceScraped": "<strong>{title}</strong> analisado — público detectado",
+    "sophistication": {
+      "low": "baixa sofisticação",
+      "medium": "sofisticação média",
+      "high": "alta sofisticação"
+    }
+  },
+  "landing": {
+    "eyebrow": "PRECIFICAÇÃO GUIADA POR PSICOLOGIA",
+    "headlineMain": "Três páginas de preços. Três estratégias.",
+    "headlineSecondary": "Geradas ao vivo a partir de uma URL.",
+    "subcopy": "Cole a URL de qualquer produto. Nós a analisamos, classificamos o público com uma LLM e transmitimos três páginas de preços baseadas em psicologia em paralelo — compare lado a lado e exporte para JSX, HTML ou uma Tabela de Preços da Stripe.",
+    "openStudioCta": "Abrir o Estúdio →",
+    "watchLiveRunCta": "Ver uma execução ao vivo",
+    "preview": {
+      "anchor": {
+        "label": "ÂNCORA",
+        "price": "$49",
+        "hint": " /mês"
+      },
+      "freemium": {
+        "label": "FREEMIUM",
+        "price": "$0",
+        "hint": " grátis"
+      },
+      "value": {
+        "label": "VALOR",
+        "price": "$79",
+        "hint": " /mês"
+      }
+    },
+    "ribbonTagline": "GUIADO POR PSICOLOGIA · STREAMING SSE"
+  }
+}

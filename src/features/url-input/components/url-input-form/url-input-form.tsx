@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useEffect, useId } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Button } from "@/shared/ui";
@@ -33,7 +34,11 @@ export function UrlInputForm({ onSubmitUrl, isBusy, initialUrl }: UrlInputFormPr
     defaultValues: { url: initialUrl ?? "" },
   });
   const errorId = useId();
-  const errorMessage = formState.errors.url?.message;
+  const t = useTranslations("urlInput");
+  // formState.errors.url.message is a urlInput.* catalog key (see
+  // url-input-schema.ts), not display text — resolve it here.
+  const errorMessageKey = formState.errors.url?.message;
+  const errorMessage = errorMessageKey ? t(errorMessageKey) : undefined;
 
   // initialUrl can arrive after this form has already mounted (it's read
   // from useSearchParams() in a Suspense-isolated sibling, resolved
@@ -61,13 +66,13 @@ export function UrlInputForm({ onSubmitUrl, isBusy, initialUrl }: UrlInputFormPr
             name="url"
             render={({ field }) => (
               <input
-                aria-label="Product URL"
+                aria-label={t("fieldLabel")}
                 aria-invalid={errorMessage ? true : undefined}
                 aria-describedby={errorMessage ? errorId : undefined}
                 value={field.value}
                 onChange={field.onChange}
                 onBlur={field.onBlur}
-                placeholder="your-product.com"
+                placeholder={t("placeholder")}
                 disabled={isBusy}
                 className="min-w-0 flex-1 bg-transparent py-[11px] font-mono text-[14px] text-primary outline-none placeholder:text-(--po-text-muted) disabled:opacity-60"
               />
@@ -75,7 +80,7 @@ export function UrlInputForm({ onSubmitUrl, isBusy, initialUrl }: UrlInputFormPr
           />
           <Button
             type="submit"
-            label={isBusy ? "Generating" : "Analyze"}
+            label={isBusy ? t("generatingCta") : t("analyzeCta")}
             variant="primary"
             isLoading={isBusy}
             style={{
@@ -94,7 +99,7 @@ export function UrlInputForm({ onSubmitUrl, isBusy, initialUrl }: UrlInputFormPr
         )}
       </form>
       <div className="flex flex-wrap items-center gap-2">
-        <span className="font-sans text-[12px] text-(--po-text-muted)">Try:</span>
+        <span className="font-sans text-[12px] text-(--po-text-muted)">{t("tryLabel")}</span>
         {EXAMPLE_URLS.map((example) => (
           <button
             key={example}

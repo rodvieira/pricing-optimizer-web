@@ -19,16 +19,21 @@ const DOMAIN_URL_PATTERN =
  * Accepts a bare domain (e.g. "flowbase.com") as well as a fully-qualified
  * URL, matching the design's "https:// [your-product.com]" input affordance.
  * Normalizes to a fully-qualified https URL before it ever reaches the API.
+ *
+ * Validation messages are keys into the `urlInput` message-catalog
+ * namespace, not display text — this schema is a module-level constant, not
+ * locale-aware itself (consistent with `shared/domain/`'s purity rule
+ * elsewhere in this repo). `url-input-form.tsx` resolves the key through
+ * `useTranslations("urlInput")` before rendering it — bare keys here
+ * (`"required"`, not `"urlInput.required"`), since that hook is already
+ * namespaced to `urlInput`.
  */
 export const urlInputSchema = z.object({
   url: z
     .string()
     .trim()
-    .min(1, "Paste a product URL to get started.")
-    .refine(
-      (value) => DOMAIN_URL_PATTERN.test(value),
-      "Invalid URL — include a valid domain like flowbase.com.",
-    )
+    .min(1, "required")
+    .refine((value) => DOMAIN_URL_PATTERN.test(value), "invalid")
     .transform((value) => (/^https?:\/\//i.test(value) ? value : `https://${value}`)),
 });
 

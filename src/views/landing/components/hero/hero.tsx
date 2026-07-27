@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import type { CSSProperties } from "react";
 import { Button, Eyebrow, Text } from "@/shared/ui";
 
@@ -14,10 +17,12 @@ const HERO_BUTTON_STYLE = {
 const LIVE_RUN_EXAMPLE_URL = "linear.app";
 
 export function Hero() {
+  const t = useTranslations("landing");
+
   return (
     <section className="mx-auto w-full max-w-7xl px-6 pt-16 pb-10 sm:px-8">
       <Eyebrow tone="rust" withRule className="mb-6">
-        PSYCHOLOGY-DRIVEN PRICING
+        {t("eyebrow")}
       </Eyebrow>
       {/* Two-tone headline: second sentence drops to secondary, matching the
           mock. Font-size/tracking scale down gradually below the mock's
@@ -28,9 +33,9 @@ export function Hero() {
         as="h1"
         className="block text-[32px] tracking-[-1.1px] text-balance sm:text-[42px] sm:tracking-[-1.4px] lg:text-[60px] lg:tracking-[-2.1px]"
       >
-        Three pricing pages. Three strategies.
+        {t("headlineMain")}
         <br />
-        <span className="text-secondary">Generated live from one URL.</span>
+        <span className="text-secondary">{t("headlineSecondary")}</span>
       </Text>
       {/* font-normal: the `large` Text type defaults to 600; the mock's subcopy is 400. */}
       <Text
@@ -38,20 +43,18 @@ export function Hero() {
         color="secondary"
         className="mt-6 block max-w-xl text-[15px] font-normal text-pretty sm:text-[16px] lg:text-[17px]"
       >
-        Paste any product URL. We scrape it, classify the audience with an LLM, and stream three
-        psychology-backed pricing pages in parallel — compare side by side and export to JSX, HTML,
-        or a Stripe Pricing Table.
+        {t("subcopy")}
       </Text>
       <div className="mt-8 flex flex-wrap gap-3">
         <Button
-          label="Open the Studio →"
+          label={t("openStudioCta")}
           variant="primary"
           size="lg"
           href="/studio"
           style={HERO_BUTTON_STYLE}
         />
         <Button
-          label="Watch a live run"
+          label={t("watchLiveRunCta")}
           variant="secondary"
           size="lg"
           href={`/studio?url=${LIVE_RUN_EXAMPLE_URL}`}

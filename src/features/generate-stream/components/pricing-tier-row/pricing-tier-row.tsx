@@ -1,20 +1,28 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import type { PricingTier } from "@/shared/domain";
+import { useLocaleMode } from "@/shared/i18n";
 import { Badge, Button, CheckGlyph, PriceDisplay } from "@/shared/ui";
 
-function formatPrice(tier: PricingTier): { amount: string; period: string } {
+function formatPrice(
+  tier: PricingTier,
+  locale: string,
+  periodLabels: { monthly: string; yearly: string },
+): { amount: string; period: string } {
   if (tier.price.customLabel) {
     return { amount: tier.price.customLabel, period: "" };
   }
 
-  const formatted = new Intl.NumberFormat("en-US", {
+  const formatted = new Intl.NumberFormat(locale, {
     style: "currency",
     currency: tier.price.currency,
     minimumFractionDigits: tier.price.amount % 100 === 0 ? 0 : 2,
   }).format(tier.price.amount / 100);
 
   let period = "";
-  if (tier.price.interval === "monthly") period = "/mo";
-  else if (tier.price.interval === "yearly") period = "/yr";
+  if (tier.price.interval === "monthly") period = periodLabels.monthly;
+  else if (tier.price.interval === "yearly") period = periodLabels.yearly;
 
   return { amount: formatted, period };
 }
@@ -32,7 +40,12 @@ export function PricingTierRow({
   isHighlighted,
   onHoverStart,
 }: PricingTierRowProps) {
-  const { amount, period } = formatPrice(tier);
+  const { locale } = useLocaleMode();
+  const t = useTranslations("generateStream");
+  const { amount, period } = formatPrice(tier, locale, {
+    monthly: t("periodMonthly"),
+    yearly: t("periodYearly"),
+  });
 
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: hover-only highlight is a visual aid layered on tiers whose content is already fully readable without it — no keyboard/screen-reader equivalent is needed.
@@ -47,7 +60,7 @@ export function PricingTierRow({
           <span className="font-heading text-[14px] font-semibold">{tier.name}</span>
           {tier.highlighted && (
             <Badge
-              label={tier.badge ?? "Most popular"}
+              label={tier.badge ?? t("mostPopularBadge")}
               style={{
                 fontFamily: "var(--font-family-code)",
                 fontSize: 8.5,
@@ -73,7 +86,7 @@ export function PricingTierRow({
         ))}
       </ul>
       <Button
-        label={tier.cta ?? "Choose plan"}
+        label={tier.cta ?? t("choosePlanCta")}
         variant={tier.highlighted ? "primary" : "secondary"}
         size="sm"
         className="mt-3 w-full"

@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { Eyebrow } from "@/shared/ui";
 
 /**
@@ -8,11 +11,14 @@ import { Eyebrow } from "@/shared/ui";
  * the hero.
  */
 export function TopRibbon() {
+  const t = useTranslations("landing");
+
   return (
     <div className="hidden sm:block">
       <div className="mx-auto flex max-w-7xl items-center justify-between border-b border-border px-6 py-3 sm:px-8">
+        {/* Brand name, not translated — same wordmark convention as AppHeader. */}
         <Eyebrow tone="muted">PRICING OPTIMIZER</Eyebrow>
-        <Eyebrow tone="muted">PSYCHOLOGY-DRIVEN · SSE STREAMING</Eyebrow>
+        <Eyebrow tone="muted">{t("ribbonTagline")}</Eyebrow>
       </div>
     </div>
   );

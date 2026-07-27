@@ -1,5 +1,9 @@
+"use client";
+
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import { strategyMeta } from "@/entities/strategy";
+import { problemMessageKey } from "@/shared/api/problem-message";
 import type { PricingStrategy, StrategyGenerationState } from "@/shared/domain";
 import {
   Alert,
@@ -21,14 +25,16 @@ export interface VariationCardProps {
   readonly onExport: () => void;
 }
 
-function statusLabel(state: StrategyGenerationState | undefined, isSlow: boolean): string {
-  if (!state || state.status === "pending") return "queued";
-  if (state.status === "completed") return "ready";
-  if (state.status === "error") return "failed";
-  return isSlow ? "taking longer…" : "generating";
+function useStatusLabel(state: StrategyGenerationState | undefined, isSlow: boolean): string {
+  const t = useTranslations("generateStream.status");
+  if (!state || state.status === "pending") return t("queued");
+  if (state.status === "completed") return t("ready");
+  if (state.status === "error") return t("failed");
+  return isSlow ? t("slow") : t("generating");
 }
 
 function Rationale({ state }: { readonly state: StrategyGenerationState | undefined }) {
+  const t = useTranslations("errors");
   if (!state || state.status === "pending") {
     return (
       <div className="flex flex-col gap-2">
@@ -43,7 +49,13 @@ function Rationale({ state }: { readonly state: StrategyGenerationState | undefi
   if (state.status === "completed") {
     return <p className="text-sm leading-relaxed text-secondary">{state.variation.rationale}</p>;
   }
-  return <Alert status="error" title={state.problem.title} description={state.problem.detail} />;
+  return (
+    <Alert
+      status="error"
+      title={t(problemMessageKey(state.problem))}
+      description={state.problem.detail}
+    />
+  );
 }
 
 export function VariationCard({
@@ -55,6 +67,9 @@ export function VariationCard({
   onExport,
 }: VariationCardProps) {
   const meta = strategyMeta(strategy);
+  const t = useTranslations("generateStream");
+  const tStrategy = useTranslations("strategy");
+  const statusLabel = useStatusLabel(strategyState, isSlow);
   const isComplete = strategyState?.status === "completed";
 
   return (
@@ -67,15 +82,17 @@ export function VariationCard({
     >
       <PanelHeader>
         <ColorDot color={meta.variant} />
-        <span className="font-heading text-[14.5px] font-semibold">{meta.label}</span>
+        <span className="font-heading text-[14.5px] font-semibold">
+          {tStrategy(`${meta.strategy}.label`)}
+        </span>
         <Eyebrow tone="secondary" className="ml-auto">
-          {statusLabel(strategyState, isSlow)}
+          {statusLabel}
         </Eyebrow>
       </PanelHeader>
 
       <div className="min-h-[76px] border-b border-border px-4 py-3">
         <Eyebrow tone="secondary" className="mb-2">
-          STRATEGY RATIONALE
+          {t("rationaleLabel")}
         </Eyebrow>
         <Rationale state={strategyState} />
       </div>
@@ -89,7 +106,7 @@ export function VariationCard({
         )}
         {isSlow && strategyState?.status === "streaming" && (
           <div className="mt-2 rounded-lg bg-warning-muted px-3 py-2 text-xs text-warning">
-            Taking longer than usual — model still streaming this variant.
+            {t("slowBanner")}
           </div>
         )}
         {strategyState?.status === "completed" && (
@@ -114,12 +131,16 @@ export function VariationCard({
 
       <div className="flex gap-[9px] border-t border-border px-4 py-3">
         <CardActionButton
-          label="Export"
+          label={t("exportLabel")}
           variant="primary"
           isDisabled={!isComplete}
           onClick={onExport}
         />
-        <CardActionButton label="Edit inline" variant="secondary" isDisabled={!isComplete} />
+        <CardActionButton
+          label={t("editInlineLabel")}
+          variant="secondary"
+          isDisabled={!isComplete}
+        />
       </div>
     </Card>
   );

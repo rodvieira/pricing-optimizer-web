@@ -3,7 +3,7 @@ import { strategyMeta } from "./strategy-meta";
 
 describe("strategyMeta", () => {
   it("returns the matching entry for a known strategy", () => {
-    expect(strategyMeta("freemium").label).toBe("Freemium ladder");
+    expect(strategyMeta("freemium").variant).toBe("teal");
   });
 
   it("throws for a strategy outside the known set", () => {
