@@ -1,9 +1,9 @@
 "use client";
 
-import { Button } from "@astryxdesign/core";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useId } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { Button } from "@/shared/ui";
 import { type UrlInputValues, urlInputSchema } from "../../url-input-schema";
 
 // Real, reachable sites — the original design mock's flowbase.com/useorbit.io/

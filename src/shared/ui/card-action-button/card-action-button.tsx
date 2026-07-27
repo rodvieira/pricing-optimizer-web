@@ -1,5 +1,5 @@
-import { Button } from "@astryxdesign/core";
 import type { CSSProperties } from "react";
+import { Button } from "../primitives/button";
 
 export type CardActionVariant = "primary" | "secondary";
 

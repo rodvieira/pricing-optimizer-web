@@ -1,6 +1,5 @@
-import { Button, Text } from "@astryxdesign/core";
 import type { CSSProperties } from "react";
-import { Eyebrow } from "@/shared/ui";
+import { Button, Eyebrow, Text } from "@/shared/ui";
 
 // Astryx's `lg` button token is 36px tall with 12px horizontal padding at
 // 14px type; the mock's hero CTAs measure 47px tall, 24px horizontal padding,
