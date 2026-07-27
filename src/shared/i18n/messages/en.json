@@ -103,5 +103,10 @@
       }
     },
     "ribbonTagline": "PSYCHOLOGY-DRIVEN · SSE STREAMING"
+  },
+  "consent": {
+    "message": "We use Google Analytics to understand how visitors use this demo — page views and a few key actions (URL submitted, generation completed, export triggered). No data is collected until you accept.",
+    "accept": "Accept",
+    "decline": "Decline"
   }
 }

@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
+import { trackExportTriggered } from "@/shared/analytics";
 import type { ExportFormat } from "@/shared/domain";
 import { CodePreview, Dialog, Skeleton, Tabs } from "@/shared/ui";
 import { useExport } from "../../hooks/use-export";
@@ -48,6 +49,13 @@ export function ExportDialog({
   useEffect(() => {
     setFormat("jsx");
   }, [variationId]);
+
+  // Fires once per successful export result (TanStack Query v5 dropped
+  // useQuery's onSuccess option, so a real result is observed here instead).
+  // biome-ignore lint/correctness/useExhaustiveDependencies: format is read intentionally, but this must fire once per new `data`, not once per format change alone (data lags format by one fetch).
+  useEffect(() => {
+    if (data) trackExportTriggered(format);
+  }, [data]);
 
   return (
     <Dialog

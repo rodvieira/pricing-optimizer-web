@@ -103,5 +103,10 @@
       }
     },
     "ribbonTagline": "GUIADO POR PSICOLOGIA · STREAMING SSE"
+  },
+  "consent": {
+    "message": "Usamos o Google Analytics para entender como os visitantes usam esta demonstração — visualizações de página e algumas ações principais (URL enviada, geração concluída, exportação realizada). Nenhum dado é coletado até que você aceite.",
+    "accept": "Aceitar",
+    "decline": "Recusar"
   }
 }

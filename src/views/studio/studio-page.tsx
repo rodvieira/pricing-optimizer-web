@@ -6,6 +6,7 @@ import { ExportDialog } from "@/features/export";
 import { useGenerateStream, VariationGrid } from "@/features/generate-stream";
 import { HistoryPanel, useLocalHistory } from "@/features/history";
 import { UrlInputForm, urlInputSchema, useAnalyze } from "@/features/url-input";
+import { trackGenerationCompleted, trackUrlSubmitted } from "@/shared/analytics";
 import { problemMessageKey } from "@/shared/api/problem-message";
 import {
   type Generation,
@@ -38,6 +39,7 @@ export function StudioPage() {
     (url: string) => {
       setViewedGeneration(null);
       setLastUrl(url);
+      trackUrlSubmitted();
       analyze.mutate(url, {
         onSuccess: (profile) => {
           setSiteProfile(profile);
@@ -78,6 +80,7 @@ export function StudioPage() {
     if (generation && recordedGenerationId.current !== generation.id) {
       recordedGenerationId.current = generation.id;
       addGeneration(generation);
+      trackGenerationCompleted();
     }
   }, [generateStream.state, addGeneration]);
 
