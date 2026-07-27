@@ -39,6 +39,12 @@ export default defineConfig({
         // constructor call, an openapi-fetch client config object).
         "src/shared/providers/query-provider.tsx",
         "src/shared/api/client.ts",
+        // Vendored shadcn/ui primitives (spec 003-shadcn-ui-migration,
+        // Clarification 2): kept flat and excluded so re-running the vendor
+        // step for an upstream fix never fights this repo's test-authoring
+        // convention. Anything that wraps or composes one of these (Text,
+        // future compositions) is owned code and stays in scope.
+        "src/shared/ui/primitives/**",
         // Barrels: re-export statements only, no logic of their own.
         "**/index.ts",
         "**/*.test.{ts,tsx}",

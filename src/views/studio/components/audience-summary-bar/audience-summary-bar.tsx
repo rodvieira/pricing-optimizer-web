@@ -1,7 +1,6 @@
-import { Text } from "@astryxdesign/core";
 import { motion } from "motion/react";
 import type { SiteProfile } from "@/shared/domain";
-import { ColorDot } from "@/shared/ui";
+import { ColorDot, Text } from "@/shared/ui";
 
 function sophisticationLabel(profile: SiteProfile): string {
   return `${profile.audience.sophistication} sophistication`;

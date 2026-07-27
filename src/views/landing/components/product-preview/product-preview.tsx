@@ -1,5 +1,4 @@
-import { Card } from "@astryxdesign/core";
-import { ColorAccentColumn, Eyebrow, PanelHeader, PriceDisplay } from "@/shared/ui";
+import { Card, ColorAccentColumn, Eyebrow, PanelHeader, PriceDisplay } from "@/shared/ui";
 
 const PREVIEW_CARDS = [
   { label: "ANCHOR", price: "$49", hint: " /mo", variant: "orange" as const },
@@ -10,7 +9,7 @@ const PREVIEW_CARDS = [
 export function ProductPreview() {
   return (
     <section className="mx-auto w-full max-w-7xl px-6 sm:px-8">
-      <Card variant="default" padding={0}>
+      <Card>
         <PanelHeader>
           <div className="flex gap-1.5">
             <span aria-hidden className="h-2.5 w-2.5 rounded-full border border-border-strong" />

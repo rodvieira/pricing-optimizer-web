@@ -1,8 +1,15 @@
-import { Banner, Card, Skeleton } from "@astryxdesign/core";
 import { motion } from "motion/react";
 import { strategyMeta } from "@/entities/strategy";
 import type { PricingStrategy, StrategyGenerationState } from "@/shared/domain";
-import { CardActionButton, ColorDot, Eyebrow, PanelHeader } from "@/shared/ui";
+import {
+  Alert,
+  Card,
+  CardActionButton,
+  ColorDot,
+  Eyebrow,
+  PanelHeader,
+  Skeleton,
+} from "@/shared/ui";
 import { PricingTierRow } from "../pricing-tier-row/pricing-tier-row";
 
 export interface VariationCardProps {
@@ -36,7 +43,7 @@ function Rationale({ state }: { readonly state: StrategyGenerationState | undefi
   if (state.status === "completed") {
     return <p className="text-sm leading-relaxed text-secondary">{state.variation.rationale}</p>;
   }
-  return <Banner status="error" title={state.problem.title} description={state.problem.detail} />;
+  return <Alert status="error" title={state.problem.title} description={state.problem.detail} />;
 }
 
 export function VariationCard({
@@ -52,8 +59,6 @@ export function VariationCard({
 
   return (
     <Card
-      variant="default"
-      padding={0}
       style={{
         borderTopWidth: 2,
         borderTopColor: `var(--color-icon-${meta.variant})`,

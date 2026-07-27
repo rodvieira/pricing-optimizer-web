@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@astryxdesign/core";
 import { Moon, Sun } from "lucide-react";
+import { Button } from "@/shared/ui";
 import { useThemeMode } from "../theme-mode-provider/theme-mode-provider";
 
 const MODE_LABEL: Record<"light" | "dark", string> = {

@@ -1,17 +1,9 @@
 "use client";
 
-import {
-  CodeBlock,
-  Dialog,
-  DialogHeader,
-  Layout,
-  LayoutContent,
-  Skeleton,
-  Tab,
-  TabList,
-} from "@astryxdesign/core";
+import { CodeBlock, Dialog, DialogHeader, Tab, TabList } from "@astryxdesign/core";
 import { useEffect, useState } from "react";
 import type { ExportFormat } from "@/shared/domain";
+import { Skeleton } from "@/shared/ui";
 import { useExport } from "../../hooks/use-export";
 
 const FORMAT_LANGUAGE: Record<ExportFormat, string> = {
@@ -53,41 +45,37 @@ export function ExportDialog({
 
   return (
     <Dialog isOpen={isOpen} onOpenChange={onOpenChange} width={720} purpose="info">
-      <Layout
-        header={<DialogHeader title={`Export — ${strategyLabel}`} onOpenChange={onOpenChange} />}
-        content={
-          <LayoutContent>
-            <TabList
-              value={format}
-              onChange={(value) => setFormat(value as ExportFormat)}
-              hasDivider
-            >
-              <Tab value="jsx" label="JSX" />
-              <Tab value="html" label="HTML" />
-              <Tab value="stripe" label="Stripe JSON" />
-            </TabList>
-            <div className="pt-4">
-              {isLoading && <Skeleton height={240} />}
-              {isError && (
-                <p className="text-sm text-error">
-                  Couldn't generate this export format. Try switching tabs or reopening the dialog.
-                </p>
-              )}
-              {data && (
-                <CodeBlock
-                  code={data.content}
-                  language={FORMAT_LANGUAGE[format]}
-                  title={`${FORMAT_LABEL[format]} export`}
-                  hasCopyButton
-                  hasLineNumbers
-                  width="100%"
-                  maxHeight={420}
-                />
-              )}
-            </div>
-          </LayoutContent>
-        }
-      />
+      <DialogHeader title={`Export — ${strategyLabel}`} onOpenChange={onOpenChange} />
+      {/* Was Astryx's <Layout>/<LayoutContent> — plain composition, no
+          library needed for what was purely a header+content split. Dialog
+          itself moves to Radix in the next increment (spec 003-shadcn-ui-
+          migration, US3), which reworks this markup again. */}
+      <div className="p-4">
+        <TabList value={format} onChange={(value) => setFormat(value as ExportFormat)} hasDivider>
+          <Tab value="jsx" label="JSX" />
+          <Tab value="html" label="HTML" />
+          <Tab value="stripe" label="Stripe JSON" />
+        </TabList>
+        <div className="pt-4">
+          {isLoading && <Skeleton height={240} />}
+          {isError && (
+            <p className="text-sm text-error">
+              Couldn't generate this export format. Try switching tabs or reopening the dialog.
+            </p>
+          )}
+          {data && (
+            <CodeBlock
+              code={data.content}
+              language={FORMAT_LANGUAGE[format]}
+              title={`${FORMAT_LABEL[format]} export`}
+              hasCopyButton
+              hasLineNumbers
+              width="100%"
+              maxHeight={420}
+            />
+          )}
+        </div>
+      </div>
     </Dialog>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
-import { Button, Text } from "@astryxdesign/core";
 import type { Generation } from "@/shared/domain";
+import { Button, Text } from "@/shared/ui";
 
 const RELATIVE_TIME = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
 const RELATIVE_UNITS: readonly [Intl.RelativeTimeFormatUnit, number][] = [

@@ -1,6 +1,5 @@
 "use client";
 
-import { Banner, Button, Text } from "@astryxdesign/core";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { strategyMeta } from "@/entities/strategy";
 import { ExportDialog } from "@/features/export";
@@ -13,6 +12,7 @@ import {
   type PricingStrategy,
   type SiteProfile,
 } from "@/shared/domain";
+import { Alert, Button, Text } from "@/shared/ui";
 import { AudienceSummaryBar } from "./components/audience-summary-bar";
 import { StudioAutoRun } from "./components/studio-auto-run";
 import { StudioEmptyState } from "./components/studio-empty-state";
@@ -110,7 +110,7 @@ export function StudioPage() {
       />
 
       {analyze.isError && (
-        <Banner
+        <Alert
           status="error"
           title={analyze.error.problem.title}
           description={analyze.error.problem.detail}
@@ -121,7 +121,7 @@ export function StudioPage() {
       {siteProfile && <AudienceSummaryBar siteProfile={siteProfile} />}
 
       {hasStreamError && (
-        <Banner
+        <Alert
           status="error"
           title={generateStream.state.problem?.title ?? "Generation failed"}
           description={generateStream.state.problem?.detail}

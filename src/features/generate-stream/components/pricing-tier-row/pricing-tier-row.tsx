@@ -1,6 +1,5 @@
-import { Badge, Button } from "@astryxdesign/core";
 import type { PricingTier } from "@/shared/domain";
-import { CheckGlyph, PriceDisplay } from "@/shared/ui";
+import { Badge, Button, CheckGlyph, PriceDisplay } from "@/shared/ui";
 
 function formatPrice(tier: PricingTier): { amount: string; period: string } {
   if (tier.price.customLabel) {
@@ -48,7 +47,6 @@ export function PricingTierRow({
           <span className="font-heading text-[14px] font-semibold">{tier.name}</span>
           {tier.highlighted && (
             <Badge
-              variant={strategyVariant}
               label={tier.badge ?? "Most popular"}
               style={{
                 fontFamily: "var(--font-family-code)",
