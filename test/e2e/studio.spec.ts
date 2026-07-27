@@ -8,7 +8,7 @@ test("empty studio state has no serious accessibility violations", async ({ page
 
   // color-contrast is disabled by an owner-approved decision to match the
   // design mock's warm palette exactly, some of whose small accent/muted text
-  // falls below WCAG AA 4.5:1. See src/features/theme/pricing-optimizer-theme.ts.
+  // falls below WCAG AA 4.5:1. See the color tokens in src/app/globals.css.
   const results = await new AxeBuilder({ page }).disableRules(["color-contrast"]).analyze();
   const serious = results.violations.filter(
     (v) => v.impact === "serious" || v.impact === "critical",
@@ -19,15 +19,14 @@ test("empty studio state has no serious accessibility violations", async ({ page
 test("empty studio state fills its max-width column instead of shrinking to content", async ({
   page,
 }) => {
-  // Regression: <main> sits inside Astryx's <Theme> wrapper, which renders
-  // display:contents — so <main> becomes a direct flex item of <body>'s
-  // flex-column layout instead of a normal block box. Without an explicit
-  // width, mx-auto's auto margins suppress flexbox's default stretch
-  // behavior and <main> shrinks to fit its content instead of filling
-  // max-w-6xl. Only visible with a real browser layout engine (not
-  // catchable in jsdom) and only obvious in low-content states — the
-  // generated-results grid is wide enough on its own to mask the bug, but
-  // the empty state a user sees first collapses to roughly half width.
+  // Regression: <main> is a direct flex item of <body>'s flex-column layout
+  // (app/layout.tsx; AppProviders' context providers render no wrapping DOM
+  // element). Without an explicit width, mx-auto's auto margins suppress
+  // flexbox's default stretch behavior and <main> shrinks to fit its content
+  // instead of filling max-w-6xl. Only visible with a real browser layout
+  // engine (not catchable in jsdom) and only obvious in low-content states —
+  // the generated-results grid is wide enough on its own to mask the bug,
+  // but the empty state a user sees first collapses to roughly half width.
   await page.goto("/studio");
   await expect(page.getByText("Nothing generated yet")).toBeVisible();
 

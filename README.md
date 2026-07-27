@@ -55,8 +55,8 @@ src/
 
   entities/           domain concepts shared across views/features that are more than
                       a pure type but owned by no single feature
-    strategy/           display metadata (label, blurb, Astryx color variant) per
-                        pricing strategy — used by both the landing preview and Studio
+    strategy/           display metadata (label, blurb, color variant) per pricing
+                        strategy — used by both the landing preview and Studio
 
   shared/             framework-agnostic or cross-cutting code with no feature identity
     domain/             pure business types + logic. Zero React/Next/Zod/TanStack
@@ -69,7 +69,7 @@ src/
     ui/                 shared cross-feature composition (app header, price display, ...)
     providers/          cross-cutting client providers composed once (QueryProvider,
                         ThemeModeProvider) so app/layout.tsx stays a thin document shell
-    theme/              Astryx color-mode integration — cross-cutting infrastructure,
+    theme/              dark/light color-mode integration — cross-cutting infrastructure,
                         not a features/ slice, since shared/ui and shared/providers
                         both depend on it (see ADR-0016)
 ```
@@ -96,9 +96,14 @@ src/
   is the only layer allowed to import the generated schema directly, so a contract
   change surfaces as a type error at the boundary, not a runtime surprise deep in a
   component.
-- **Astryx (Meta's StyleX-based design system, beta) over shadcn/ui**, with Tailwind
-  bridged in via `@theme inline` for layout utilities Astryx doesn't own. A deliberate,
-  documented deviation from the original plan, made mid-implementation.
+- **shadcn/ui + Radix, not a bundled design-system dependency.** Started on a
+  different StyleX-based design system mid-implementation, then migrated to
+  shadcn/ui-style vendored primitives (Button, Card, Badge, Alert, Skeleton) over
+  Radix (Dialog, Tabs) plus two owned components (Text, CodePreview) with no
+  equivalent in shadcn/ui — see `docs/decisions/0018-shadcn-ui-migration.md` for
+  the full rationale. Design
+  tokens (color, type scale, radius, shadow) are this app's own `@theme inline`
+  block in `app/globals.css`, not sourced from a third-party theme package.
 - **Binary light/dark theme, not a 3-state light/dark/system toggle.** An earlier
   "system" option tracked the raw mode instead of the actually-resolved theme, so it
   kept showing the wrong icon on a dark-OS machine. An unset preference still follows
@@ -124,9 +129,9 @@ in CI.
 
 ## Stack
 
-Next.js 16 (App Router, TypeScript strict) · Tailwind CSS v4 ·
-[Astryx](https://astryx.atmeta.com/) (Meta's StyleX-based design system) · TanStack
-Query v5 · react-hook-form + Zod · openapi-fetch + openapi-typescript · motion ·
+Next.js 16 (App Router, TypeScript strict) · Tailwind CSS v4 · shadcn/ui-style
+vendored primitives + [Radix UI](https://www.radix-ui.com/) · TanStack Query v5 ·
+react-hook-form + Zod · openapi-fetch + openapi-typescript · motion ·
 [Sentry](https://sentry.io) · Vitest + React Testing Library · Playwright + axe-core ·
 Biome (lint + format, replaces ESLint/Prettier) · pnpm · lefthook + commitlint.
 

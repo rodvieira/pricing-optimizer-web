@@ -10,7 +10,7 @@ export interface AlertProps {
   readonly className?: string;
 }
 
-/** Vendored replacement for Astryx's Banner, renamed to match shadcn/ui's Alert. */
+/** Named Alert to match shadcn/ui's convention. */
 export function Alert({ title, description, endContent, className }: AlertProps) {
   return (
     <div

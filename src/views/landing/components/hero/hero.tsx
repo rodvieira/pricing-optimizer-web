@@ -1,13 +1,9 @@
 import type { CSSProperties } from "react";
 import { Button, Eyebrow, Text } from "@/shared/ui";
 
-// Astryx's `lg` button token is 36px tall with 12px horizontal padding at
-// 14px type; the mock's hero CTAs measure 47px tall, 24px horizontal padding,
-// 15px type. Overridden locally via the same CSS custom property/properties
-// Button's box model binds to, rather than fighting StyleX's atomic class
-// specificity with Tailwind utilities.
+// The mock's hero CTAs measure 24px horizontal padding at 15px type, wider
+// than Button's own `lg` size — overridden locally via inline style.
 const HERO_BUTTON_STYLE = {
-  "--size-element-lg": "47px",
   paddingInline: "24px",
   fontSize: "15px",
 } as CSSProperties;
@@ -36,7 +32,7 @@ export function Hero() {
         <br />
         <span className="text-secondary">Generated live from one URL.</span>
       </Text>
-      {/* font-normal: Astryx's `large` text defaults to 600; the mock's subcopy is 400. */}
+      {/* font-normal: the `large` Text type defaults to 600; the mock's subcopy is 400. */}
       <Text
         type="large"
         color="secondary"

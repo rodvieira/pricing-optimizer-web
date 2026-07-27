@@ -1,6 +1,6 @@
 ---
 name: pr-reviewer
-description: Reviews a change in pricing-optimizer-web against project context — the constitution, layered architecture (app/views/features/entities/shared boundaries), design-system discipline (Astryx), and test rigor — and flags unnecessary/dead code. Use before opening or merging a PR, or when the user asks to review the current diff or a specific PR. Read-only; it reports findings, it does not edit code.
+description: Reviews a change in pricing-optimizer-web against project context — the constitution, layered architecture (app/views/features/entities/shared boundaries), design-system discipline (shadcn/ui + Radix), and test rigor — and flags unnecessary/dead code. Use before opening or merging a PR, or when the user asks to review the current diff or a specific PR. Read-only; it reports findings, it does not edit code.
 tools: Read, Grep, Glob, Bash
 model: opus
 ---
@@ -88,16 +88,25 @@ ground your criteria before reviewing.
   `views/`, or `app/` file importing `shared/api/schema.ts` types directly instead of
   going through a `shared/api/*.ts` wrapper that maps to `shared/domain/` types.
 
-### C. Design-system discipline (Astryx)
+### C. Design-system discipline (shadcn/ui + Radix)
 
-- New UI should compose existing Astryx components (`Button`, `Card`, `Badge`, `Dialog`,
-  `TabList`, `CodeBlock`, `Skeleton`, `EmptyState`, `Banner`, `TextInput`, etc.) and its
-  non-semantic color variants (`orange`/`teal`/`pink`/etc., already mapped in
-  `entities/strategy/strategy-meta.ts`) before inventing custom CSS, hand-rolled
-  animations/spinners, or one-off color tokens. Flag a hand-rolled equivalent of
-  something Astryx already ships.
-- No second dark-mode owner: Astryx's `<Theme>` (via `ThemeModeProvider`) is the only
-  thing that may set `data-theme`. Flag `next-themes` or any second color-mode provider.
+- New UI should compose existing vendored primitives (`shared/ui/primitives/`: `Button`,
+  `Card`, `Badge`, `Alert`, `Skeleton`, `Dialog`, `Tabs`), the owned `Text`/`CodePreview`
+  components, and the non-semantic color variants (`orange`/`teal`/`pink`/etc., already
+  mapped in `entities/strategy/strategy-meta.ts` to `--color-icon-{variant}` tokens in
+  `app/globals.css`) before inventing custom CSS, hand-rolled animations/spinners, or
+  one-off color tokens. Flag a hand-rolled equivalent of something already vendored.
+  Vendored primitives (`shared/ui/primitives/**`) are flat and coverage-excluded by
+  design (re-vendor via `shadcn add` for an upstream fix, don't hand-edit); anything that
+  wraps or composes one is owned code and stays in scope for folder-per-component +
+  tests like everything else.
+- No second dark-mode owner: `ThemeModeProvider` is the only thing that may set
+  `data-theme`/`color-scheme` on `<html>`. Flag `next-themes` or any second color-mode
+  provider.
+- Design tokens (color, type scale, radius, shadow) are owned directly in
+  `app/globals.css`'s `@theme inline` block, not sourced from a third-party theme
+  package — flag a new token or magic color value introduced anywhere else, or a raw
+  `var(--color-*)` reference that doesn't resolve to something defined there.
 - Color-contrast: this project has a real history of shipping WCAG-failing text
   (`text-disabled`/`text-secondary` on `bg-muted` measured well under the 4.5:1
   requirement) — flag new small/muted text on a tinted background without evidence it
@@ -129,7 +138,7 @@ ground your criteria before reviewing.
 - Duplication that should be extracted, or extraction so thin it hurts readability.
 - Leftover scaffolding: commented-out code, `console.log`, stray TODOs, empty files.
 - Dependencies added but barely used, or that duplicate something already in the fixed
-  stack (Astryx, motion, TanStack Query, react-hook-form + Zod, openapi-fetch).
+  stack (Radix UI, motion, TanStack Query, react-hook-form + Zod, openapi-fetch).
 Confirm "unused" claims with grep across the repo before reporting them — do not guess.
 
 ### F. Hygiene

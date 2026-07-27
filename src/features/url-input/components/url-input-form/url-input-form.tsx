@@ -24,8 +24,8 @@ export interface UrlInputFormProps {
  * URL input styled to the mock: one bordered pill holding a muted "https://"
  * prefix, the field, and the Analyze button, with bordered "Try:" example
  * pills below. Validation stays react-hook-form + Zod; the field is a raw
- * <input> (not Astryx TextInput) because the mock's embedded-button layout
- * has no Astryx equivalent.
+ * <input> because the mock's embedded-button layout has no vendored
+ * text-input equivalent.
  */
 export function UrlInputForm({ onSubmitUrl, isBusy, initialUrl }: UrlInputFormProps) {
   const { control, handleSubmit, setValue, formState } = useForm<UrlInputValues>({

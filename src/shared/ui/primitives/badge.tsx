@@ -8,10 +8,10 @@ export interface BadgeProps {
 }
 
 /**
- * Vendored replacement for Astryx's Badge. Its one current caller
- * (pricing-tier-row) passes a full `style` override (background, border,
- * color all computed from `--color-icon-{variant}`), so this only supplies
- * the shared inline shape — no `variant` prop, since nothing would read it.
+ * Its one current caller (pricing-tier-row) passes a full `style` override
+ * (background, border, color all computed from `--color-icon-{variant}`),
+ * so this only supplies the shared inline shape — no `variant` prop, since
+ * nothing would read it.
  */
 export function Badge({ label, className, style }: BadgeProps) {
   return (

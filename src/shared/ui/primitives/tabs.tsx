@@ -16,7 +16,7 @@ export interface TabsProps {
 }
 
 /**
- * Vendored replacement for Astryx's TabList/Tab, over @radix-ui/react-tabs.
+ * Tabs over @radix-ui/react-tabs.
  * Content lives outside this component (export-dialog.tsx renders one
  * shared content area keyed off `value`, not per-tab panels), so this
  * renders only Root + List + Trigger, no Tabs.Content — a documented Radix

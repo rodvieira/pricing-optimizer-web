@@ -60,19 +60,22 @@ src/
                       (normalizes a raw fetch() failure into the same Problem shape as
                       an HTTP-level error, so callers never have to distinguish "the
                       server said no" from "we never reached the server").
-    ui/               Shared Astryx composition wrappers used across features
-                      (app-header, price-display, card-action-button, ...). No
-                      business logic here.
+    ui/               Shared cross-feature composition (app-header, price-display,
+                      card-action-button, ...) plus primitives/ (vendored shadcn/ui-style
+                      Button, Card, Badge, Alert, Skeleton, Dialog, Tabs — flat,
+                      coverage-excluded, re-vendor rather than hand-edit) and two owned
+                      components with no shadcn/ui equivalent, text/ and code-preview/
+                      (folder-per-component, tested like everything else). No business
+                      logic outside text/'s variant mapping.
     providers/        Cross-cutting client providers composed in one place
                       (app-providers.tsx: QueryProvider + ThemeModeProvider +
                       MotionConfig) so app/layout.tsx stays a thin document shell.
-    theme/            Astryx color-mode integration — moved here, not kept as a
+    theme/            Dark/light color-mode integration — moved here, not kept as a
                       features/ slice, because shared/ui/ and shared/providers/
                       both need it, and shared/ importing from features/ would
                       itself be a backward-layer violation (see ADR-0016).
-                      theme-mode-provider.tsx, theme-toggle.tsx, theme-init-script.ts,
-                      pricing-optimizer-theme.ts (source), generated/ (build output,
-                      see Stack below). Also has an index.ts barrel.
+                      theme-mode-provider.tsx, theme-toggle.tsx, theme-init-script.ts.
+                      Also has an index.ts barrel.
 ```
 
 Layer dependency direction is `app -> views -> features -> entities -> shared`, never
@@ -105,15 +108,18 @@ relying on the doc comment alone.
 
 ## Stack
 
-Next.js (App Router, TypeScript strict), Tailwind CSS v4, **Astryx** (Meta's React
-design system, built on StyleX, MIT, currently beta — chosen over shadcn/ui) via its
-pre-compiled-CSS "simple path" with Tailwind bridged in via `@theme inline` (see
-`app/globals.css` for the exact `@layer`/import order — do not reorder it), motion,
-react-hook-form + Zod, openapi-fetch + openapi-typescript, TanStack Query v5, Vitest +
-RTL, Playwright + axe-core, Biome (replaces ESLint + Prettier), pnpm, lefthook +
-commitlint. Full item-by-item stack rationale (alternatives considered, what shipped vs.
-deviated vs. is still missing) is a published artifact referenced from
-`../docs/decisions/0011-frontend-feature-based-reorg.md`.
+Next.js (App Router, TypeScript strict), Tailwind CSS v4 with every design token (color,
+type scale, radius, shadow) owned directly in `app/globals.css`'s `@theme inline` block
+(see that file for the exact `@layer`/import order — do not reorder it), shadcn/ui-style
+vendored primitives (`shared/ui/primitives/` — Button, Card, Badge, Alert, Skeleton,
+Dialog, Tabs) over Radix UI (`@radix-ui/react-dialog`, `@radix-ui/react-tabs`) plus two
+owned components with no shadcn/ui equivalent (`shared/ui/text/`, `shared/ui/code-preview/`),
+motion, react-hook-form + Zod, openapi-fetch + openapi-typescript, TanStack Query v5,
+Vitest + RTL, Playwright + axe-core, Biome (replaces ESLint + Prettier), pnpm, lefthook +
+commitlint. This repo started on a different, StyleX-based design system mid-implementation
+(chosen over shadcn/ui in a stack review referenced but not detailed in
+`../docs/decisions/0011-frontend-feature-based-reorg.md`) and migrated off it to the
+above — see `../docs/decisions/0018-shadcn-ui-migration.md` for the full rationale.
 
 ## SSE consumption (a documented correction to HANDOFF.md)
 
@@ -131,24 +137,33 @@ in full before touching either again.
 
 ## Dark/light theme
 
-Astryx owns `data-theme="light|dark"` on `<html>` via its `<Theme>` component
-(`@astryxdesign/core`) — do not add `next-themes` or any second color-mode provider;
-Astryx's own docs explicitly warn against two unsynchronized owners.
-`shared/theme/components/theme-mode-provider.tsx` owns the one piece of state Astryx
-needs (the `mode` prop passed to `<Theme>`), persisted to `localStorage`; `useTheme()`
-from `@astryxdesign/core` is read-only (resolves current tokens), it does not expose a
-setter — the toggle button (`shared/theme/components/theme-toggle.tsx`) drives `mode`
-state we own, not an Astryx-provided hook. The pre-hydration init script
-(`shared/theme/theme-init-script.ts`) sets `data-theme` on `<html>` before React
-hydrates to avoid a flash of the wrong theme — `app/layout.tsx`'s `suppressHydrationWarning`
-on `<html>` is intentional and expected, not a bug to "fix." **`mode` is binary
-(`"light" | "dark"` only, no third `"system"` state the toggle cycles through)** — an
-earlier version added a `system` option to the toggle itself, but its icon/label tracked
-raw `mode` instead of the actually-resolved theme, so on a dark-OS machine it kept
-showing the sun icon over a dark page. An unset preference still follows the OS scheme
-live (`ThemeModeProvider` listens for `matchMedia` changes until the user picks
-explicitly) — that part of the original design brief holds — it just isn't a state the
-toggle itself exposes anymore.
+`shared/theme/components/theme-mode-provider.tsx` (`ThemeModeProvider`) is the single
+owner of both `data-theme="light|dark"` and `color-scheme` on `<html>` — do not add
+`next-themes` or any second color-mode provider; two unsynchronized owners is exactly the
+bug class this repo has already had to fix once. `mode` state is persisted to
+`localStorage` (`pricing-optimizer-theme-mode` key, shared with the init script below);
+the toggle button (`shared/theme/components/theme-toggle.tsx`) drives it directly. The
+pre-hydration init script (`shared/theme/theme-init-script.ts`) sets both `data-theme`
+and `color-scheme` on `<html>` before React hydrates to avoid a flash of the wrong theme
+(and, for `color-scheme`, a flash of the wrong resolved `light-dark()` token value) —
+`app/layout.tsx`'s `suppressHydrationWarning` on `<html>` is intentional and expected,
+not a bug to "fix." `ThemeModeProvider`'s initial `mode` state is lazily resolved from
+the same stored/OS logic the init script already ran, so its first post-hydration
+`data-theme`/`color-scheme` write reapplies the value already on the page instead of
+briefly overwriting it with a hardcoded default. **`mode` is binary (`"light" | "dark"`
+only, no third `"system"` state the toggle cycles through)** — an earlier version added a
+`system` option to the toggle itself, but its icon/label tracked raw `mode` instead of the
+actually-resolved theme, so on a dark-OS machine it kept showing the sun icon over a dark
+page. An unset preference still follows the OS scheme live (`ThemeModeProvider` listens
+for `matchMedia` changes until the user picks explicitly) — that part of the original
+design brief holds — it just isn't a state the toggle itself exposes anymore.
+
+All design tokens (`text-primary`, `bg-muted`, `border-border`, the font-size/radius/
+shadow scale, and the raw h1-h6/p/small/code/hr element reset) are owned directly in
+`app/globals.css`'s `@theme inline` block and `@layer reset` — not sourced from any
+third-party theme package. `entities/strategy`'s per-strategy color variant
+(`orange`/`teal`/`pink`) resolves to the `--color-icon-{variant}` tokens defined in that
+same file.
 
 ## Local history (`features/history/`)
 
@@ -233,10 +248,12 @@ to `analyze.ts`) rather than mirrored under a separate test tree. Playwright + a
 for e2e/accessibility under `test/e2e/`, backend fully mocked via
 `test/e2e/mock-backend.ts`'s route interception — no live backend needed to run
 `pnpm test:e2e`. `test/setup.ts` is the one shared Vitest bootstrap file. `test/render.tsx`
-wraps a component under test in Astryx's `<Theme>` (matching how `AppProviders` mounts it
-for real); `test/query-wrapper.tsx` does the same for TanStack Query hooks. jsdom is
-missing a few browser APIs Astryx depends on — `matchMedia` and `<dialog>`'s
-`showModal()`/`close()` — polyfilled once in `test/setup.ts` rather than per test file.
+is a thin re-export of RTL's `render` — design tokens are plain CSS custom properties in
+`app/globals.css`, not a React context, so no provider wrapper is needed to read them;
+`test/query-wrapper.tsx` wraps a component under test in a fresh `QueryClientProvider`
+for TanStack Query hooks. jsdom has no `matchMedia` implementation, which
+`ThemeModeProvider` reads to follow the OS scheme until the user picks explicitly —
+polyfilled once in `test/setup.ts` rather than per test file.
 `test/` stays centralized at the repo root (not under `src/`, per ADR-0011's original
 reasoning and unchanged by ADR-0016's later layer reorg) — since `@/*` resolves to
 `src/*`, a colocated unit test reaching for `test/render.tsx` or
@@ -294,10 +311,13 @@ after merge.
 ## Project agents (`.claude/agents/`)
 
 - `pr-reviewer` — read-only senior review of a diff/PR against this repo's constitution,
-  the shared/views/features/entities architecture boundaries, Astryx design-system
-  discipline, and test rigor, with a focus on flagging unnecessary/dead code and this
-  repo's own recurring bug classes (the SSE parser, WCAG contrast). Run it on the branch
-  diff before opening a PR (not after) and fix blocking findings first.
+  the shared/views/features/entities architecture boundaries, the shadcn/ui +
+  Radix design-system discipline (Section C: prefer composing existing vendored
+  primitives/owned components over hand-rolled equivalents; single ownership of
+  `data-theme`/`color-scheme`), and test rigor, with a focus on flagging
+  unnecessary/dead code and this repo's own recurring bug classes (the SSE parser,
+  WCAG contrast). Run it on the branch diff before opening a PR (not after) and fix
+  blocking findings first.
 
 ## Sprint status
 

@@ -24,10 +24,6 @@ export default defineConfig({
       exclude: [
         // Generated from openapi.yaml, never hand-edited (see CLAUDE.md).
         "src/shared/api/schema.ts",
-        // Theme definition compiled to static CSS/JS at build time (pnpm
-        // build:theme); the app imports the generated output, not this source.
-        "src/shared/theme/pricing-optimizer-theme.ts",
-        "src/shared/theme/generated/**",
         // Pure data shape declarations — no runtime logic to cover.
         "src/shared/domain/types/**",
         // Static marketing composition (constitution IV: "UI composition
