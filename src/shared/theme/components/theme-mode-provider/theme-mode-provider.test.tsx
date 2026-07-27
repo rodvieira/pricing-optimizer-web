@@ -111,4 +111,29 @@ describe("ThemeModeProvider / useThemeMode", () => {
   it("throws when useThemeMode is called outside the provider", () => {
     expect(() => render(<Probe />)).toThrow("useThemeMode must be used within a ThemeModeProvider");
   });
+
+  it("writes data-theme and color-scheme on <html> for the resolved mode", async () => {
+    const matchMediaSpy = mockOsPreference(false);
+    render(
+      <ThemeModeProvider>
+        <Probe />
+      </ThemeModeProvider>,
+    );
+    await waitFor(() => expect(document.documentElement.dataset.theme).toBe("light"));
+    expect(document.documentElement.style.colorScheme).toBe("light");
+    matchMediaSpy.mockRestore();
+  });
+
+  it("updates data-theme and color-scheme when the mode changes", async () => {
+    render(
+      <ThemeModeProvider>
+        <Probe />
+      </ThemeModeProvider>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "go dark" }));
+
+    await waitFor(() => expect(document.documentElement.dataset.theme).toBe("dark"));
+    expect(document.documentElement.style.colorScheme).toBe("dark");
+  });
 });

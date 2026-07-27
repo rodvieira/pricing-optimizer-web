@@ -1,15 +1,14 @@
-import { Theme } from "@astryxdesign/core";
-import { neutralTheme } from "@astryxdesign/theme-neutral";
 import { render as rtlRender } from "@testing-library/react";
 import type { ReactElement } from "react";
 
 /**
- * Component tests render through Astryx's <Theme> so components that read
- * design tokens (colors, sizes) don't crash on a missing context — mirrors
- * how every component is actually mounted in the app (see AppProviders).
+ * Design tokens (colors, sizes) are plain CSS custom properties defined in
+ * app/globals.css, not a React context, so component tests need no
+ * provider wrapper to read them — this stays a thin re-export of RTL's
+ * `render` so call sites don't need to change if that ever stops being true.
  */
 export function render(ui: ReactElement) {
-  return rtlRender(<Theme theme={neutralTheme}>{ui}</Theme>);
+  return rtlRender(ui);
 }
 
 export * from "@testing-library/react";

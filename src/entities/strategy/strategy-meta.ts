@@ -4,14 +4,14 @@ export interface StrategyMeta {
   strategy: PricingStrategy;
   label: string;
   blurb: string;
-  /** Astryx's non-semantic Card/Badge color variant for this strategy. */
+  /** Key into the owned `--color-icon-{variant}` tokens (app/globals.css). */
   variant: "orange" | "teal" | "pink";
 }
 
 /**
- * Fixed display order and Astryx color mapping for the three pricing
- * strategies. Reused by the landing page preview and the Studio's variation
- * cards so the same strategy always reads with the same color everywhere.
+ * Fixed display order and color mapping for the three pricing strategies.
+ * Reused by the landing page preview and the Studio's variation cards so the
+ * same strategy always reads with the same color everywhere.
  */
 export const STRATEGY_META: readonly StrategyMeta[] = [
   {
