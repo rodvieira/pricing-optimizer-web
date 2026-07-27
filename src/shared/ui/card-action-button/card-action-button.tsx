@@ -22,7 +22,7 @@ const VARIANT_STYLE: Record<CardActionVariant, CSSProperties> = {
     // secondary button reads better in a card footer this dense.
     backgroundColor: "transparent",
     border: "1px solid var(--color-border-emphasized)",
-    color: "var(--color-text-secondary)",
+    color: "var(--color-secondary)",
   },
 };
 

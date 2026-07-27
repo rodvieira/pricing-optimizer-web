@@ -86,7 +86,7 @@ export function PricingTierRow({
           ...(!tier.highlighted && {
             backgroundColor: "transparent",
             border: "1px solid var(--color-border-emphasized)",
-            color: "var(--color-text-primary)",
+            color: "var(--color-primary)",
           }),
         }}
       />

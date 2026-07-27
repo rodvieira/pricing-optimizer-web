@@ -1,11 +1,6 @@
 "use client";
 
-import { Theme } from "@astryxdesign/core";
 import { createContext, type ReactNode, useContext, useEffect, useState } from "react";
-// The pre-built theme object (has __built: true) so <Theme> skips runtime style
-// injection — the CSS is shipped statically via app/globals.css. Regenerate
-// both with `pnpm build:theme` after editing pricing-optimizer-theme.ts.
-import { pricingOptimizerTheme } from "../../generated/pricing-optimizer";
 import { THEME_STORAGE_KEY } from "../../theme-init-script";
 
 type ThemeMode = "light" | "dark";
@@ -17,12 +12,35 @@ interface ThemeModeContextValue {
 
 const ThemeModeContext = createContext<ThemeModeContextValue | null>(null);
 
+/** Writes `data-theme` and `color-scheme` on <html> for the given mode. */
+function applyMode(mode: ThemeMode) {
+  document.documentElement.dataset.theme = mode;
+  document.documentElement.style.colorScheme = mode;
+}
+
 /**
- * Owns the `mode` state Astryx's <Theme> is driven by. Astryx has no
- * built-in setter/toggle — <Theme mode> is read-only from its perspective,
- * so a manual toggle means we own this one small piece of state ourselves
- * and pass it down, rather than introducing next-themes as a second,
- * unsynchronized color-mode owner (Astryx's own docs warn against that).
+ * Reads the same stored/OS resolution theme-init-script.ts already applied
+ * to <html> before hydration, as this component's initial state — so the
+ * first post-hydration `applyMode` effect re-applies the value already on
+ * the page instead of briefly overwriting it with the "light" default.
+ */
+function hasStoredMode(): boolean {
+  if (typeof window === "undefined") return false;
+  const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
+  return stored === "light" || stored === "dark";
+}
+
+function resolveInitialMode(): ThemeMode {
+  if (typeof window === "undefined") return "light";
+  const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
+  if (stored === "light" || stored === "dark") return stored;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+/**
+ * Owns `data-theme`/`color-scheme` on <html> directly — no second,
+ * unsynchronized color-mode owner (introducing next-themes alongside this
+ * would be exactly that).
  *
  * The toggle itself is binary (light/dark only, no "system" option) — but an
  * unset preference still follows the OS scheme, per the original design brief.
@@ -30,18 +48,8 @@ const ThemeModeContext = createContext<ThemeModeContextValue | null>(null);
  * themselves; until they do, `mode` keeps following OS changes live.
  */
 export function ThemeModeProvider({ children }: { children: ReactNode }) {
-  const [mode, setModeState] = useState<ThemeMode>("light");
-  const [hasExplicitPreference, setHasExplicitPreference] = useState(false);
-
-  useEffect(() => {
-    const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
-    if (stored === "light" || stored === "dark") {
-      setModeState(stored);
-      setHasExplicitPreference(true);
-      return;
-    }
-    setModeState(window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-  }, []);
+  const [mode, setModeState] = useState<ThemeMode>(resolveInitialMode);
+  const [hasExplicitPreference, setHasExplicitPreference] = useState(hasStoredMode);
 
   useEffect(() => {
     if (hasExplicitPreference) return;
@@ -51,6 +59,10 @@ export function ThemeModeProvider({ children }: { children: ReactNode }) {
     return () => media.removeEventListener("change", sync);
   }, [hasExplicitPreference]);
 
+  useEffect(() => {
+    applyMode(mode);
+  }, [mode]);
+
   const setMode = (next: ThemeMode) => {
     setModeState(next);
     setHasExplicitPreference(true);
@@ -58,11 +70,7 @@ export function ThemeModeProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <ThemeModeContext.Provider value={{ mode, setMode }}>
-      <Theme theme={pricingOptimizerTheme} mode={mode}>
-        {children}
-      </Theme>
-    </ThemeModeContext.Provider>
+    <ThemeModeContext.Provider value={{ mode, setMode }}>{children}</ThemeModeContext.Provider>
   );
 }
 
