@@ -2,9 +2,7 @@ import type { PrismTheme } from "prism-react-renderer";
 
 /**
  * Maps Prism's token types onto this repo's own syntax-highlighting tokens
- * (--color-syntax-*, confirmed real in src/shared/theme/generated/
- * pricing-optimizer.css — exposed by Astryx's stylesheet today, owned
- * tokens after the theme-handover increment) instead of a bundled
+ * (--color-syntax-*, defined in app/globals.css) instead of a bundled
  * prism-react-renderer preset — per spec 003-shadcn-ui-migration's
  * research.md (Clarification 1): the palette must come from this app, not a
  * preset, so both color schemes stay correct with no second theme to sync.

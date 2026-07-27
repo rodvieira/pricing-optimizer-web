@@ -16,14 +16,12 @@ export interface CodePreviewProps {
 }
 
 /**
- * Owned replacement for Astryx's CodeBlock, over prism-react-renderer.
- * shadcn/ui ships no code-preview primitive, and this repo's own palette
- * (via codePreviewTheme) is the whole point — see research.md Clarification
- * 1 for why a bundled preset (or dropping highlighting entirely) was
- * rejected. Reimplements the four props the one real caller
- * (export-dialog.tsx) used from Astryx: a title bar, a copy button, line
- * numbers, and a height cap with the code scrolling inside its own
- * container rather than the page.
+ * Owned code-preview component over prism-react-renderer. shadcn/ui ships no
+ * code-preview primitive, and this repo's own palette (via codePreviewTheme)
+ * is the whole point — see research.md Clarification 1 for why a bundled
+ * preset (or dropping highlighting entirely) was rejected. Supports a title
+ * bar, a copy button, line numbers, and a height cap with the code scrolling
+ * inside its own container rather than the page.
  */
 export function CodePreview({
   code,

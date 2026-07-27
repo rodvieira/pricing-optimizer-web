@@ -154,8 +154,7 @@
 }
 
 /*
- * Heading/paragraph/code element reset, reproducing what the generated
- * Astryx theme CSS previously shipped for raw h1-h6 (Text's display-1/
+ * Heading/paragraph/code element reset for raw h1-h6 (Text's display-1/
  * display-3 types render as h2 by default, but callers can pass a raw
  * heading tag via `as`), plus `p`/`small`/`code`/`pre`/`hr` since Text's
  * "large"/"body" types render a raw `<p>` and relied on this same rule for

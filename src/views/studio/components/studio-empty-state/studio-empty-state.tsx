@@ -1,7 +1,6 @@
 /**
  * Studio empty state, matching the mock: a dashed-border panel with the
- * three-bar logo mark centered above the message. Replaces Astryx's plain
- * EmptyState so the dashed frame and brand mark match the design exactly.
+ * three-bar logo mark centered above the message.
  */
 export function StudioEmptyState() {
   return (

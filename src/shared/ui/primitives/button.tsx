@@ -40,13 +40,10 @@ export interface ButtonProps extends VariantProps<typeof buttonVariants> {
 }
 
 /**
- * Vendored, cva-driven replacement for Astryx's Button — same prop shape
- * (label/isDisabled/icon/isLoading/href/variant/size), so every existing
- * call site needed only an import-path change, not a rewrite. Colors are
- * Astryx's own exposed CSS custom properties (--color-accent and friends,
- * still defined by Astryx's stylesheet until the theme handover increment),
- * so this stays visually identical today and picks up the owned tokens
- * automatically once that increment redefines them under the same names.
+ * cva-driven Button, same prop shape (label/isDisabled/icon/isLoading/href/
+ * variant/size) as the design-system component this replaced. Colors are
+ * this app's own token utilities (bg-accent and friends, defined in
+ * app/globals.css).
  */
 export function Button({
   label,

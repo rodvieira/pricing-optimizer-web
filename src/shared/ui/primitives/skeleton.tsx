@@ -5,7 +5,7 @@ export interface SkeletonProps {
   readonly index?: number;
 }
 
-/** Vendored replacement for Astryx's Skeleton: a pulsing placeholder bar. */
+/** A pulsing placeholder bar. */
 export function Skeleton({ width = "100%", height = 16, index = 0 }: SkeletonProps) {
   return (
     <div

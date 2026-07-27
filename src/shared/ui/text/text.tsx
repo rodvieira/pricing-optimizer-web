@@ -31,9 +31,9 @@ export interface TextProps {
 }
 
 /**
- * Owned typography component replacing Astryx's Text — shadcn/ui ships no
- * equivalent, so this preserves the exact type/color scale every call site
- * already relies on (display-1, display-3, large, body, label, supporting).
+ * Owned typography component — shadcn/ui ships no equivalent, so this
+ * preserves the exact type/color scale every call site relies on
+ * (display-1, display-3, large, body, label, supporting).
  * Every current caller also passes an explicit `className` for anything
  * more specific than these defaults (hero's per-breakpoint pixel sizes),
  * which `cn` merges over these base classes.

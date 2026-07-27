@@ -17,7 +17,7 @@ const VARIANT_STYLE: Record<CardActionVariant, CSSProperties> = {
     fontSize: "var(--po-text-compact-control)",
     fontWeight: 500,
     height: "auto",
-    // A deliberate departure from Astryx's own "secondary" look at this
+    // A deliberate departure from Button's own "secondary" look at this
     // compact size — a subtler outline than the default filled/bordered
     // secondary button reads better in a card footer this dense.
     backgroundColor: "transparent",

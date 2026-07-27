@@ -10,7 +10,6 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "typecheck": "tsc --noEmit",
-    "build:theme": "astryx theme build src/shared/theme/pricing-optimizer-theme.ts -o src/shared/theme/generated/pricing-optimizer.css",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
@@ -20,8 +19,6 @@
     "prepare": "lefthook install"
   },
   "dependencies": {
-    "@astryxdesign/core": "^0.1.6",
-    "@astryxdesign/theme-neutral": "^0.1.6",
     "@hookform/resolvers": "^5.4.0",
     "@radix-ui/react-dialog": "^1.1.23",
     "@radix-ui/react-tabs": "^1.1.21",
@@ -41,7 +38,6 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@astryxdesign/cli": "0.1.6",
     "@axe-core/playwright": "^4.12.1",
     "@biomejs/biome": "2.5.4",
     "@commitlint/cli": "^21.2.1",

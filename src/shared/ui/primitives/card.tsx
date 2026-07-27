@@ -8,11 +8,8 @@ export interface CardProps {
 }
 
 /**
- * Vendored replacement for Astryx's Card: a bordered, rounded, unpadded
- * surface. No `padding` prop — every current caller manages its own spacing
- * and passed `padding={0}` to Astryx's Card for the same reason. `rounded-xl`
- * (12px) matches the default corner radius callers already assume when they
- * override only specific corners (see variation-card.tsx).
+ * A bordered, rounded, unpadded surface. No `padding` prop — every current
+ * caller manages its own spacing.
  */
 export function Card({ children, className, style }: CardProps) {
   return (

@@ -11,7 +11,7 @@ test("landing page renders the hero and has no serious accessibility violations"
 
   // color-contrast is disabled by an owner-approved decision to match the
   // design mock's warm palette exactly, some of whose small accent/muted text
-  // falls below WCAG AA 4.5:1. See src/features/theme/pricing-optimizer-theme.ts.
+  // falls below WCAG AA 4.5:1. See the color tokens in src/app/globals.css.
   const results = await new AxeBuilder({ page }).disableRules(["color-contrast"]).analyze();
   const serious = results.violations.filter(
     (v) => v.impact === "serious" || v.impact === "critical",

@@ -12,10 +12,9 @@ export interface DialogProps {
 }
 
 /**
- * Vendored replacement for Astryx's Dialog + DialogHeader, over
- * @radix-ui/react-dialog. Folds the title row and close button directly in
- * (shadcn/ui's own convention) rather than keeping a separate DialogHeader
- * component — this repo has exactly one Dialog consumer, so a second
+ * Dialog over @radix-ui/react-dialog. Folds the title row and close button
+ * directly in (shadcn/ui's own convention) rather than keeping a separate
+ * DialogHeader component — this repo has exactly one Dialog consumer, so a second
  * composable piece would be an abstraction with no second caller.
  * `aria-describedby={undefined}` on Content opts out of Radix's
  * description requirement rather than leaving an unresolved warning: this
