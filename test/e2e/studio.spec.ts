@@ -111,13 +111,63 @@ test("export dialog shows JSX/HTML/Stripe tabs and defaults back to JSX for a ne
   await expect(page.getByText("ready")).toHaveCount(3, { timeout: 10_000 });
 
   await page.getByRole("button", { name: "Export" }).first().click();
-  await expect(page.getByRole("button", { name: "Stripe JSON" })).toBeVisible();
-  await page.getByRole("button", { name: "Stripe JSON" }).click();
+  await expect(page.getByRole("tab", { name: "Stripe JSON" })).toBeVisible();
+  await page.getByRole("tab", { name: "Stripe JSON" }).click();
   await expect(page.getByText("// stripe export")).toBeVisible();
 
   await page.getByRole("button", { name: "Close" }).click();
   await page.getByRole("button", { name: "Export" }).nth(1).click();
   await expect(page.getByText("// jsx export")).toBeVisible();
+});
+
+test("export dialog: keyboard-only open, tab through formats, Escape closes and returns focus", async ({
+  page,
+}) => {
+  await mockAnalyzeAndGenerate(page);
+  await page.route("http://localhost:8080/v1/export/*", async (route) => {
+    const body = route.request().postDataJSON() as { format: string };
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        format: body.format,
+        filename: `export.${body.format}`,
+        contentType: "text/plain",
+        content: `// ${body.format} export`,
+      }),
+    });
+  });
+
+  await page.goto("/studio");
+  await page.getByRole("textbox", { name: "Product URL" }).fill("flowbase.com");
+  await page.getByRole("button", { name: "Analyze" }).click();
+  await expect(page.getByText("ready")).toHaveCount(3, { timeout: 10_000 });
+
+  const exportTrigger = page.getByRole("button", { name: "Export" }).first();
+  await exportTrigger.focus();
+  await page.keyboard.press("Enter");
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+
+  // Radix hides the rest of the page from the accessibility tree
+  // (aria-hidden) while the dialog is open — stronger evidence of real
+  // focus-trapping than checking which element currently has focus: the
+  // trigger becomes unreachable by role entirely, not just unfocused.
+  await expect(page.getByRole("button", { name: "Export" })).toHaveCount(0);
+
+  // Arrow-key navigation between tabs is a Radix Tabs default (roving
+  // tabindex), not something this repo wrote — confirms the vendored
+  // wrapper didn't disable it. Focusing the JSX tab directly rather than
+  // asserting it's Radix's exact auto-focus target on open, which is an
+  // internal Radix choice, not part of this repo's own contract.
+  await page.getByRole("tab", { name: "JSX" }).focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(page.getByRole("tab", { name: "HTML" })).toBeFocused();
+  await expect(page.getByText("// html export")).toBeVisible();
+
+  await page.keyboard.press("Escape");
+  await expect(dialog).not.toBeVisible();
+  await expect(exportTrigger).toBeFocused();
 });
 
 test("local history: persists a completed generation, survives reload, and re-displays without a new stream", async ({

@@ -79,7 +79,9 @@ describe("ExportDialog", () => {
     renderDialog();
     await waitFor(() => expect(screen.getByText("// jsx content")).toBeInTheDocument());
 
-    fireEvent.click(screen.getByRole("button", { name: "Stripe JSON" }));
+    // Radix's Tabs.Trigger activates on mousedown (not click), matching how
+    // a real browser dispatches a mousedown before the click on a press.
+    fireEvent.mouseDown(screen.getByRole("tab", { name: "Stripe JSON" }));
     await waitFor(() => expect(screen.getByText("// stripe content")).toBeInTheDocument());
   });
 

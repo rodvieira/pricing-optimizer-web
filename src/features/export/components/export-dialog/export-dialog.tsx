@@ -1,9 +1,9 @@
 "use client";
 
-import { CodeBlock, Dialog, DialogHeader, Tab, TabList } from "@astryxdesign/core";
+import { CodeBlock } from "@astryxdesign/core";
 import { useEffect, useState } from "react";
 import type { ExportFormat } from "@/shared/domain";
-import { Skeleton } from "@/shared/ui";
+import { Dialog, Skeleton, Tabs } from "@/shared/ui";
 import { useExport } from "../../hooks/use-export";
 
 const FORMAT_LANGUAGE: Record<ExportFormat, string> = {
@@ -17,6 +17,11 @@ const FORMAT_LABEL: Record<ExportFormat, string> = {
   html: "HTML",
   stripe: "Stripe JSON",
 };
+
+const FORMAT_TABS = (Object.keys(FORMAT_LABEL) as ExportFormat[]).map((value) => ({
+  value,
+  label: FORMAT_LABEL[value],
+}));
 
 export interface ExportDialogProps {
   readonly isOpen: boolean;
@@ -44,18 +49,13 @@ export function ExportDialog({
   }, [variationId]);
 
   return (
-    <Dialog isOpen={isOpen} onOpenChange={onOpenChange} width={720} purpose="info">
-      <DialogHeader title={`Export — ${strategyLabel}`} onOpenChange={onOpenChange} />
-      {/* Was Astryx's <Layout>/<LayoutContent> — plain composition, no
-          library needed for what was purely a header+content split. Dialog
-          itself moves to Radix in the next increment (spec 003-shadcn-ui-
-          migration, US3), which reworks this markup again. */}
+    <Dialog isOpen={isOpen} onOpenChange={onOpenChange} title={`Export — ${strategyLabel}`}>
       <div className="p-4">
-        <TabList value={format} onChange={(value) => setFormat(value as ExportFormat)} hasDivider>
-          <Tab value="jsx" label="JSX" />
-          <Tab value="html" label="HTML" />
-          <Tab value="stripe" label="Stripe JSON" />
-        </TabList>
+        <Tabs
+          value={format}
+          onValueChange={(value) => setFormat(value as ExportFormat)}
+          items={FORMAT_TABS}
+        />
         <div className="pt-4">
           {isLoading && <Skeleton height={240} />}
           {isError && (

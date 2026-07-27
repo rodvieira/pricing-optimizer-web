@@ -195,10 +195,9 @@ describe("StudioPage", () => {
 
     fireEvent.click(screen.getAllByRole("button", { name: "Export" })[0] as HTMLElement);
     await waitFor(() => expect(screen.getByText(/Export —/)).toBeInTheDocument());
-    const dialog = document.querySelector("dialog") as HTMLDialogElement;
-    expect(dialog.hasAttribute("open")).toBe(true);
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Close" }));
-    await waitFor(() => expect(dialog.hasAttribute("open")).toBe(false));
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
   });
 });
