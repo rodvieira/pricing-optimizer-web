@@ -1,9 +1,8 @@
 "use client";
 
-import { CodeBlock } from "@astryxdesign/core";
 import { useEffect, useState } from "react";
 import type { ExportFormat } from "@/shared/domain";
-import { Dialog, Skeleton, Tabs } from "@/shared/ui";
+import { CodePreview, Dialog, Skeleton, Tabs } from "@/shared/ui";
 import { useExport } from "../../hooks/use-export";
 
 const FORMAT_LANGUAGE: Record<ExportFormat, string> = {
@@ -64,14 +63,10 @@ export function ExportDialog({
             </p>
           )}
           {data && (
-            <CodeBlock
+            <CodePreview
               code={data.content}
               language={FORMAT_LANGUAGE[format]}
               title={`${FORMAT_LABEL[format]} export`}
-              hasCopyButton
-              hasLineNumbers
-              width="100%"
-              maxHeight={420}
             />
           )}
         </div>
