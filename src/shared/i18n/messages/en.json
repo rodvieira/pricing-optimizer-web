@@ -1,8 +1,7 @@
 {
-  "nav": {
-    "overview": "Overview",
-    "studio": "Studio",
-    "language": "Language"
+  "header": {
+    "language": "Language",
+    "settings": "Settings"
   },
   "strategy": {
     "anchor": {

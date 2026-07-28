@@ -15,10 +15,10 @@ const LOCALE_ITEMS: readonly SelectItem[] = [
   { value: "pt-BR", label: "Português" },
 ];
 
-/** Language selector rendered in the app header, next to ThemeToggle. */
+/** Language selector rendered inside the header's settings popover, next to ThemeToggle. */
 export function LocaleSelector() {
   const { locale, setLocale } = useLocaleMode();
-  const t = useTranslations("nav");
+  const t = useTranslations("header");
 
   return (
     <Select

@@ -1,20 +1,18 @@
-"use client";
-
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useTranslations } from "next-intl";
-import { LocaleSelector } from "@/shared/i18n";
-import { ThemeToggle } from "@/shared/theme";
+import { SettingsPopover } from "./components/settings-popover";
 
-const NAV_ITEMS = [
-  { href: "/", labelKey: "overview" },
-  { href: "/studio", labelKey: "studio" },
-] as const;
-
+/**
+ * The Overview/Studio nav pills this header used to render are gone (issue
+ * #44) — both routes stay reachable without them: the wordmark below already
+ * links home, and the landing page's hero has its own "Open the Studio" CTA
+ * (`views/landing/components/hero/hero.tsx`). Direct in-header navigation
+ * wasn't pulling its weight against the header space the three controls
+ * (nav, language, theme) competed for, for a single-page-flow product.
+ *
+ * No "use client" here: the only interactive piece, SettingsPopover, carries
+ * its own directive, so this component itself stays server-rendered.
+ */
 export function AppHeader() {
-  const pathname = usePathname();
-  const t = useTranslations("nav");
-
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-surface/90 backdrop-blur">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-6 gap-y-3 px-6 py-4 sm:px-8">
@@ -34,25 +32,7 @@ export function AppHeader() {
             v1.0
           </span>
         </Link>
-        <div className="flex flex-wrap items-center gap-4">
-          <nav className="flex gap-[6px] rounded-[9px] border border-border bg-card p-1">
-            {NAV_ITEMS.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`rounded-[7px] px-[13px] py-[7px] font-sans text-(length:--po-text-compact-control) leading-[16px] font-medium transition-colors ${
-                  pathname === item.href
-                    ? "border border-border bg-muted text-primary"
-                    : "border border-transparent text-secondary hover:text-primary"
-                }`}
-              >
-                {t(item.labelKey)}
-              </Link>
-            ))}
-          </nav>
-          <LocaleSelector />
-          <ThemeToggle />
-        </div>
+        <SettingsPopover />
       </div>
     </header>
   );
