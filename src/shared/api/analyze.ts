@@ -1,6 +1,9 @@
 import type { Problem, SiteProfile } from "@/shared/domain";
 import { apiClient } from "./client";
 import { networkFailureProblem } from "./network-error";
+import type { components } from "./schema";
+
+type Language = components["schemas"]["Language"];
 
 export class AnalyzeError extends Error {
   constructor(public readonly problem: Problem) {
@@ -12,12 +15,12 @@ function toDomainSiteProfile(wire: SiteProfile): SiteProfile {
   return wire;
 }
 
-export async function analyzeSite(url: string): Promise<SiteProfile> {
+export async function analyzeSite(url: string, language?: Language): Promise<SiteProfile> {
   let data: SiteProfile | undefined;
   let error: Problem | undefined;
 
   try {
-    ({ data, error } = await apiClient.POST("/v1/analyze", { body: { url } }));
+    ({ data, error } = await apiClient.POST("/v1/analyze", { body: { url, language } }));
   } catch (err) {
     throw new AnalyzeError(networkFailureProblem(err));
   }

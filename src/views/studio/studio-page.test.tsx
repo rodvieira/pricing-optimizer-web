@@ -78,7 +78,7 @@ describe("StudioPage", () => {
     renderStudio();
 
     expect(screen.getByPlaceholderText("your-product.com")).toHaveValue("stripe.com");
-    await waitFor(() => expect(analyzeSite).toHaveBeenCalledWith("https://stripe.com"));
+    await waitFor(() => expect(analyzeSite).toHaveBeenCalledWith("https://stripe.com", "en"));
   });
 
   it("ignores an invalid ?url= query param instead of reaching the API", () => {
@@ -117,7 +117,7 @@ describe("StudioPage", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Retry" }));
     await waitFor(() => expect(analyzeSite).toHaveBeenCalledTimes(2));
-    expect(analyzeSite).toHaveBeenLastCalledWith("https://flowbase.com");
+    expect(analyzeSite).toHaveBeenLastCalledWith("https://flowbase.com", "en");
   });
 
   it("runs the full happy path: analyze, stream to completion, and record it to history", async () => {

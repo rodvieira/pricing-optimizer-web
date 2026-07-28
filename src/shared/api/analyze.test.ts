@@ -53,4 +53,38 @@ describe("analyzeSite", () => {
 
     await expect(analyzeSite("https://example.com")).resolves.toEqual(siteProfile);
   });
+
+  it("sends the language in the request body when provided", async () => {
+    vi.mocked(apiClient.POST).mockResolvedValue({
+      data: undefined,
+      error: undefined,
+      response: new Response(),
+    } as never);
+
+    await analyzeSite("https://example.com", "pt-BR");
+
+    expect(apiClient.POST).toHaveBeenCalledWith("/v1/analyze", {
+      body: { url: "https://example.com", language: "pt-BR" },
+    });
+  });
+
+  it("omits language from the serialized request body when not provided", async () => {
+    vi.mocked(apiClient.POST).mockResolvedValue({
+      data: undefined,
+      error: undefined,
+      response: new Response(),
+    } as never);
+
+    await analyzeSite("https://example.com");
+
+    const calls = vi.mocked(apiClient.POST).mock.calls as unknown as [string, { body: object }][];
+    const { body } = calls[0][1];
+    // The body object itself still has a `language: undefined` key (an
+    // object literal doesn't omit shorthand properties just because their
+    // value is undefined) — toHaveBeenCalledWith's toEqual-style comparison
+    // can't tell that apart from a truly absent key. What actually reaches
+    // the backend is what JSON.stringify produces, which does drop
+    // undefined-valued keys — assert on that instead.
+    expect(JSON.parse(JSON.stringify(body))).not.toHaveProperty("language");
+  });
 });
