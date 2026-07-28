@@ -9,6 +9,7 @@ import {
   type SiteProfile,
   streamReducer,
 } from "@/shared/domain";
+import { useLocaleMode } from "@/shared/i18n";
 
 const SLOW_THRESHOLD_MS = 10_000;
 
@@ -20,49 +21,53 @@ export interface UseGenerateStreamResult {
 }
 
 export function useGenerateStream(): UseGenerateStreamResult {
+  const { locale } = useLocaleMode();
   const [state, setState] = useState<GenerateStreamState>(initialGenerateStreamState);
   const [slowStrategies, setSlowStrategies] = useState<ReadonlySet<PricingStrategy>>(new Set());
   const abortControllerRef = useRef<AbortController | null>(null);
   const slowTimersRef = useRef<Partial<Record<PricingStrategy, ReturnType<typeof setTimeout>>>>({});
 
-  const start = useCallback((siteProfile: SiteProfile) => {
-    abortControllerRef.current?.abort();
-    const controller = new AbortController();
-    abortControllerRef.current = controller;
+  const start = useCallback(
+    (siteProfile: SiteProfile) => {
+      abortControllerRef.current?.abort();
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
 
-    setState(initialGenerateStreamState());
-    setSlowStrategies(new Set());
+      setState(initialGenerateStreamState());
+      setSlowStrategies(new Set());
 
-    (async () => {
-      try {
-        for await (const event of streamGeneration(
-          { siteProfile, currency: "USD" },
-          { signal: controller.signal },
-        )) {
-          // A superseded start() call aborts this controller but can't
-          // retroactively cancel an event already in flight from a
-          // just-resolved read() — drop it instead of mixing it into the
-          // newer generation's state.
+      (async () => {
+        try {
+          for await (const event of streamGeneration(
+            { siteProfile, currency: "USD", language: locale },
+            { signal: controller.signal },
+          )) {
+            // A superseded start() call aborts this controller but can't
+            // retroactively cancel an event already in flight from a
+            // just-resolved read() — drop it instead of mixing it into the
+            // newer generation's state.
+            if (controller.signal.aborted) return;
+            setState((prev) => streamReducer(prev, event));
+          }
+        } catch (err) {
           if (controller.signal.aborted) return;
-          setState((prev) => streamReducer(prev, event));
+          setState((prev) =>
+            streamReducer(prev, {
+              type: "error",
+              problem: {
+                type: "about:blank",
+                title: "Connection lost",
+                status: 0,
+                detail:
+                  err instanceof Error ? err.message : "The generation stream ended unexpectedly.",
+              },
+            }),
+          );
         }
-      } catch (err) {
-        if (controller.signal.aborted) return;
-        setState((prev) =>
-          streamReducer(prev, {
-            type: "error",
-            problem: {
-              type: "about:blank",
-              title: "Connection lost",
-              status: 0,
-              detail:
-                err instanceof Error ? err.message : "The generation stream ended unexpectedly.",
-            },
-          }),
-        );
-      }
-    })();
-  }, []);
+      })();
+    },
+    [locale],
+  );
 
   // Per-strategy "taking longer than usual" timers, independent of the
   // domain reducer (a UI presentation concern, not a business rule).

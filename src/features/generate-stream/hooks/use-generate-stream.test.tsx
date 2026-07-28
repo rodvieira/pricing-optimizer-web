@@ -1,4 +1,5 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { StreamEvent } from "@/shared/domain";
 
@@ -7,9 +8,14 @@ vi.mock("@/shared/api/generate", () => ({
 }));
 
 import { streamGeneration } from "@/shared/api/generate";
+import { LOCALE_STORAGE_KEY, LocaleProvider } from "@/shared/i18n";
 import { useGenerateStream } from "./use-generate-stream";
 
 const SITE_PROFILE = { url: "https://example.com" } as never;
+
+function wrapper({ children }: { children: ReactNode }) {
+  return <LocaleProvider>{children}</LocaleProvider>;
+}
 
 function fakeStream(events: StreamEvent[], opts: { signal?: AbortSignal } = {}) {
   return (async function* () {
@@ -23,6 +29,7 @@ function fakeStream(events: StreamEvent[], opts: { signal?: AbortSignal } = {}) 
 describe("useGenerateStream", () => {
   beforeEach(() => {
     vi.mocked(streamGeneration).mockReset();
+    window.localStorage.clear();
   });
 
   afterEach(() => {
@@ -51,12 +58,35 @@ describe("useGenerateStream", () => {
       ]),
     );
 
-    const { result } = renderHook(() => useGenerateStream());
+    const { result } = renderHook(() => useGenerateStream(), { wrapper });
     act(() => result.current.start(SITE_PROFILE));
 
     await waitFor(() => expect(result.current.state.status).toBe("done"));
     expect(result.current.state.strategies.anchor?.status).toBe("completed");
     expect(result.current.state.generation?.id).toBe("gen-1");
+    expect(streamGeneration).toHaveBeenCalledWith(
+      expect.objectContaining({ language: "en" }),
+      expect.anything(),
+    );
+  });
+
+  it("sends the stored pt-BR locale, not the default", async () => {
+    window.localStorage.setItem(LOCALE_STORAGE_KEY, "pt-BR");
+    vi.mocked(streamGeneration).mockReturnValue(
+      fakeStream([{ type: "generation_started", generationId: "gen-1" }]),
+    );
+
+    // renderHook wraps the initial render in act(), which flushes
+    // LocaleProvider's post-mount locale-correcting effect before returning
+    // control here — see use-analyze.test.tsx for the same reasoning.
+    const { result } = renderHook(() => useGenerateStream(), { wrapper });
+    act(() => result.current.start(SITE_PROFILE));
+
+    await waitFor(() => expect(result.current.state.generationId).toBe("gen-1"));
+    expect(streamGeneration).toHaveBeenCalledWith(
+      expect.objectContaining({ language: "pt-BR" }),
+      expect.anything(),
+    );
   });
 
   it("turns a thrown connection failure into an error event", async () => {
@@ -67,7 +97,7 @@ describe("useGenerateStream", () => {
       })(),
     );
 
-    const { result } = renderHook(() => useGenerateStream());
+    const { result } = renderHook(() => useGenerateStream(), { wrapper });
     act(() => result.current.start(SITE_PROFILE));
 
     await waitFor(() => expect(result.current.state.status).toBe("error"));
@@ -82,7 +112,7 @@ describe("useGenerateStream", () => {
       })(),
     );
 
-    const { result } = renderHook(() => useGenerateStream());
+    const { result } = renderHook(() => useGenerateStream(), { wrapper });
     act(() => result.current.start(SITE_PROFILE));
 
     await waitFor(() => expect(result.current.state.status).toBe("error"));
@@ -107,7 +137,7 @@ describe("useGenerateStream", () => {
         fakeStream([{ type: "generation_started", generationId: "gen-second" }]),
       );
 
-    const { result } = renderHook(() => useGenerateStream());
+    const { result } = renderHook(() => useGenerateStream(), { wrapper });
     act(() => result.current.start(SITE_PROFILE));
     await waitFor(() => expect(result.current.state.generationId).toBe("gen-first"));
 
@@ -135,7 +165,7 @@ describe("useGenerateStream", () => {
     })();
     vi.mocked(streamGeneration).mockReturnValue(stream);
 
-    const { result } = renderHook(() => useGenerateStream());
+    const { result } = renderHook(() => useGenerateStream(), { wrapper });
     act(() => result.current.start(SITE_PROFILE));
     await vi.waitFor(() =>
       expect(result.current.state.strategies.anchor?.status).toBe("streaming"),

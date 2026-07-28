@@ -109,6 +109,14 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    /**
+     * @description Language for LLM-generated content (site analysis and pricing-variation copy).
+     *     Independent of `currency` — a request may generate Portuguese copy with USD
+     *     prices, or English copy with BRL prices.
+     * @default en
+     * @enum {string}
+     */
+    Language: "en" | "pt-BR";
     AnalyzeRequest: {
       /**
        * Format: uri
@@ -116,6 +124,7 @@ export interface components {
        * @example https://example.com
        */
       url: string;
+      language?: components["schemas"]["Language"];
     };
     SiteProfile: {
       /** Format: uri */
@@ -164,6 +173,7 @@ export interface components {
        * @default USD
        */
       currency: string;
+      language?: components["schemas"]["Language"];
     };
     Generation: {
       /** Format: uuid */
