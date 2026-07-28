@@ -4,4 +4,4 @@ export {
   LocaleProvider,
   useLocaleMode,
 } from "./components/locale-provider";
-export { LocaleSelector } from "./components/locale-selector";
+export { LocaleToggle } from "./components/locale-toggle";

@@ -10,8 +10,7 @@ test("switches to Portuguese on the landing page with no navigation, and axe sta
 
   const urlBefore = page.url();
   await page.getByRole("button", { name: "Settings" }).click();
-  await page.getByRole("combobox", { name: "Language" }).click();
-  await page.getByRole("option", { name: "Português" }).click();
+  await page.getByRole("button", { name: /switch language to português/i }).click();
 
   await expect(page.getByRole("heading", { name: /três páginas de preços/i })).toBeVisible();
   await expect(page.getByRole("link", { name: /abrir o estúdio/i })).toBeVisible();
@@ -27,8 +26,7 @@ test("switches to Portuguese on the landing page with no navigation, and axe sta
 test("Portuguese selection persists across a reload, on both routes", async ({ page }) => {
   await page.goto("/studio");
   await page.getByRole("button", { name: "Settings" }).click();
-  await page.getByRole("combobox", { name: "Language" }).click();
-  await page.getByRole("option", { name: "Português" }).click();
+  await page.getByRole("button", { name: /switch language to português/i }).click();
   await expect(page.getByText("Nada gerado ainda")).toBeVisible();
 
   await page.reload();
@@ -41,12 +39,10 @@ test("Portuguese selection persists across a reload, on both routes", async ({ p
 test("switching back to English updates the stored preference and the UI", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Settings" }).click();
-  await page.getByRole("combobox", { name: "Language" }).click();
-  await page.getByRole("option", { name: "Português" }).click();
-  await expect(page.getByRole("combobox", { name: "Idioma" })).toBeVisible();
+  await page.getByRole("button", { name: /switch language to português/i }).click();
+  await expect(page.getByRole("button", { name: /switch language to english/i })).toBeVisible();
 
-  await page.getByRole("combobox", { name: "Idioma" }).click();
-  await page.getByRole("option", { name: "English" }).click();
+  await page.getByRole("button", { name: /switch language to english/i }).click();
   await expect(page.getByRole("heading", { name: /three pricing pages/i })).toBeVisible();
 });
 
@@ -56,8 +52,7 @@ test("full Studio flow in Portuguese: validation, generation, and export all tra
   await mockAnalyzeAndGenerate(page);
   await page.goto("/studio");
   await page.getByRole("button", { name: "Settings" }).click();
-  await page.getByRole("combobox", { name: "Language" }).click();
-  await page.getByRole("option", { name: "Português" }).click();
+  await page.getByRole("button", { name: /switch language to português/i }).click();
 
   // Client-side validation message, translated.
   await page.getByPlaceholder("seu-produto.com").fill("not a url");
@@ -85,8 +80,7 @@ test("a mapped backend error renders translated copy, not the raw English title"
   await mockAnalyzeFailure(page);
   await page.goto("/studio");
   await page.getByRole("button", { name: "Settings" }).click();
-  await page.getByRole("combobox", { name: "Language" }).click();
-  await page.getByRole("option", { name: "Português" }).click();
+  await page.getByRole("button", { name: /switch language to português/i }).click();
 
   await page.getByPlaceholder("seu-produto.com").fill("flowbase.com");
   await page.getByRole("button", { name: "Analisar" }).click();

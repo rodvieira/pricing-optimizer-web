@@ -130,17 +130,7 @@ export function VariationCard({
       </div>
 
       <div className="flex gap-[9px] border-t border-border px-4 py-3">
-        <CardActionButton
-          label={t("exportLabel")}
-          variant="primary"
-          isDisabled={!isComplete}
-          onClick={onExport}
-        />
-        <CardActionButton
-          label={t("editInlineLabel")}
-          variant="secondary"
-          isDisabled={!isComplete}
-        />
+        <CardActionButton label={t("exportLabel")} isDisabled={!isComplete} onClick={onExport} />
       </div>
     </Card>
   );

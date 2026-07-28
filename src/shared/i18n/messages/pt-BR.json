@@ -1,6 +1,5 @@
 {
   "header": {
-    "language": "Idioma",
     "settings": "Configurações"
   },
   "strategy": {
@@ -28,7 +27,6 @@
     "rationaleLabel": "JUSTIFICATIVA DA ESTRATÉGIA",
     "slowBanner": "Demorando mais que o normal — o modelo ainda está gerando esta variação.",
     "exportLabel": "Exportar",
-    "editInlineLabel": "Editar no local",
     "mostPopularBadge": "Mais popular",
     "choosePlanCta": "Escolher plano",
     "periodMonthly": "/mês",
