@@ -9,6 +9,5 @@ export {
   PopoverRoot,
   PopoverTrigger,
 } from "./popover";
-export { Select, type SelectItem, type SelectProps } from "./select";
 export { Skeleton, type SkeletonProps } from "./skeleton";
 export { type TabItem, Tabs, type TabsProps } from "./tabs";

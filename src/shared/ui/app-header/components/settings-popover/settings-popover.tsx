@@ -2,15 +2,17 @@
 
 import { Settings } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { LocaleSelector } from "@/shared/i18n";
+import { LocaleToggle } from "@/shared/i18n";
 import { ThemeToggle } from "@/shared/theme";
 import { PopoverContent, PopoverRoot, PopoverTrigger } from "@/shared/ui/primitives";
 
 /**
- * Single header control replacing the old standalone nav pills, LocaleSelector,
- * and ThemeToggle (issue #44): a gear icon opens a popover housing the latter
- * two. Neither ThemeModeProvider nor LocaleProvider changes — this only
- * relocates their existing controls, it isn't a second state owner.
+ * Single header control replacing the old standalone nav pills, language
+ * select, and ThemeToggle (issue #44): a gear icon opens a popover housing
+ * the latter two (language now a toggle, not a select — a two-item dropdown
+ * was more control than a two-value choice needed). Neither ThemeModeProvider
+ * nor LocaleProvider changes — this only relocates their existing controls,
+ * it isn't a second state owner.
  */
 export function SettingsPopover() {
   const t = useTranslations("header");
@@ -29,7 +31,7 @@ export function SettingsPopover() {
         <Settings size={16} />
       </PopoverTrigger>
       <PopoverContent label={t("settings")} className="flex w-56 flex-col gap-3">
-        <LocaleSelector />
+        <LocaleToggle />
         <ThemeToggle />
       </PopoverContent>
     </PopoverRoot>

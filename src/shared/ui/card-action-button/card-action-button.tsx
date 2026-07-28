@@ -1,56 +1,35 @@
-import type { CSSProperties } from "react";
 import { Button } from "../primitives/button";
-
-export type CardActionVariant = "primary" | "secondary";
-
-const VARIANT_STYLE: Record<CardActionVariant, CSSProperties> = {
-  primary: {
-    padding: 9,
-    borderRadius: 8,
-    fontSize: "var(--po-text-compact-control)",
-    fontWeight: 600,
-    height: "auto",
-  },
-  secondary: {
-    padding: 9,
-    borderRadius: 8,
-    fontSize: "var(--po-text-compact-control)",
-    fontWeight: 500,
-    height: "auto",
-    // A deliberate departure from Button's own "secondary" look at this
-    // compact size — a subtler outline than the default filled/bordered
-    // secondary button reads better in a card footer this dense.
-    backgroundColor: "transparent",
-    border: "1px solid var(--color-border-emphasized)",
-    color: "var(--color-secondary)",
-  },
-};
 
 export interface CardActionButtonProps {
   readonly label: string;
-  readonly variant: CardActionVariant;
   readonly isDisabled?: boolean;
   readonly onClick?: () => void;
 }
 
 /**
- * Compact, evenly-split action button for a card's footer row (the
- * variation card's Export / Edit inline pair). Consolidates the padding/
- * radius/font-size sizing and the "secondary" outline styling that each
- * call site previously duplicated as its own inline style object. Always
- * `flex-1` — every current caller sits in a flex row splitting the width
- * evenly; add a `className` prop back if a caller ever needs something else.
+ * Compact action button for a card's footer row (the variation card's
+ * Export button). Consolidates the padding/radius/font-size sizing each call
+ * site would otherwise duplicate as its own inline style object. Used to
+ * take a `variant` prop ("primary"/"secondary") back when the footer also
+ * had an Edit-inline button; removed along with that button (that stub
+ * never got real behavior) since "secondary" had no other caller.
  */
-export function CardActionButton({ label, variant, isDisabled, onClick }: CardActionButtonProps) {
+export function CardActionButton({ label, isDisabled, onClick }: CardActionButtonProps) {
   return (
     <Button
       label={label}
-      variant={variant}
+      variant="primary"
       size="sm"
       isDisabled={isDisabled}
       onClick={onClick}
       className="flex-1"
-      style={VARIANT_STYLE[variant]}
+      style={{
+        padding: 9,
+        borderRadius: 8,
+        fontSize: "var(--po-text-compact-control)",
+        fontWeight: 600,
+        height: "auto",
+      }}
     />
   );
 }

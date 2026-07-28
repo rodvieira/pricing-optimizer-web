@@ -62,7 +62,7 @@ src/
                       server said no" from "we never reached the server").
     ui/               Shared cross-feature composition (app-header, price-display,
                       card-action-button, ...) plus primitives/ (vendored shadcn/ui-style
-                      Button, Card, Badge, Alert, Skeleton, Dialog, Select, Popover, Tabs —
+                      Button, Card, Badge, Alert, Skeleton, Dialog, Popover, Tabs —
                       flat, coverage-excluded, re-vendor rather than hand-edit) and two owned
                       components with no shadcn/ui equivalent, text/ and code-preview/
                       (folder-per-component, tested like everything else). No business
@@ -78,7 +78,9 @@ src/
                       theme-mode-provider.tsx, theme-toggle.tsx, theme-init-script.ts.
                       Also has an index.ts barrel.
     i18n/             English/PT-BR localization (spec 004, issue #34): LocaleProvider
-                      (client-only, no URL routing — see ADR-0019), LocaleSelector, and
+                      (client-only, no URL routing — see ADR-0019), LocaleToggle (a
+                      Select-based picker originally, replaced with a ThemeToggle-style
+                      binary toggle per direct feedback after manual testing), and
                       the en.json/pt-BR.json message catalogs. Same cross-cutting
                       reasoning as theme/ — shared/ui/ and every features/views/
                       layer read translated strings.
@@ -127,8 +129,8 @@ Next.js (App Router, TypeScript strict), Tailwind CSS v4 with every design token
 type scale, radius, shadow) owned directly in `app/globals.css`'s `@theme inline` block
 (see that file for the exact `@layer`/import order — do not reorder it), shadcn/ui-style
 vendored primitives (`shared/ui/primitives/` — Button, Card, Badge, Alert, Skeleton,
-Dialog, Select, Popover, Tabs) over Radix UI (`@radix-ui/react-dialog`,
-`@radix-ui/react-select`, `@radix-ui/react-popover`, `@radix-ui/react-tabs`) plus two
+Dialog, Popover, Tabs) over Radix UI (`@radix-ui/react-dialog`,
+`@radix-ui/react-popover`, `@radix-ui/react-tabs`) plus two
 owned components with no shadcn/ui equivalent (`shared/ui/text/`, `shared/ui/code-preview/`),
 motion, react-hook-form + Zod, openapi-fetch + openapi-typescript, TanStack Query v5,
 Vitest + RTL, Playwright + axe-core, Biome (replaces ESLint + Prettier), pnpm, lefthook +
@@ -218,9 +220,6 @@ page is ordinary static content again. If a future page needs `useSearchParams()
 that actually needs it; don't wrap the route component.
 
 ## Known, tracked gaps (don't re-discover these — check the issue first)
-
-- **"Edit inline"** (present in the generated design, disabled until a variation
-  completes) has no defined behavior — see issue #1.
 
 Issue #5 (Lighthouse >= 95, HANDOFF.md Sprint 9 target) is resolved as far as code
 changes go: `pnpm lighthouse` (`scripts/lighthouse.mjs`) now exists for repeatable

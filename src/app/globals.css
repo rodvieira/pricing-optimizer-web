@@ -37,9 +37,9 @@
 
   /*
    * The compact interactive-control label size (a step off the text-xs/
-   * text-sm scale, per the mock) shared by three genuinely-the-same kind of
-   * element: AppHeader's nav pills, CardActionButton's Export/Edit inline
-   * labels, and PricingTierRow's tier CTA button. Most other one-off
+   * text-sm scale, per the mock) shared by genuinely-the-same kind of
+   * element: CardActionButton's Export label and PricingTierRow's tier CTA
+   * button. Most other one-off
    * arbitrary Tailwind px values across this codebase are NOT duplicated
    * like this — they coincidentally share a number with something unrelated
    * in a different CSS property (padding vs. font-size, height vs.
@@ -241,5 +241,24 @@
 
   :where(html[data-theme="dark"]) {
     color-scheme: dark;
+  }
+
+  /*
+   * Tailwind's Preflight (v3.4+) deliberately dropped the `cursor: pointer`
+   * default it used to set on buttons, matching the raw browser default
+   * (`cursor: default`) — buttons aren't links. Every clickable button in
+   * this app is still meant to read as clickable, so restore the pointer
+   * affordance here rather than per component. Disabled buttons already get
+   * `pointer-events-none` from the Button primitive's own variants, so they
+   * never reach this rule's `:not(:disabled)` guard in practice — kept
+   * anyway as the correct, explicit statement of intent. Both `:not()`
+   * arguments apply to both selectors in the `:where()` list (not just the
+   * one next to each), so a `role="button"` element (none exist in this app
+   * today — every interactive control here is a real `<button>` — kept for
+   * robustness) is excluded by either `disabled` or `aria-disabled="true"`,
+   * not just whichever one a mismatched per-selector guard would have caught.
+   */
+  :where(button, [role="button"]):not(:disabled, [aria-disabled="true"]) {
+    cursor: pointer;
   }
 }

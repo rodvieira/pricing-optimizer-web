@@ -1,9 +1,5 @@
 export { AppHeader } from "./app-header";
-export {
-  CardActionButton,
-  type CardActionButtonProps,
-  type CardActionVariant,
-} from "./card-action-button";
+export { CardActionButton, type CardActionButtonProps } from "./card-action-button";
 export { CodePreview, type CodePreviewProps } from "./code-preview";
 export { ColorAccentColumn, type ColorAccentColumnProps } from "./color-accent-column";
 export {

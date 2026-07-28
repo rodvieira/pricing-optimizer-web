@@ -1,5 +1,1 @@
-export {
-  CardActionButton,
-  type CardActionButtonProps,
-  type CardActionVariant,
-} from "./card-action-button";
+export { CardActionButton, type CardActionButtonProps } from "./card-action-button";

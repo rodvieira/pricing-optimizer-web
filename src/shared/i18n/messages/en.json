@@ -1,6 +1,5 @@
 {
   "header": {
-    "language": "Language",
     "settings": "Settings"
   },
   "strategy": {
@@ -28,7 +27,6 @@
     "rationaleLabel": "STRATEGY RATIONALE",
     "slowBanner": "Taking longer than usual — model still streaming this variant.",
     "exportLabel": "Export",
-    "editInlineLabel": "Edit inline",
     "mostPopularBadge": "Most popular",
     "choosePlanCta": "Choose plan",
     "periodMonthly": "/mo",

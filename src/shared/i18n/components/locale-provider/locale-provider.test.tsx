@@ -9,7 +9,7 @@ function Probe() {
   return (
     <div>
       <span>locale: {locale}</span>
-      <span>label: {t("language")}</span>
+      <span>label: {t("settings")}</span>
       <button type="button" onClick={() => setLocale("pt-BR")}>
         go pt-BR
       </button>
@@ -32,7 +32,7 @@ describe("LocaleProvider / useLocaleMode", () => {
       </LocaleProvider>,
     );
     expect(screen.getByText("locale: en")).toBeInTheDocument();
-    expect(screen.getByText("label: Language")).toBeInTheDocument();
+    expect(screen.getByText("label: Settings")).toBeInTheDocument();
   });
 
   it("adopts a validly stored locale after mount (not as the initial render, to avoid a hydration mismatch)", async () => {
@@ -43,7 +43,7 @@ describe("LocaleProvider / useLocaleMode", () => {
       </LocaleProvider>,
     );
     await waitFor(() => expect(screen.getByText("locale: pt-BR")).toBeInTheDocument());
-    expect(screen.getByText("label: Idioma")).toBeInTheDocument();
+    expect(screen.getByText("label: Configurações")).toBeInTheDocument();
   });
 
   it("ignores a stored value outside the known locale set", () => {
@@ -66,7 +66,7 @@ describe("LocaleProvider / useLocaleMode", () => {
     fireEvent.click(screen.getByRole("button", { name: "go pt-BR" }));
 
     await waitFor(() => expect(screen.getByText("locale: pt-BR")).toBeInTheDocument());
-    expect(screen.getByText("label: Idioma")).toBeInTheDocument();
+    expect(screen.getByText("label: Configurações")).toBeInTheDocument();
     expect(window.localStorage.getItem(LOCALE_STORAGE_KEY)).toBe("pt-BR");
   });
 

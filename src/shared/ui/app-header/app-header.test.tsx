@@ -4,7 +4,7 @@ import { LocaleProvider } from "@/shared/i18n";
 import { ThemeModeProvider } from "@/shared/theme";
 import { AppHeader } from "./app-header";
 
-// ThemeToggle and LocaleSelector (both rendered inside the settings popover)
+// ThemeToggle and LocaleToggle (both rendered inside the settings popover)
 // read from context, so this needs the real providers rather than the plain
 // @test/render wrapper (which only provides LocaleProvider, not ThemeModeProvider).
 function render() {
@@ -29,7 +29,7 @@ describe("AppHeader", () => {
 
     expect(screen.queryByRole("link", { name: "Overview" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Studio" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("combobox", { name: "Language" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /switch language to/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /switch to/i })).not.toBeInTheDocument();
   });
 });

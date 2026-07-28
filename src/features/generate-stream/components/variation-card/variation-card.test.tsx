@@ -39,7 +39,7 @@ describe("VariationCard", () => {
 
     expect(screen.getByText("queued")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Export" })).toBeDisabled();
-    expect(screen.getByRole("button", { name: "Edit inline" })).toBeDisabled();
+    expect(screen.queryByRole("button", { name: "Edit inline" })).not.toBeInTheDocument();
   });
 
   it("shows the streaming partial text and disables Export while streaming", () => {
