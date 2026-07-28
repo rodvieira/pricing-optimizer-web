@@ -3,9 +3,11 @@ import { mockAnalyzeAndGenerate } from "./mock-backend";
 
 /**
  * Regression coverage for a real bug: the header's nav pill + theme toggle
- * had no wrap/shrink handling, overflowing ~96px past a 375px viewport on
- * every page. Asserts the concrete, objective symptom (horizontal overflow)
- * rather than pixel positions, so it stays meaningful across visual tweaks.
+ * (both since removed in favor of a single settings popover trigger, issue
+ * #44 — the header has even less to wrap now) had no wrap/shrink handling,
+ * overflowing ~96px past a 375px viewport on every page. Asserts the
+ * concrete, objective symptom (horizontal overflow) rather than pixel
+ * positions, so it stays meaningful across visual tweaks.
  */
 async function expectNoHorizontalOverflow(page: import("@playwright/test").Page) {
   const { scrollWidth, clientWidth } = await page.evaluate(() => ({

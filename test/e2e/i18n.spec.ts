@@ -9,6 +9,7 @@ test("switches to Portuguese on the landing page with no navigation, and axe sta
   await expect(page.getByRole("heading", { name: /three pricing pages/i })).toBeVisible();
 
   const urlBefore = page.url();
+  await page.getByRole("button", { name: "Settings" }).click();
   await page.getByRole("combobox", { name: "Language" }).click();
   await page.getByRole("option", { name: "Português" }).click();
 
@@ -25,6 +26,7 @@ test("switches to Portuguese on the landing page with no navigation, and axe sta
 
 test("Portuguese selection persists across a reload, on both routes", async ({ page }) => {
   await page.goto("/studio");
+  await page.getByRole("button", { name: "Settings" }).click();
   await page.getByRole("combobox", { name: "Language" }).click();
   await page.getByRole("option", { name: "Português" }).click();
   await expect(page.getByText("Nada gerado ainda")).toBeVisible();
@@ -38,6 +40,7 @@ test("Portuguese selection persists across a reload, on both routes", async ({ p
 
 test("switching back to English updates the stored preference and the UI", async ({ page }) => {
   await page.goto("/");
+  await page.getByRole("button", { name: "Settings" }).click();
   await page.getByRole("combobox", { name: "Language" }).click();
   await page.getByRole("option", { name: "Português" }).click();
   await expect(page.getByRole("combobox", { name: "Idioma" })).toBeVisible();
@@ -52,6 +55,7 @@ test("full Studio flow in Portuguese: validation, generation, and export all tra
 }) => {
   await mockAnalyzeAndGenerate(page);
   await page.goto("/studio");
+  await page.getByRole("button", { name: "Settings" }).click();
   await page.getByRole("combobox", { name: "Language" }).click();
   await page.getByRole("option", { name: "Português" }).click();
 
@@ -80,6 +84,7 @@ test("a mapped backend error renders translated copy, not the raw English title"
 }) => {
   await mockAnalyzeFailure(page);
   await page.goto("/studio");
+  await page.getByRole("button", { name: "Settings" }).click();
   await page.getByRole("combobox", { name: "Language" }).click();
   await page.getByRole("option", { name: "Português" }).click();
 

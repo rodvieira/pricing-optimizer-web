@@ -62,8 +62,8 @@ src/
                       server said no" from "we never reached the server").
     ui/               Shared cross-feature composition (app-header, price-display,
                       card-action-button, ...) plus primitives/ (vendored shadcn/ui-style
-                      Button, Card, Badge, Alert, Skeleton, Dialog, Tabs — flat,
-                      coverage-excluded, re-vendor rather than hand-edit) and two owned
+                      Button, Card, Badge, Alert, Skeleton, Dialog, Select, Popover, Tabs —
+                      flat, coverage-excluded, re-vendor rather than hand-edit) and two owned
                       components with no shadcn/ui equivalent, text/ and code-preview/
                       (folder-per-component, tested like everything else). No business
                       logic outside text/'s variant mapping.
@@ -127,7 +127,8 @@ Next.js (App Router, TypeScript strict), Tailwind CSS v4 with every design token
 type scale, radius, shadow) owned directly in `app/globals.css`'s `@theme inline` block
 (see that file for the exact `@layer`/import order — do not reorder it), shadcn/ui-style
 vendored primitives (`shared/ui/primitives/` — Button, Card, Badge, Alert, Skeleton,
-Dialog, Tabs) over Radix UI (`@radix-ui/react-dialog`, `@radix-ui/react-tabs`) plus two
+Dialog, Select, Popover, Tabs) over Radix UI (`@radix-ui/react-dialog`,
+`@radix-ui/react-select`, `@radix-ui/react-popover`, `@radix-ui/react-tabs`) plus two
 owned components with no shadcn/ui equivalent (`shared/ui/text/`, `shared/ui/code-preview/`),
 motion, react-hook-form + Zod, openapi-fetch + openapi-typescript, TanStack Query v5,
 Vitest + RTL, Playwright + axe-core, Biome (replaces ESLint + Prettier), pnpm, lefthook +
