@@ -21,6 +21,7 @@ export default defineConfig({
         "src/shared/ui/**",
         "src/shared/theme/**",
         "src/shared/i18n/**",
+        "src/shared/analytics/**",
       ],
       exclude: [
         // Generated from openapi.yaml, never hand-edited (see CLAUDE.md).

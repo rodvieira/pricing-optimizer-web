@@ -69,13 +69,28 @@ src/
                       logic outside text/'s variant mapping.
     providers/        Cross-cutting client providers composed in one place
                       (app-providers.tsx: QueryProvider + ThemeModeProvider +
-                      MotionConfig) so app/layout.tsx stays a thin document shell.
+                      LocaleProvider + ConsentProvider + MotionConfig) so
+                      app/layout.tsx stays a thin document shell.
     theme/            Dark/light color-mode integration — moved here, not kept as a
                       features/ slice, because shared/ui/ and shared/providers/
                       both need it, and shared/ importing from features/ would
                       itself be a backward-layer violation (see ADR-0016).
                       theme-mode-provider.tsx, theme-toggle.tsx, theme-init-script.ts.
                       Also has an index.ts barrel.
+    i18n/             English/PT-BR localization (spec 004, issue #34): LocaleProvider
+                      (client-only, no URL routing — see ADR-0019), LocaleSelector, and
+                      the en.json/pt-BR.json message catalogs. Same cross-cutting
+                      reasoning as theme/ — shared/ui/ and every features/views/
+                      layer read translated strings.
+    analytics/        Google Analytics 4 with consent gating (issue #35, ADR-0020):
+                      ConsentProvider (own localStorage-backed consent state,
+                      "unknown"/"granted"/"denied"), ConsentBanner, and
+                      GoogleAnalyticsGate (mounts @next/third-parties' GoogleAnalytics
+                      only once consent is granted AND NEXT_PUBLIC_GA_MEASUREMENT_ID
+                      is set), plus events.ts's three tracking helpers
+                      (trackUrlSubmitted, trackGenerationCompleted,
+                      trackExportTriggered) — each checks stored consent before
+                      calling @next/third-parties' sendGAEvent.
 ```
 
 Layer dependency direction is `app -> views -> features -> entities -> shared`, never
