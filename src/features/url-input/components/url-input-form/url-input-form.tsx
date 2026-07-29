@@ -58,7 +58,7 @@ export function UrlInputForm({ onSubmitUrl, isBusy, initialUrl }: UrlInputFormPr
             errorMessage ? "border-error" : "border-border-strong"
           }`}
         >
-          <span aria-hidden className="pl-3 font-mono text-[13px] text-(--po-text-muted)">
+          <span aria-hidden className="pl-3 font-mono text-sm text-(--po-text-muted)">
             https://
           </span>
           <Controller
@@ -99,14 +99,14 @@ export function UrlInputForm({ onSubmitUrl, isBusy, initialUrl }: UrlInputFormPr
         )}
       </form>
       <div className="flex flex-wrap items-center gap-2">
-        <span className="font-sans text-[12px] text-(--po-text-muted)">{t("tryLabel")}</span>
+        <span className="font-sans text-sm text-(--po-text-muted)">{t("tryLabel")}</span>
         {EXAMPLE_URLS.map((example) => (
           <button
             key={example}
             type="button"
             disabled={isBusy}
             onClick={() => setValue("url", example)}
-            className="rounded-[6px] border border-border bg-surface px-2.5 py-1 font-mono text-[11.5px] text-secondary transition-colors hover:border-border-strong disabled:opacity-60"
+            className="rounded-[6px] border border-border bg-surface px-2.5 py-1 font-mono text-sm text-secondary transition-colors hover:border-border-strong disabled:opacity-60"
           >
             {example}
           </button>

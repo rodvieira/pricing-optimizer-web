@@ -28,7 +28,7 @@ export function AppHeader() {
           </span>
           {/* Hidden on mobile to keep the header to one compact row — a
               version badge isn't essential information at that width. */}
-          <span className="hidden rounded border border-border-strong px-1.5 py-0.5 font-mono text-[10px] tracking-wide text-secondary sm:inline-block">
+          <span className="hidden rounded border border-border-strong px-1.5 py-0.5 font-mono text-sm tracking-wide text-secondary sm:inline-block">
             v1.0
           </span>
         </Link>

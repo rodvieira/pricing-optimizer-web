@@ -36,19 +36,21 @@
   --po-text-muted: light-dark(#8d887c, #a3a3a3);
 
   /*
-   * The compact interactive-control label size (a step off the text-xs/
-   * text-sm scale, per the mock) shared by genuinely-the-same kind of
-   * element: CardActionButton's Export label and PricingTierRow's tier CTA
-   * button. Most other one-off
-   * arbitrary Tailwind px values across this codebase are NOT duplicated
-   * like this — they coincidentally share a number with something unrelated
-   * in a different CSS property (padding vs. font-size, height vs.
-   * tracking) and pinning those into shared tokens too would create false
-   * coupling between values that only look the same by accident. This one
-   * is the one that measurably repeats for the same semantic reason
-   * (checked before adding it).
+   * The compact interactive-control label size, shared by genuinely-the-same
+   * kind of element: CardActionButton's Export label and PricingTierRow's
+   * tier CTA button. Most other one-off arbitrary Tailwind px values across
+   * this codebase are NOT duplicated like this — they coincidentally share a
+   * number with something unrelated in a different CSS property (padding vs.
+   * font-size, height vs. tracking) and pinning those into shared tokens too
+   * would create false coupling between values that only look the same by
+   * accident. This one is the one that measurably repeats for the same
+   * semantic reason (checked before adding it).
+   * Raised from the mock's original 12.5px to the 14px legibility floor (see
+   * --text-xs/--text-sm below, now the same value) — small, thin text was
+   * hard to read, dark theme especially, so the floor applies everywhere,
+   * not just dark.
    */
-  --po-text-compact-control: 12.5px;
+  --po-text-compact-control: 14px;
 
   /*
    * Strategy-identity color (entities/strategy's orange/teal/pink variant),
@@ -133,8 +135,15 @@
   --font-mono: var(--font-family-code);
   --font-heading: var(--font-family-heading);
 
-  --text-xs: 0.625rem;
-  --text-sm: 0.75rem;
+  /*
+   * text-xs/text-sm raised to the same 14px legibility floor as text-base —
+   * both were below 14px (10px/12px) and hard to read, especially in dark
+   * mode. That collapses xs/sm/base to one visual size; the scale still
+   * carries semantic meaning (which token a component reaches for) even
+   * where the resolved size is now shared.
+   */
+  --text-xs: 0.875rem;
+  --text-sm: 0.875rem;
   --text-base: 0.875rem;
   --text-lg: 1.0625rem;
   --text-2xl: 1.5rem;
@@ -192,13 +201,13 @@
   }
 
   :where(h5) {
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     font-weight: var(--font-weight-semibold);
     line-height: 1.6667;
   }
 
   :where(h6) {
-    font-size: 0.625rem;
+    font-size: 0.875rem;
     font-weight: var(--font-weight-semibold);
     line-height: 1.6;
   }
@@ -212,7 +221,7 @@
   }
 
   :where(small) {
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     font-weight: var(--font-weight-normal);
     line-height: 1.6667;
     color: light-dark(#5b574e, #a3a3a3);
