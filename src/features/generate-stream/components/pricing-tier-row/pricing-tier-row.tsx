@@ -63,7 +63,7 @@ export function PricingTierRow({
               label={tier.badge ?? t("mostPopularBadge")}
               style={{
                 fontFamily: "var(--font-family-code)",
-                fontSize: 8.5,
+                fontSize: 14,
                 letterSpacing: "0.08em",
                 fontWeight: 600,
                 padding: "2px 6px",

@@ -32,7 +32,7 @@ export function LocaleToggle() {
       onClick={() => setLocale(next)}
       variant="secondary"
       size="md"
-      className="font-mono text-[11px] tracking-wide"
+      className="font-mono text-[14px] tracking-wide"
     >
       {LOCALE_LABEL[locale]}
     </Button>
