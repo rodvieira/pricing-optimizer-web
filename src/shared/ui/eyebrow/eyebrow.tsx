@@ -35,7 +35,7 @@ export function Eyebrow({
 }: EyebrowProps) {
   return (
     <span
-      className={`inline-flex items-center gap-2 font-mono text-[14px] tracking-widest ${TONE_CLASS[tone]} ${className}`}
+      className={`inline-flex items-center gap-2 font-mono text-sm tracking-widest ${TONE_CLASS[tone]} ${className}`}
       style={style}
     >
       {withRule && <span aria-hidden className="h-px w-6 bg-current" />}

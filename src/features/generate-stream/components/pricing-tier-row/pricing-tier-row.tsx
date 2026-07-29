@@ -61,9 +61,9 @@ export function PricingTierRow({
           {tier.highlighted && (
             <Badge
               label={tier.badge ?? t("mostPopularBadge")}
+              className="whitespace-nowrap"
               style={{
                 fontFamily: "var(--font-family-code)",
-                fontSize: 14,
                 letterSpacing: "0.08em",
                 fontWeight: 600,
                 padding: "2px 6px",

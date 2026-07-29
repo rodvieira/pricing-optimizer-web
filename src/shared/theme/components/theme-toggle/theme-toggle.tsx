@@ -23,7 +23,7 @@ export function ThemeToggle() {
       onClick={() => setMode(next)}
       variant="secondary"
       size="md"
-      className="font-mono text-[14px] tracking-wide"
+      className="font-mono tracking-wide"
     >
       {MODE_LABEL[mode]}
     </Button>
